@@ -104,4 +104,88 @@ Cloud Foundry The Cloud-Native Platform
 - This self-service capability is a shift from procuring resources through a ticketing system involving handoffs  
     and delays between developers and operations.
 
-P.11
+### Platform as a Service
+- IaaS and SaaS are generally well understood concepts.
+- SaaS provides the ability to consume software services on demand without having to procure, license, and install binary packages.
+- A cloud-native platform describes a platform designed to reliably and predictably run and scale on top of potentially unreliable cloudbased infrastructure.
+
+### Containers
+- In recent years, there has been a rapid growth in container-based technologies (such as LXC, Docker, Garden, and Rocket).
+- Containers offer three distinct advantages over traditional VMs:
+    1. Speed and efficiency
+    2. Greater resource consolidation
+    3. Application stack portability
+- they have enabled a new era of application stack portability because  
+    applications and dependencies developed in a container can be easily moved and run in different environments.
+
+### Understanding Containers
+- Containers are best understood as having two elements:
+    - Container images: These package a repeatable runtime environment (encapsulating your application, dependencies, and file system)  
+        in a way that allows for images to be moved between hosts.  
+        Container images have instructions that specify how they should be run but they are not explicitly self-executable,  
+        meaning they cannot run without a container management solution.
+    - A container management solution: This often uses kernel features such as Linux namespaces to run a container image in isolation,  
+        often within a shared kernel space.  
+        Container management solutions arguably have two parts: 
+            - The frontend management component known as a container engine such as Dockerengine or Garden-Linux
+            - The backend container runtime such as runC or runV.
+
+### Agile
+- Agile software development can best be understood by referring to the Agile Software Development Manifesto.
+- This manifesto values:
+    1. Individuals and interactions over processes and tools
+    2. Working software over comprehensive documentation
+    3. Customer collaboration over contract negotiation
+    4. Responding to change over following a plan
+- The Agile methodology is an alternative to traditional sequential development strategies, such as the waterfall approach.
+- Most teams now define epics that are broken down into smaller user stories weighted by a point system.
+- Stories are implemented over sprints with inception planning meetings,  
+    daily standups, and retrospective meetings to showcase demonstrable functions to key stakeholders.
+- Agile deployment allows teams to test out new ideas, quickly identify failings with rapid feedback, learn, and repeat.
+
+### Automate Everything
+- Operational practices around continuous integration (CI) and continuous delivery (CD) have been established  
+    to address the following two significant pain points with software deployment:
+    - Handoffs between different teams cause delays.  
+        Handoffs can occur during several points throughout an application life cycle, starting with procuring hardware,  
+        right through to scaling or updating applications running in production.
+    - Release friction describes the constant need for human interaction as opposed to using automation for releasing software.
+- When establishing deployment pipelines, it is important to understand the progression of continuous integration and continuous delivery.
+
+#### Continuous Integration
+- Continuous integration (CI) is a development practice.  
+    Developers check code into a central shared repository.  
+    Each check-in is verified by automated build and testing, allowing for early detection problems and consistent software releases.
+- Continuous integration has enabled streamlined efficiencies for the story to demo part of the cycle.
+- continuous integration without continuous delivery into production means  
+    you only have a small measure of agility confined by a traditional waterfall process.
+
+#### Continuous Delivery
+- Continuous delivery further extends continuous integration.  
+    The output of every code commit is a release candidate that progresses through an automated deployment pipeline  
+    to a staging environment, unless it is proven defective.
+- If tests pass, the release candidate is deployable in an automated fashion.
+- Companies that operate in this way have a significant advantage and are able to create products that constantly adapt to feedback and user demands.
+
+### DevOps
+- DevOps is a software development and operations culture that has grown in popularity over the recent years.
+- The method acknowledges the interdependence of:
+    - Software development
+    - Quality assurance and performance tuning
+    - IT operations
+    - Administration (SysAdmin, DBAs, etc.)
+    - Project and release management
+- DevOps aims to span the full application life cycle to help organizations rapidly produce  
+    and operationally maintain performant software products and services.
+- Lack of overall ownership and constant handoffs from one department to the next can prolong a task from minutes or hours to days or weeks.
+- Shared toolsets and a common language are established around the single goal of developing and supporting software running in production.
+- Silos are replaced by collaboration with all members under the same leadership.
+- They develop products instead of working on projects. Products, if successful, are long lived.
+
+### Microservices
+- Microservices is a term used to describe a software architectural style that has emerged over the last few years.
+- It describes a modular approach to building software in which complex applications are composed of several small,  
+    independent processes communicating with each other though explicitly defined boundaries using language-agnostic APIs.
+- These smaller services focus on doing a single task very well. They are highly decoupled and can scale independently.
+
+P. 17
