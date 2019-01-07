@@ -167,7 +167,7 @@ func countLines(f *os.File, counts map[string]int) {
     // NOTE: ignoring potential errors from input.Err()
 }
 ```
-- ~~Notice~~ that the call to countLines precedes its declaration. Functions and other package-level entities may be declared in any order.
+- **Notice** that the call to countLines precedes its declaration. Functions and other package-level entities may be declared in any order.
 - A **map** is a reference to the data structure created by make. When a **map** is passed to a function, the function receives a copy of the reference,  
     so any changes the called function makes to the underlying data structure will be visible through the caller’s map reference too.
 
