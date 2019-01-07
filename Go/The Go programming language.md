@@ -14,7 +14,8 @@ More information
 1- Tutorial
 -----------
 
-###1-1 Hello, World
+###Hello, World
+
 ```go
 package main
 
@@ -29,7 +30,7 @@ func main() {
 - The `import` declarations must follow the `package` declaration.
 - For instance, the opening brace `{` of the function must be on the same line as the end of the func declaration, not on a line by itself.
 
-### 1.2 Command-Line Arguments
+###1.2 Command-Line Arguments
 ```go
 // Echo1 prints its command-line arguments.
 package main
