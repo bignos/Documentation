@@ -14,7 +14,7 @@ More information
 1- Tutorial
 -----------
 
-### 1.1 Hello, World
+###1-1 Hello, World
 ```go
 package main
 
