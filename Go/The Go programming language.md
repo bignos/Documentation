@@ -1,8 +1,6 @@
-The Go programming language
-===========================
+# The Go programming language
 
-More information
-----------------
+## More information
 
 - [Go official web site](https://golang.org)
 - [Go official blog](https://blog.golang.org)
@@ -10,11 +8,10 @@ More information
 - [Go Tour](https://tour.golang.org)
 - [Go standard library](https://golang.org/pkg)
 
+## 1. Tutorial
 
-1- Tutorial
------------
+### 1.1 Hello, World
 
-### [1.1] Hello, World
 ```go
 package main
 
@@ -24,12 +21,13 @@ func main() {
         fmt.Println("Hello, World")
 }
 ```
-#### Notes:
+
 - Package `main` is special. It defines a standalone executable program, not a library.
 - The `import` declarations must follow the `package` declaration.
 - For instance, the opening brace `{` of the function must be on the same line as the end of the func declaration, not on a line by itself.
 
-### [1.2] Command-Line Arguments
+### 1.2 Command-Line Arguments
+
 ```go
 // Echo1 prints its command-line arguments.
 package main
@@ -51,6 +49,7 @@ func main() {
 ```
 
 Second version of Echo:
+
 ```go
 // Echo2 prints its command-line arguments.
 package main
@@ -70,7 +69,9 @@ func main() {
     fmt.Println(s)
 }
 ```
+
 Alternative variable declaration:
+
 ```go
 s := ""
 var s string
@@ -79,6 +80,7 @@ var s string = ""
 ```
 
 Third version of Echo:
+
 ```go
 func main() {
     fmt.Println(strings.Join(os.Args[1:], " "))
@@ -86,15 +88,17 @@ func main() {
 ```
 
 Alternative version without formatting:
+
 ```go
 func main() {
     fmt.Println(os.Args[1:])
 }
 ```
 
-### [1.3] Finding Duplicate Lines
+### 1.3 Finding Duplicate Lines
 
 Dup1
+
 ```go
 // Dup1 prints the text of each line that appears more than
 // once in the standard input, preceded by its count.
@@ -125,6 +129,7 @@ func main() {
 ```
 
 Dup2
+
 ```go
 // Dup2 prints the count and text of lines that appear more than once
 // in the input. It reads from stdin or from a list of named files.
@@ -167,11 +172,13 @@ func countLines(f *os.File, counts map[string]int) {
     // NOTE: ignoring potential errors from input.Err()
 }
 ```
+
 - **Notice** that the call to countLines precedes its declaration. Functions and other package-level entities may be declared in any order.
 - A **map** is a reference to the data structure created by make. When a **map** is passed to a function, the function receives a copy of the reference,  
     so any changes the called function makes to the underlying data structure will be visible through the caller’s map reference too.
 
 Dup3
+
 ```go
 package main
 
@@ -203,10 +210,10 @@ func main() {
 }
 ```
 
-
-### [1.4] Animated GIFs
+### 1.4 Animated GIFs
 
 Lissajous
+
 ```go
 // Lissajous generates GIF animations of random Lissajous figures.
 package main
@@ -264,9 +271,10 @@ func lissajous(out io.Writer) {
 
 - The value of a constant must be a number, string, or boolean.
 
-### [1.5] Fetching a URL
+### 1.5 Fetching a URL
 
 Fetch
+
 ```go
 // Fetch prints the content found at a URL.
 package main
@@ -299,9 +307,10 @@ func main() {
 }
 ```
 
-### [1.6] Fetching URLs Concurrently
+### 1.6 Fetching URLs Concurrently
 
 Fetchall
+
 ```go
 // Fetchall fetches URLs in parallel and reports their times and sizes.
 package main
@@ -350,8 +359,108 @@ func fetch(url string, ch chan<- string) {
     ch <- fmt.Sprintf("%.2fs %7d %s", secs, nbytes, url)
 }
 ```
+
 - When one goroutine attempts a send or receive on a channel,  
     it blocks until another goroutine attempts the corresponding receive or send operation,  
    at which point the value is transferred and both goroutines proceed.
 
-### [1.7] A Web Server
+### 1.7 A Web Server
+
+Server1
+
+```go
+// Server1 is a minimal "echo" server.
+package main
+
+import (
+    "fmt"
+    "log"
+    "net/http"
+)
+
+func main() {
+    http.HandleFunc("/", handler) // each request calls handler
+    log.Fatal(http.ListenAndServe("localhost:8000", nil))
+}
+
+// handler echoes the Path component of the requested URL.
+func handler(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintf(w, "URL.Path = %q\n", r.URL.Path)
+}
+
+```
+
+Server2
+
+```go
+// Server2 is a minimal "echo" and counter server.
+package main
+
+import (
+    "fmt"
+    "log"
+    "net/http"
+    "sync"
+)
+
+var mu sync.Mutex
+var count int
+
+func main() {
+    http.HandleFunc("/", handler)
+    http.HandleFunc("/count", counter)
+    log.Fatal(http.ListenAndServe("localhost:8000", nil))
+}
+
+// handler echoes the Path component of the requested URL.
+func handler(w http.ResponseWriter, r *http.Request) {
+    mu.Lock()
+    count++
+    mu.Unlock()
+    fmt.Fprintf(w, "URL.Path = %q\n", r.URL.Path)
+}
+
+// counter echoes the number of calls so far.
+func counter(w http.ResponseWriter, r *http.Request) {
+    mu.Lock()
+    fmt.Fprintf(w, "Count %d\n", count)
+    mu.Unlock()
+}
+```
+
+- A handler pattern that ends with a slash matches any URL that has the pattern as a prefix.  
+    Behind the scenes, the server runs the handler for each incoming request in a separate goroutine  
+    so that it can serve multiple requests simultaneously.
+
+Server2 handler_debug function
+
+```go
+// handler echoes the HTTP request.
+func handlerDebug(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintf(w, "%s %s %s\n", r.Method, r.URL, r.Proto)
+
+    for k, v := range r.Header {
+        fmt.Fprintf(w, "Header[%q] = %q\n", k, v)
+    }
+
+    fmt.Fprintf(w, "Host = %q\n", r.Host)
+    fmt.Fprintf(w, "RemoteAddr = %q\n", r.RemoteAddr)
+
+    if err := r.ParseForm(); err != nil {
+        log.Print(err)
+    }
+
+    for k, v := range r.Form {
+        fmt.Fprintf(w, "Form[%q] = %q\n", k, v)
+    }
+}
+```
+
+Server2 handler_gif function
+
+```go
+// handler animated GIF
+func handlerGif(w http.ResponseWriter, r *http.Request) {
+    lissajous.Lissajous(w)
+}
+```
