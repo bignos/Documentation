@@ -1052,3 +1052,229 @@ fmt.Println(float64(c))                                     // "100"; does not c
 ```
 
 ### 2.6 Packages and Files
+
+- Packages in Go serve the same purposes as libraries or modules in other languages,  
+    supporting modularity, encapsulation, separate compilation, and reuse.
+-  In Go, a simple rule governs which identifiers are exported and which are not:  
+    exported identifiers start with an upper-case letter.
+- Each file starts with a package declaration that defines the package name.
+
+Package example:
+
+- First create a directory 'tempconv'
+- Create 'tempconv/tempconv.go'
+
+```go
+// Package tempconv performs Celsius and Fahrenheit conversions.
+package tempconv
+
+import "fmt"
+
+type Celsius float64
+type Fahrenheit float64
+
+const (
+	AbsoluteZeroC Celsius = -273.15
+	FreezingC     Celsius = 0
+	BoilingC      Celsius = 100
+)
+
+func (c Celsius) String() string {
+	return fmt.Sprintf("%g°C", c)
+}
+
+func (f Fahrenheit) String() string {
+	return fmt.Sprintf("%g°F", f)
+}
+```
+
+- Create 'tempconv/conv.go'
+
+```go
+package tempconv
+
+// CToF converts a Celsius temperature to Fahrenheit.
+func CToF(c Celsius) Fahrenheit {
+	return Fahrenheit(c*9/5 + 32)
+}
+
+// FToC converts a Fahrenheit temperature to Celsius.
+func FToC(f Fahrenheit) Celsius {
+	return Celsius((f - 32) * 5 / 9)
+}
+```
+
+- Package-level names like the types and constants declared in one file of a package  
+    are **visible to all the other files of the package**, as if the source code were all insingle file.
+- Because the package-level const names begin with upper-case letters,  
+    they too are accessible with qualified names like `tempconv.AbsoluteZeroC`
+
+#### 2.6.1 Imports
+
+- Within a Go program, every package is identified by a unique string called its import path.  
+    These are the strings that appear in an import declaration like "gopl.io/ch2/tempconv"
+- An import path denotes a directory containing one or more Go source files that together make up the package.
+
+cf.go
+
+```go
+// Cf converts its numeric argument to Celsius and Fahrenheit.
+package main
+
+import (
+	"./tempconv"
+	"fmt"
+	"os"
+	"strconv"
+)
+
+func main() {
+	for _, arg := range os.Args[1:] {
+		t, err := strconv.ParseFloat(arg, 64)
+
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "cf: %v\n", err)
+			os.Exit(1)
+		}
+
+		f := tempconv.Fahrenheit(t)
+		c := tempconv.Celsius(t)
+		fmt.Printf("%s = %s, %s = %s\n", f, tempconv.FToC(f), c, tempconv.CToF(c))
+	}
+}
+```
+
+- For this example I use a relative path to import `tempconv` package but it's far more clean to use $GOPATH/src/[website]/[author]/[package_name].
+
+#### 2.6.2 Package Initialization
+
+- Within each file, init functions are automatically executed when the program starts, in the order in which they are declared.
+
+```go
+func init() { /* ... */ }
+```
+
+- One package is initialized at a time, in the order of imports in the program, dependencies first,  
+    so a package `p` importing `q` can be sure that `q` is fully initialized before `p`’s initialization begins.
+- The `main` package is the last to be initialized.  
+    In this manner, all packages are fully initialized before the application’s `main` function begins.
+
+Popcount package with init() example
+
+```go
+package popcount
+
+// pc[i] is the population count of i.
+var pc [256]byte
+
+func init() {
+	for i := range pc {
+		pc[i] = pc[i/2] + byte(i&1)
+	}
+}
+
+// PopCount returns the population count (number of set bits) of x.
+func PopCount(x uint64) int {
+	return int(pc[byte(x>>(0*8))] +
+		pc[byte(x>>(1*8))] +
+		pc[byte(x>>(2*8))] +
+		pc[byte(x>>(3*8))] +
+		pc[byte(x>>(4*8))] +
+		pc[byte(x>>(5*8))] +
+		pc[byte(x>>(6*8))] +
+		pc[byte(x>>(7*8))])
+}
+```
+
+- Note that the range loop in init uses only the index;  
+    the value is unnecessary and thus need not be included. The loop could also have been written as
+
+### 2.7 Scope
+
+- The *scope* of a declaration is the part of the source code where a use of the declared name refers to that declaration.
+- The declarations of built-in types, functions, and constants like `int`, `len`, and `true` are in **the universe block**  
+    and can be referred to throughout the entire program.
+- Declarations outside any function, that is, at **package level**, can be referred to from any file in the same package.
+
+Shadow variable example:
+
+```go
+func f() {}
+
+var g = "g"
+
+func main() {
+    f := "f"
+    fmt.Println(f) // "f"; local var f shadows package-level func f
+    fmt.Println(g) // "g"; package-level var
+    fmt.Println(h) // compile error: undefined: h
+}
+```
+
+Scope rules example (Ugly Style)
+
+```go
+func main() {
+    x := "hello!"
+    for i := 0; i < len(x); i++ {
+        x := x[i]
+        if x != '!' {
+            x := x + 'A' - 'a'
+            fmt.Printf("%c", x) // "HELLO" (one letter per iteration)
+        }
+    }
+}
+```
+
+- Like `for` loops, `if` statements and `switch` statements also create implicit blocks in addition to their body blocks.
+
+```go
+if x := f(); x == 0 {
+    fmt.Println(x)
+} else if y := g(x); x == y {
+    fmt.Println(x, y)
+} else {
+    fmt.Println(x, y)
+}
+
+fmt.Println(x, y) // compile error: x and y are not visible here
+```
+
+- Beware of this:
+
+```go
+if f, err := os.Open(fname); err != nil { // compile error: unused: f
+    return err
+}
+
+f.ReadByte()    // compile error: undefined f
+f.Close()       // compile error: undefined f
+```
+
+```go
+var cwd string
+
+if
+
+func init() {
+    cwd, err := os.Getwd() // compile error: unused: cwd
+    if err != nil {
+        log.Fatalf("os.Getwd failed: %v", err)
+    }
+}
+```
+
+Solution: Declare `err` before
+
+```go
+var cwd string
+
+func init() {
+    var err error
+	if cwd, err = os.Getwd(); err != nil {
+		log.Fatal("os.Getwd failed: %v", err)
+	}
+}
+```
+
+## 3. Basic Data Types
