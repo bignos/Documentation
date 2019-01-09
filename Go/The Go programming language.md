@@ -464,3 +464,591 @@ func handlerGif(w http.ResponseWriter, r *http.Request) {
     lissajous.Lissajous(w)
 }
 ```
+
+### 1.8 Loose Ends
+
+Switch example:
+
+```go
+switch coinflip() {
+    case "heads":
+        heads++
+    case "tails":
+        tails++
+    default:
+        fmt.Println("landed on edge!")
+}
+```
+
+- Cases do not fall through from one to the next as in C-like languages  
+    (though there is a rarely used `fallthrough` statement that overrides this behavior).
+
+Tagless switch example:
+
+```go
+func Signum(x int) int {
+    switch {
+        case x > 0:
+            return +1
+        default:
+            return 0
+        case x < 0:
+            return -1
+    }
+}
+```
+
+Type declaration example:
+
+```go
+type Point struct {
+    X, Y int
+}
+
+var p Point
+```
+
+## 2. Program Structure
+
+### 2.1 Names
+
+Go as **25** reserved keywords: 
+
+```go
+break
+case
+chan
+const
+continue
+default
+defer
+else
+fallthrough
+for
+func
+go
+goto
+if
+import
+interface
+map
+package
+range
+return
+select
+struct
+switch
+type
+var
+```
+
+Go predeclared names:
+
+```go
+// Constants
+true
+false
+iota
+nil
+
+// Types
+int
+int8
+int16
+int32
+int64
+
+uint
+uint8
+uint16
+uint32
+uint64
+uintptr
+
+float32
+float64
+
+complex128
+complex64
+
+bool
+
+byte
+
+rune
+
+string
+
+error
+
+// Functions
+append
+cap
+close
+complex
+copy
+delete
+imag
+len
+make
+new
+panic
+real
+recover
+```
+
+- These names are not reserved, so you may use them in declarations.  
+    We’ll see a handful of places where redeclaring one of them makes sense, but beware of the potential for confusion.
+
+- If an entity is declared within a function, it is local to that function.  
+    If declared outside of a function, however, it is visible in all files of the package to which it belongs.
+
+- The case of the first letter of a name determines its visibility across package boundaries.  
+    If the name **begins with an upper-case letter**, it is exported,  
+    which means that it is visible and accessible outside of its own package and may be referred to by other parts of the program,  
+    as with Printf in the fmt package. **Package names themselves are always in lower case.**
+
+- Go programmers use **camel case** when forming names by combining words
+
+### 2.2 Declarations
+
+- There are four major kind of declarations:
+
+```go
+var
+const
+type
+func
+```
+
+- A Go program is stored in one or more files whose names end in `.go`.  
+    Each file begins with a `package` declaration that says what package the file is part of.  
+    The `package` declaration is followed by any `import` declarations,  
+    and then a sequence of package-level declarations of types, variables, constants, and functions, in any order.
+
+Example 'boiling' (src/ch2/boiling.go):
+
+```go
+// Boiling prints the boiling point of water.
+package main
+
+import "fmt"
+
+const boilingF = 212.0
+
+func main() {
+    var f = boilingF
+    var c = (f - 32) * 5 / 9
+    fmt.Printf("boiling point = %g°F or %g°C\n", f, c)
+    // Output:
+    // boiling point = 212°F or 100°C
+}
+```
+
+Example 'ftoc' (src/ch2/ftoc.go):  
+- The function fToC below encapsulates the temperature conversion logic so that it is defined only once but may be used from multiple places.  
+    Here main calls it twice, using the values of two different local constants:
+
+```go
+// Ftoc prints two Fahrenheit-to-Celsius conversions.
+package main
+
+import "fmt"
+
+func main() {
+    const freezingF, boilingF = 32.0, 212.0
+    fmt.Printf("%g°F = %g°C\n", freezingF,
+    fToC(freezingF)) // "32°F = 0°C"
+    fmt.Printf("%g°F = %g°C\n", boilingF,
+    fToC(boilingF)) // "212°F = 100°C"
+}
+
+func fToC(f float64) float64 {
+    return (f - 32) * 5 / 9
+}
+```
+
+### 2.3 Variables
+
+- Variables declaration: `var name type = expression`
+- Either the type or the = expression part may be omitted, but not both. If the type is omitted, it is determined by the initializer expression.  
+    If the `expression` is omitted,  
+    the initial value is the *zero value* for the type, which is `0` for numbers, `false` for booleans, "" for strings,  
+    and `nil` for interfaces and reference types (slice, pointer, map, channel, function).  
+    The zero value of an aggregate type like an array or a struct has the zero value of all of its elements or fields.
+
+One line multiple variable declaration example:
+
+```go
+var i, j, k int                     // int, int, int
+var b, f, s = true, 2.3, "four"     // bool, float64, string
+```
+
+A set of variables can also be initialized by calling a function that retrurns multiple values:
+
+```go
+var f, err = os.Open(name)          // os.Open returns a file and an error
+```
+
+#### 2.3.1 Short Variable Declarations
+
+Short variable declaration example:
+
+```go
+anim := gif.GIF{LoopCount: nframes}
+freq := rand.Float64() * 3.0
+t := 0.0
+```
+
+- Because of their brevity and flexibility, short variable declarations are used to declare and initialize the majority of local variables.  
+    A `var` declaration tends to be reserved for local variables that need an explicit type that differs from that of the initializer expression,  
+    or for when the variable will be assigned a value later and its initial value is unimportant.
+
+Mix of variable declaration example:
+
+```go
+i := 100
+var boiling float64 = 100
+var names []string
+var err error
+var p Point
+```
+
+- declarations with multiple initializer expressions should be used only when they help readability,  
+    such as for short and natural groupings like the initialization part of a `for` loop.
+
+- Keep in mind that := is a declaration, whereas = is an assignment.  
+    A multi-variable declaration should not be confused with a tuple assignment,  
+    in which each variable on the left-hand side is assigned the corresponding value from the right-hand side:
+
+```go
+i, j = j, i             // swap values of i and j
+```
+
+- A short variable declaration must declare at least one new variable, however, so this code will not compile:
+
+```go
+f, err := os.Open(infile)
+// ...
+f, err := os.Create(outfile)        // compile error: no new variables
+```
+
+#### 2.3.2 Pointers
+
+- A *pointer* value is the *address* of a variable.  
+    A pointer is thus the location at which a value is stored.  
+    Not every value has an address, but every variable does.  
+    With a pointer, we can read or update the value of a variable *indirectly*,  
+    without using or even knowing the name of the variable, if indeed it has a name.
+
+Pointer declaration example:
+
+```go
+x := 1
+p := &x                 // p, of type *int, points to x
+
+fmt.Println(*p)         // "1"
+
+*p = 2
+
+fmt.Println(x)          // "2"
+
+```
+
+- Variables are sometimes described as *addressable* values.  
+    Expressions that denote variables are the only expressions to which the *address-of* operator `&` may be applied.  
+    The zero value for a pointer of any type is `nil`.  
+    The test `p != nil` is true if `p` points to a variable.  
+    Pointers are comparable; two pointers are equal if and only if they point to the same variable or both are nil.
+
+Pointer comparaison example:
+
+```go
+var x, y int
+
+fmt.Println(&x == &x, &x == &y, &x == nil)      // "true false false"
+```
+
+- It is perfectly safe for a function to return the address of a local variable.  
+    For instance, in the code below, the local variable `v` created by this particular call to `f` will remain in existence  
+    even after the call has returned, and the pointer `p` will still refer to it:
+
+```go
+var p = f()
+
+func f() *int {
+    v := 1
+    return &v
+}
+```
+
+- Each call of `f` returns a distinct value
+
+```go
+fmt.Println(f() == f())                         // "false"
+```
+
+- Because a pointer contains the address of a variable,  
+    passing a pointer argument to a function makes it possible for the function to update the variable that was indirectly passed.  
+    For example, this function increments the variable that its argument points to and  
+    returns the new value of the variable so it may be used in an expression:
+
+```go
+func incr(p *int) int {
+    *p++                                        // increment what p points to; does not change p
+    return *p
+}
+
+v := 1
+incr(&v)                                        // side effect: v is now 2
+
+fmt.Println(incr(&v))                           // "3" (and v is 3)
+```
+
+Echo4 code sample:
+
+```go
+// Echo4 prints its command-line arguments.
+package main
+
+import (
+    "flag"
+    "fmt"
+    "strings"
+)
+
+var n = flag.Bool("n", false, "omit trailing newline")
+var sep = flag.String("s", " ", "separator")
+
+func main() {
+    flag.Parse()
+    fmt.Print(strings.Join(flag.Args(), *sep))
+    if !*n {
+        fmt.Println()
+    }
+}
+```
+
+#### 2.3.3 The new Function
+
+- Another way to create a variable is to use the built-in function `new`.  
+    The expression `new(T)` creates an unnamed variable of type T, initializes it to the zero value of T,  
+    and returns its address, which is a value of type `*T.`
+
+```go
+p := new(int)                                   // p, of type *int, points to an unnamed int variable
+fmt.Println(p)                                  // "0"
+*p = 2                                          // sets the unnamed int to 2
+fmt.Println(p)                                  // "2"
+```
+
+- Thus `new` is only a syntactic convenience, not a fundamental notion: the two newInt functions below have identical behaviors.
+
+```go
+func newInt() *int {
+    return new(int)
+}
+
+func newInt() *int {
+    var dummy int
+    return &dummy
+}
+```
+
+- Each call to new returns a distinct variable with a unique address:
+
+```go
+p := new(int)
+q := new(int)
+fmt.Println(p == q)                             // "false"
+```
+
+- The `new` function is relatively rarely used because the most common unnamed variables are of struct types,  
+    for which the struct literal syntax is more flexible.
+
+- Since `new` is a predeclared function, not a keyword, it’s possible to redefine the name for something else within a function, for example:
+
+```go
+func delta(old, new int) int {
+    return new - old
+}
+```
+
+- Of course, within `delta`, the built-in new function is unavailable.
+
+#### 2.3.4 Lifetime of Variables
+
+```go
+var global *int
+
+func f() {
+    var x int
+    x = 1
+    global = &x
+}
+
+func g() {
+    y := new(int)
+    *y = 1
+}
+```
+
+- Here, `x` must be heap-allocated because it is still reachable from the variable `global` after `f` has returned,  
+    despite being declared as a local variable; we say `x` *escapes from* `f`.  
+    Conversely, when `g` returns, the variable `*y` becomes unreachable and can be recycled.  
+    Since `*y` does not escape from `g`, it’s safe for the compiler to allocate `*y` on the stack, even though it was allocated with `new`.
+- It’s good to keep in mind during performance optimization, since each variable that escapes requires an **extra memory allocation**.
+
+- For example, keeping unnecessary pointers to short-lived objects within long-lived objects,  
+    especially global variables, will prevent the garbage collector from reclaiming the short-lived objects.
+
+### 2.4 Assignments
+
+- The value held by a variable is updated by an assignment statement,  
+    which in its simplest form has a variable on the left of the = sign and an expression on the right.
+
+```go
+x = 1                                       // named variable
+*p = true                                   // indirect variable
+person.name = "bob"                         // Struct field
+count[x] = count[x] * scale                 // array or slice or map element
+```
+
+Assignation with assignment operator example:
+
+```go
+count[x] *= scale
+v := 1
+v++                                         // same as v = v + 1; v becomes 2
+v--                                         // same as v = v - 1; v becomes 1 again
+```
+
+#### 2.4.1 Tuple Assignment
+
+- Another form of assignment, known as tuple assignment, allows several variables to be assigned at once.  
+    All of the right-hand side expressions are evaluated before any of the variables are updated,  
+    making this form most useful when some of the variables appear on both sides of the assignment, as happens,  
+    for example, when swapping the values of two variables:
+
+```go
+x, y = y, x
+a[i], a[j] = a[j], a[i]
+i, j, k = 2, 3, 5
+
+func gcd(x, y int) int {
+    for y != 0 {
+        x, y = y, x%y
+    }
+    return x
+}
+
+func fib(n int) int {
+    x, y := 0, 1
+    for i := 0; i < n; i++ {
+        x, y = y, x+y
+    }
+    return x
+}
+
+f, err = os.Open("foo.txt")                 // function call returns two values
+
+v, ok = m[key]                              // map lookup
+v, ok = x.(T)                               // type assertion
+v, ok = <-ch                                // channel receive
+
+_, err = io.Copy(dst, src)                  // discard byte count
+_, ok  = x.(T)                              // check type but discard result
+```
+
+#### 2.4.2 Assignability
+
+```go
+medals := []string{"gold", "silver", "bronze"}
+
+// Equivalent
+medals[0] = "gold"
+medals[1] = "silver"
+medals[2] = "bronze"
+```
+
+- The elements of maps and channels, though not ordinary variables, are also subject to similar implicit assignments.
+- Whether two values may be compared with == and != is related to assignability:  
+    in any comparison, the first operand must be assignable to the type of the second operand, or vice versa.  
+    As with assignability, we’ll explain the relevant cases for comparability when we present each new type.
+
+### 2.5 Type Declarations
+
+- Type declarations format: `type name underlying-type`
+- Type declarations most often appear at package level, where the named type is visible throughout the package,  
+    and if the name is exported (it starts with an upper-case letter), it’s accessible from other packages as well.
+
+```go
+// Package tempconv performs Celsius and Fahrenheit temperature computations.
+package tempconv
+
+import "fmt"
+
+type Celsius float64
+type Fahrenheit float64
+
+const (
+    AbsoluteZeroC Celsius = -273.15
+    FreezingC Celsius = 0
+    BoilingC Celsius = 100
+)
+
+func CToF(c Celsius) Fahrenheit { 
+    return Fahrenheit(c*9/5 + 32)
+}
+
+func FToC(f Fahrenheit) Celsius { 
+    return Celsius((f - 32) * 5 / 9) 
+}
+```
+- For every type `T`, there is a corresponding conversion operation `T(x)` that converts the value `x` to type `T`.  
+    A conversion from one type to another is allowed if both have the same underlying type,  
+    or if both are unnamed pointer types that point to variables of the same underlying type;  
+    these conversions change the type but not the representation of the value.
+- The underlying type of a named type determines its structure and representation,  
+    and also the set of intrinsic operations it supports, which are the same as if the underlying type had been used directly.
+
+```go
+fmt.Printf("%g\n", BoilingC - FreezingC)                    // "100" °C
+
+boilingF := CToF(BoilingC)
+fmt.Printf("%g\n", boilingF - CToF(FreezingC))              // "180" °F
+fmt.Printf("%g\n", boilingF - FreezingC)                    // Compile error: type mismatch
+```
+
+Two values of different named types cannot be compared directly:
+
+```go
+var c Celsius
+var f Fahrenheit
+
+fmt.Println(c == 0)                                         // "true"
+fmt.Println(f >= 0)                                         // "true"
+fmt.Println(c == f)                                         // Compile error: type mismatch
+fmt.Println(c == Celsius(f))                                // "true"
+```
+
+- A named type may provide notational convenience if it helps avoid writing out complex types over and over again.  
+    The advantage is small when the underlying type is simple like `float64`, but big for complicated types.
+
+Function for Celsius convertion to string
+
+```go
+func (c Celsius) String() string {
+    fmt.Sprintf("%g°C", c)
+}
+
+c := FToC(212.0)
+fmt.Println(c.String())                                     // "100°C"
+fmt.Printf("%v\n", c)                                       // "100°C"; no need to call String explicitly
+fmt.Printf("%s\n", c)                                       // "100°C"
+fmt.Println(c)                                              // "100°C"
+fmt.Printf("%g\n", c)                                       // "100"; does not call String
+fmt.Println(float64(c))                                     // "100"; does not call String
+```
+
+### 2.6 Packages and Files
