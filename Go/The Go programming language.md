@@ -1364,3 +1364,179 @@ fmt.Println(i, i+1, i*i) // "127 -128 1"
 - The operator `^` is bitwise exclusive OR (XOR) when used as a binary operator,  
     but when used as a unary prefix operator it is bitwise negation or complement;  
     that is, it returns a value with each bit in its operand inverted.
+
+```go
+var x uint8 = 1<<1 | 1<<5
+var y uint8 = 1<<1 | 1<<2
+
+fmt.Printf("%08b\n",x)      // "00100010", the set {1,5}
+fmt.Printf("%08b\n",y)      // "00000110", the set {1,2}
+
+fmt.Printf("%08b\n", x&y)   // "00000010", the intersection {1}
+fmt.Printf("%08b\n", x|y)   // "00100110", the union {1, 2, 5}
+fmt.Printf("%08b\n", x^y)   // "00100100", the symmetric difference {2, 5}
+fmt.Printf("%08b\n", x&^y)  // "00100000", the difference {5}
+
+for i := uint(0); i < 8; i++ {
+    if x & (1<<i) != 0 {    // membership test
+        fmt.Println(i)      // "1", "5"
+    }
+}
+
+fmt.Printf("%08b\n", x<<1) // "01000100", the set {2, 6}
+fmt.Printf("%08b\n", x>>1) // "00010001", the set {0, 4}
+```
+
+- In the shift operations `x << n` and `x >> n`,  
+    the `n` operand determines the number of bit positions to shift and must be unsigned;  
+    the `x` operand may be unsigned or signed
+
+- Arithmetically, a left shift `x<<n` is equivalent to *multiplication* by 2^n  
+    and a right shift `x>>n` is equivalent to the floor of *division* by 2^n .
+
+- It is important to use **unsigned** arithmetic when you’re treating an integer as bit pattern.
+
+- You should avoid conversions in which the operand is out of range for the target type,  
+    because the behavior depends on the implementation:
+
+```go
+f := 1e100      // a float64
+i := int(f)     // result is implementation-dependent
+```
+
+- When printing numbers using the `fmt` package,  
+    we can control the radix and format with the %d, %o, and %x verbs,  
+    as shown in this example:
+
+```go
+o := 0666
+fmt.Printf("%d %[1]o %#[1]o\n", o) // "438 666 0666"
+
+x := int64(0xdeadbeef)
+fmt.Printf("%d %[1]x %#[1]x %#[1]X\n", x) // Output: 3735928559 deadbeef 0xdeadbeef 0XDEADBEEF
+```
+
+- Note the use of two `fmt` tricks.  
+    Usually a `Printf̀` format string containing multiple `%` verbs would require the same number of extra operands,  
+    but the `[1]` “adverbs” after `%` tell `Printf` to use the first operand over and over again.
+-  Second, the `#` adverb for `%o` or `%x` or `%X` tells Printf to emit a `0` or `0x` or `0X` prefix respectively.
+
+- Rune literals are written as a character within single quotes.
+
+Rune example:
+
+```go
+ascii   := 'a'
+unicode := '€'
+newline := '\n'
+
+fmt.Printf("%d %[1]c %[1]q\n", ascii)   // "97 a 'a'"
+fmt.Printf("%d %[1]c %[1]q\n", unicode) // "22269 € '€'"
+fmt.Printf("%d %[1]q\n", newline)       // "10 '\n'"
+```
+
+### 3.2 Floating-Point Numbers
+
+- A `float32` provides approximately **6** decimal digits of precision,  
+    whereas a `float64` provides about **15** digits; `float64` should be preferred for most purposes  
+    because `float32` computations accumulate error rapidly unless one is quite careful,  
+    and the smallest positive integer that cannot be exactly represented as a float32 is not large:
+
+```go
+var f float32 = 16777216  // 1 << 24
+fmt.Println(f == f+1)     // "true"!
+```
+
+- Digits may be omitted before the decimal point `.707` or after it `1.`.
+- Very small or very large numbers are better written in scientific notation, 
+    with the letter `e` or `E` preceding the decimal exponent:
+
+```go
+const Avogadro = 6.02214129e23
+const Planck = 6.62606957e-34
+```
+
+- Floating-point values are *conveniently* printed with Printf’s `%g` verb,  
+    which chooses the most compact representation that has adequate precision,  
+    but for tables of data, the `%e` (exponent) or `%f` (no exponent) forms may be more appropriate.  
+    All 3 verbs allow field width and numeric precision to be controlled.
+
+```go
+for x := 0; x < 8; x++ {
+    fmt.Printf("x = %d exp = %8.3f\n", x, math.Exp(float64(x)))
+}
+```
+
+- The code above prints the powers of e with **3** decimal digits of precision, aligned in an **8**-character field:
+
+```
+x = 0 exp =    1.000
+x = 1 exp =    2.718
+x = 2 exp =    7.389
+x = 3 exp =   20.086
+x = 4 exp =   54.598
+x = 5 exp =  148.413
+x = 6 exp =  403.429
+x = 7 exp = 1096.633
+```
+
+- The next program illustrates floating-point graphics computation.  
+    It plots a function of two variables z = f(x, y) as a wire mesh 3-D surface,  
+    using Scalable Vector Graphics (SVG), a standard XML notation for line drawings.
+
+```go
+// Surface computes an SVG rendering of a 3-D surface function.
+package main
+
+import (
+	"fmt"
+	"math"
+)
+
+const (
+	width, height = 1200, 640           // canvas size in pixels
+	cells         = 100                 // number of grid cells
+	xyrange       = 30.0                // axis ranges (-xyrange..+xyrange)
+	xyscale       = width / 2 / xyrange // pixels per x or y unit
+	zscale        = height * 0.4        // pixels per z unit
+	angle         = math.Pi / 6         // angle of x, y axes (=30°)
+)
+
+var sin30, cos30 = math.Sin(angle), math.Cos(angle) // sin(30°), cos(30°)
+
+func main() {
+	fmt.Printf("<svg xmlns='http://www.w3.org/2000/svg' "+
+		"style='stroke: grey; fill: white; stroke- width: 0.7' "+
+		"width='%d' height='%d'>",
+		width, height)
+
+	for i := 0; i < cells; i++ {
+		for j := 0; j < cells; j++ {
+			ax, ay := corner(i+1, j)
+			bx, by := corner(i, j)
+			cx, cy := corner(i, j+1)
+			dx, dy := corner(i+1, j+1)
+			fmt.Printf("<polygon points='%g,%g %g,%g %g,%g %g,%g'/>\n", ax, ay, bx, by, cx, cy, dx, dy)
+		}
+	}
+
+	fmt.Println("</svg>")
+}
+
+func corner(i, j int) (float64, float64) { // Find point (x,y) at corner of cell (i,j).
+	x := xyrange * (float64(i)/cells - 0.5)
+	y := xyrange * (float64(j)/cells - 0.5)
+	z := f(x, y)                        // Compute surface height z.
+	sx := width/2 + (x-y)*cos30*xyscale // Project (x,y,z) isometrically onto 2-D SVG canvas (sx,sy).
+	sy := height/2 + (x+y)*sin30*xyscale - z*zscale
+	return sx, sy
+}
+
+func f(x, y float64) float64 {
+	r := math.Hypot(x, y) // distance from (0,0)
+	return math.Sin(r) / r
+}
+```
+
+### 3.3 Complex Numbers
+
