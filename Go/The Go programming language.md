@@ -1278,3 +1278,89 @@ func init() {
 ```
 
 ## 3. Basic Data Types
+
+- Go’s types fall into four categories: 
+    - `basic types`: 
+        - numbers
+        - strings
+        - booleans
+    - `aggregate types`:
+        - arrays
+        - structs
+    - `reference types`:
+        - pointers
+        - slices
+        - maps
+        - functions
+        - channels
+    - `interface types`
+
+### 3.1 Integers
+
+- Go integer types:
+    - Signed:
+        - int8
+        - int16
+        - int32
+        - int64
+    - Unsigned:
+        - uint8
+        - uint16
+        - uint32
+        - uint64
+
+- The type `rune` is a synonym for `int32` and conventionally indicates that a value is a Unicode code point.  
+    The two names may be used interchangeably. Similarly, the type `byte` is a synonym for `uint8`,  
+    and emphasizes that the value is a piece of raw data rather than a small numeric quantity.
+
+- Finally, there is an unsigned integer type `uintptr`,  
+    whose width is not specified but is sufficient to hold all the bits of a pointer value.  
+    The `uintptr` type is used only for low-level programming, such as at the boundary of a Go program with a C library or an operating system.
+
+- An explicit conversion is required to use an `int` value where an `int32` is needed, and vice versa.
+- For instance, the range of `int8` is −128 to 127, whereas the range of `uint8` is 0 to 255.
+
+- Go binary operators:
+    - `*` `/` `%` `<<` `>>` `&` `&^`
+    - `+` `-` `|` `^`
+    - `==` `!=` `<` `<=` `>` `>=`
+    - `&&`
+    - `||`
+
+- If the result of an arithmetic operation, whether signed or unsigned, has more bits than can be represented in the result type,  
+    it is said to *overflow*.  
+    The high-order bits that do not fit are silently discarded.  
+    If the original number is a signed type, the result could be negative if the leftmost bit is a 1, as in the `int8`  
+    example here:
+
+```go
+var u uint8 = 255
+fmt.Println(u, u+1, u*u) // "255 0 1"
+
+var i int8 = 127
+fmt.Println(i, i+1, i*i) // "127 -128 1"
+```
+
+- Go comparison operators:
+    - `==`          equal to
+    - `!=`          not equal to
+    - `<`           less than
+    - `<=`          less than or equal to
+    - `>`           greater than
+    - `>=`          greater than or equal to
+
+- Go unary operators:
+    - `+`           unary positive(no effect)
+    - `-`           unary negation
+
+- Go bitwise binary operators:
+    - `&`           bitwise AND
+    - `|`           bitwise OR
+    - `^`           bitwise XOR
+    - `&^`          bit clear(AND NOT)
+    - `<<`          left shift
+    - `>>`          right shift
+
+- The operator `^` is bitwise exclusive OR (XOR) when used as a binary operator,  
+    but when used as a unary prefix operator it is bitwise negation or complement;  
+    that is, it returns a value with each bit in its operand inverted.
