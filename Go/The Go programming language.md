@@ -1707,7 +1707,7 @@ fmt.Println(t)          // "left foot"
     - `\"`          double quote (only within "..." literals)
     - `\\`          backslash
 
-- A raw string literal is written `...`, using backquotes instead of double quotes.
+- A raw string literal is written \`...\`, using backquotes instead of double quotes.
 - Raw string literals are a convenient way to write regular expressions,  
     which tend to have lots of backslashes.  
     They are also useful for HTML templates, JSON literals, command usage messages,  
