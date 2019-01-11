@@ -1540,3 +1540,269 @@ func f(x, y float64) float64 {
 
 ### 3.3 Complex Numbers
 
+- Go provides two sizes of complex numbers, `complex64` and `complex128`,  
+    whose components are `float32` and `float64` respectively.  
+    The built-in function `complex` creates a complex number from its real and imaginary components,  
+    and the built-in `real` and `imag` functions extract those components:
+
+```go
+var x complex128 = complex(1, 2)    // 1+2i
+var y complex128 = complex(3, 4)    // 3+4i
+
+fmt.Println(x*y)                    // "(-5+10i)"
+fmt.Println(real(x*y))              // "-5"
+fmt.Println(imag(x*y))              // "10"
+```
+
+- If a floating-point literal or decimal integer literal is immediately followed by `i`, such as `3.141592i` or `2i`,  
+    it becomes an imaginary literal, denoting a complex number with a zero real component:
+
+```go
+fmt.Println(1i * 1i) // "(-1+0i)", i² = -1
+```
+
+- The declarations of `x` and `y` above can be simplified:
+
+```go
+x := 1 + 2i
+y := 3 + 4i
+```
+
+- Complex numbers may be compared for equality with == and !=.  
+    Two complex numbers are equal if their real parts are equal and their imaginary parts are equal.
+
+- The `math/cmplx` package provides library functions for working with complex numbers,  
+    such as the complex square root and exponentiation functions.
+
+```go
+fmt.Println(cmplx.Sqrt(-1)) // "(0+1i)"
+```
+
+- The following program uses complex128 arithmetic to generate a Mandelbrot set.
+
+```go
+// Mandelbrot emits a PNG image of the Mandelbrot fractal.
+package main
+
+import (
+	"image"
+	"image/color"
+	"image/png"
+	"math/cmplx"
+	"os"
+)
+
+func main() {
+	const (
+		xmin, ymin, xmax, ymax = -2, -2, +2, +2
+		width, height          = 1024, 1024
+	)
+
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+
+	for py := 0; py < height; py++ {
+		y := float64(py)/height*(ymax-ymin) + ymin
+		for px := 0; px < width; px++ {
+			x := float64(px)/width*(xmax-xmin) + xmin
+			z := complex(x, y) // Image point (px, py) represents complex value z.
+			img.Set(px, py, mandelbrot(z))
+		}
+	}
+
+	png.Encode(os.Stdout, img) // NOTE: ignoring errors
+}
+
+func mandelbrot(z complex128) color.Color {
+	const iterations = 200
+	const contrast = 15
+
+	var v complex128
+
+	for n := uint8(0); n < iterations; n++ {
+		v = v*v + z
+		if cmplx.Abs(v) > 2 {
+			return color.Gray{255 - contrast*n}
+		}
+	}
+	return color.Black
+}
+```
+
+### 3.4 Booleans
+
+- A value of type `bool`, or *boolean*, has only two possible values, `true` and `false`.
+- simplify redundant boolean expressions like `x==true` to `x`.
+- There is no implicit conversion from a boolean value to a numeric value like `0` or `1`, or vice versa.
+- Conversion function example:
+
+```go
+// btoi returns 1 if b is true and 0 if false.
+func btoi(b bool) int {
+    if b {
+        return 1
+    }
+    return 0
+}
+
+// itob reports whether i is non-zero.
+func itob(i int) bool {
+    return i != 0
+}
+```
+
+### 3.5 Strings
+
+- A string is an immutable sequence of bytes.
+- The built-in `len` function returns the number of bytes (not `runes`) in a string,  
+    and the index operation `s[i]` retrieves the i-th byte of string `s`, where `0 ≤ i < len(s)`.
+
+```go
+s := "hello, world"
+fmt.Println(len(s))     // "12"
+fmt.Println(s[0], s[7]) // "104 119" ('h' and 'w')
+fmt.Println(s[0:5])     // "hello"
+
+// Simplified version
+fmt.Println(s[:5])      // "hello"
+fmt.Println(s[7:])      // "world"
+fmt.Println(s[:])       // "hello, world"
+
+// The + operator makes a new string by concatenating 2 strings
+fmt.Println("goobye" + s[5:])   // "goodbye, world"
+```
+
+- Strings may be compared with comparison operators like `==` and `<`;  
+    the comparison is done byte by byte, so the result is the natural lexicographic ordering.
+- String values are immutable: the byte sequence contained in a string value can never be changed,  
+    though of course we can assign a new value to a string variable. To append one string to another, for instance, we can write
+
+```go
+s := "left foot"
+t := s
+s += ", right foot"
+
+fmt.Println(s)          // "left foot, right foot"
+fmt.Println(t)          // "left foot"
+```
+
+- This does not modify the string that `s` originally held  
+    but causes `s` to hold the new string formed by the `+=` statement;  
+    meanwhile, `t` still contains the old string.
+
+#### 3.5.1 Strings Literals
+
+- A string value can be written as a *string literal*, a sequence of bytes enclosed in **double quotes**
+- Because Go source files are always encoded in UTF-8 and  
+    Go text strings are conventionally interpreted as UTF-8, we can include Unicode code points in string literals.
+
+- ASCII escape sequences:
+    - `\a`          "alert" or bell
+    - `\b`          backspace
+    - `\f`          form feed
+    - `\n`          newline
+    - `\r`          carriage return
+    - `\t`          tab
+    - `\v`          vertical tab
+    - `\'`          single quote (only in the rune literal '\'')
+    - `\"`          double quote (only within "..." literals)
+    - `\\`          backslash
+
+- A raw string literal is written `...`, using backquotes instead of double quotes.
+- Raw string literals are a convenient way to write regular expressions,  
+    which tend to have lots of backslashes.  
+    They are also useful for HTML templates, JSON literals, command usage messages,  
+    and the like, which often extend over multiple lines.
+```go
+const GoUsage = `Go is a tool for managing Go source code.
+Usage:
+go command [arguments]
+`
+```
+
+#### 3.5.2 Unicode
+
+- A standard number called a *Unicode code point* or, in Go terminology, a `rune`.
+- The natural data type to hold a single `rune` is `int32`, and that’s what Go uses;  
+    it has the synonym `rune` for precisely this purpose.
+
+#### 3.5.3 UTF-8
+
+- UTF-8 is a variable-length encoding of Unicode code points as bytes.  
+    UTF-8 was invented by Ken Thompson and Rob Pike, two of the creators of Go,  
+    and is now a Unicode standard.
+- Go source files are always encoded in UTF-8,  
+    and UTF-8 is the preferred encoding for text strings manipulated by Go programs.
+- The `unicode` package provides functions for working with individual runes  
+    (such as distinguishing letters from numbers, or converting an upper-case letter to a lower-case one),  
+    and the `unicode/utf8` package provides functions for encoding and decoding runes as bytes using UTF-8.
+- There are two forms, `\uhhhh` for a 16-bit value and `\Uhhhhhhhh` for a 32-bit value,  
+    where each `h` is a hexadecimal digit.
+- The need for the 32-bit form arises very infrequently.
+
+```go
+"\xe4\xb8\x96\xe7\x95\x8c"
+"\u4e16\u754c"
+"\U00004e16\U0000754c"
+```
+
+- A `rune` whose value is less than 256 may be written with a single hexadecimal escape,  
+    such as '\x41' for 'A',  
+    but for higher values, a \u or \U escape must be used.  
+    Consequently, '\xe4\xb8\x96' is not a legal rune literal,  
+    even though those 3 bytes are a valid UTF-8 encoding of a single code point.
+
+```go
+// Prefix
+func HasPrefix(s, prefix string) bool {
+    return len(s) >= len(prefix) && s[:len(prefix)] == prefix
+}
+
+// Suffix
+func HasSuffix(s, suffix string) bool {
+    return len(s) >= len(suffix) && s[len(s) - len(suffix):] == suffix
+}
+
+// Substring
+func Contains(s, substr string) bool {
+    for i := 0; i < len(s); i++ {
+        if HasPrefix(s[i:], substr) {
+            return true
+        }
+    }
+    return false
+}
+```
+
+- How to count `rune` in a string
+
+```go
+import "unicode/utf8"
+
+s := "Hello, \u4e16\u754c"
+
+fmt.Println(len(s))                     // "13"
+fmt.Println(utf8.RuneCountInString(s))  // "9"
+
+for i := 0; i < len(s); {
+    r, size := utf8.DecodeRuneInString(s[i:])
+    fmt.Printf("%d\t%c\n", i, r)
+    i += size
+}
+
+// Simplified version to count UTF-8 characters
+n := 0
+for range s {
+    n++
+}
+
+// The more simplified is to use utf8.DecodeRuneInString(s) function
+```
+
+- Each call to `DecodeRuneInString` returns `r`, the rune itself,  
+    and size, the number of bytes occupied by the UTF-8 encoding of `r`.
+- Each time a UTF-8 decoder, whether explicit in a call to `utf8.DecodeRuneInString`  
+    or implicit in a range loop, consumes an unexpected input byte,  
+    it generates a special Unicode replacement character, '\uFFFD'.
+
+#### 3.5.4 Strings and Byte Slices
+
