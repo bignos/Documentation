@@ -1806,3 +1806,143 @@ for range s {
 
 #### 3.5.4 Strings and Byte Slices
 
+- Four standard packages are particularly important for manipulating strings: 
+    - `bytes`
+        - The *bytes* package has similar functions for manipulating slices of bytes, of type `[]byte`,  
+            which share some properties with `strings`. Because strings are immutable,  
+            building up strings incrementally can involve a lot of allocation and copying.  
+            In such cases, it’s more efficient to use the `bytes.Buffer` type.
+    - `strings`
+        - The *strings* package provides many functions for: 
+            - searching
+            - replacing
+            - comparing
+            - trimming
+            - splitting
+            - joining
+    - `strconv`
+        - The *strconv* package provides functions for converting  
+            boolean, integer, and floating-point values to and from their string representations,  
+            and functions for quoting and unquoting strings.
+    - `unicode`
+        - The *unicode* package provides functions like `IsDigit`, `IsLetter`, `IsUpper`, and `IsLower` for classifying runes.  
+            Each function takes a single rune argument and returns a boolean.
+
+- The basename function below was inspired by the Unix shell utility of the same name.
+
+```go
+// basename removes directory components and a.suffix.
+// e.g., a => a, a.go => a, a/b/c.go => c, a/b.c.go => b.c
+func basename1(s string) string {
+	// Discard last '/' and everything before.
+	for i := len(s) - 1; i >= 0; i-- {
+		if s[i] == '/' {
+			s = s[i+1:]
+			break
+		}
+	}
+
+	// Preserve everything before last '.'.
+	for i := len(s) - 1; i >= 0; i-- {
+		if s[i] == '.' {
+			s = s[:i]
+			break
+		}
+	}
+
+	return s
+}
+
+// Version with strings  library functions
+func basename2(s string) string {
+	slash := strings.LastIndex(s, "/") // -1 if "/" not found
+	s = s[slash+1:]
+	if dot := strings.LastIndex(s, "."); dot >= 0 {
+		s = s[:dot]
+	}
+
+	return s
+}
+```
+
+- The task is to take a string representation of an integer,  
+    such as "12345", and insert commas every three places, as in "12,345".
+
+```go
+// comma inserts commas in a non-negative decimal integer string.
+func comma(s string) string {
+    n := len(s)
+    if n <= 3 {
+        return s
+    }
+    return comma(s[:n-3]) + "," + s[n-3:]  // return s - 3 last char ',' s - 3 first char
+}
+```
+
+- The *bytes package* provides the Buffer type for efficient manipulation of byte slices.  
+    A `Buffer` starts out empty but grows as data of types like `string`, `byte`, and `[]byte` are written to it.  
+    As the example below shows, a bytes.Buffer variable requires no initialization because its zero value is usable:
+
+```go
+// intsToString is like fmt.Sprint(values) but adds commas.
+func intsToString(values []int) string {
+	var buf bytes.Buffer
+	buf.WriteByte('[')
+
+	for i, v := range values {
+		if i > 0 {
+			buf.WriteString(", ")
+		}
+		fmt.Fprintf(&buf, "%d", v)
+	}
+
+	buf.WriteByte(']')
+	return buf.String()
+}
+
+func main() {
+	fmt.Println(intsToString([]int{1, 2, 3})) // "[1, 2, 3]"
+}
+```
+
+- When appending the UTF-8 encoding of an arbitrary `rune` to a `bytes.Buffer`,  
+    it’s best to use bytes.Buffer’s `WriteRune` method, but `WriteByte` is fine for ASCII characters.
+
+#### 3.5.5 Conversions between Strings and Numbers
+
+- it’s often necessary to convert between numeric values and their string representations. 
+    This is done with functions from the `strconv` package.  
+    To convert an integer to a string, one option is to use `fmt.Sprintf`;  
+    another is to use the function `strconv.Itoa` ("integer to ASCII")
+
+```go
+x := 123
+y := fmt.Sprintf("%d", x)
+
+fmt.Println(y, strconv.Itoa(x))             // "123 123"
+```
+
+- `FormatInt` and `FormatUint` can be used to format numbers in a different base:
+
+```go
+fmt.Println(strconv.FormatInt(int64(x), 2)) // "1111011"
+```
+
+- The `fmt.Printf` verbs `%b`, `%d`, `%u`, and `%x` are often more convenient than Format functions,  
+    especially if we want to include additional information besides the number:
+
+```go
+s := fmt.Sprintf("x=%b", x)                 // "x=1111011"
+```
+
+- To parse a string representing an integer, use the `strconv` functions `Atoi` or `ParseInt`,  
+    or `ParseUint`  for unsigned integers:
+
+```go
+x, err := strconv.Atoi("123")               // x is an int
+y, err := strconv.ParseInt("123", 10, 64)   // base 10, up to 64 bits
+```
+
+### 3.6 Constants
+
+
