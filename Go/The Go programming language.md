@@ -1945,4 +1945,252 @@ y, err := strconv.ParseInt("123", 10, 64)   // base 10, up to 64 bits
 
 ### 3.6 Constants
 
+- Constants are expressions whose value is known to the compiler  
+    and whose evaluation is guaranteed to occur at compile time, not at run time.
+
+- The underlying type of every constant is a basic type: 
+    - boolean
+    - string
+    - number
+- Many computations on constants can be completely evaluated at compile time,  
+    reducing the work necessary at run time and enabling other compiler optimizations.
+
+- A constant declaration may specify a type as well as a value,
+    but in the absence of an explicit type,  
+    the type is inferred from the expression on the right-hand side.
+
+- When a sequence of constants is declared as a group,  
+    the right-hand side expression may be omitted for all but the first of the group,  
+    implying that the previous expression and its type should be used again. For example:
+
+```go
+const (
+    a = 1
+    b
+    c = 2
+    d
+)
+
+fmt.Println(a, b, c, d) // "1 1 2 2"
+```
+
+#### 3.6.1 The Constant Generator iota
+
+- A `const` declaration may use the constant generator `iota`,  
+    which is used to create a sequence of related values without spelling out each one explicitly.  
+    In a `const` declaration, the value of `iota` begins at zero and increments by one for each item in the sequence.
+
+```go
+type Weekday int
+
+const (
+    Sunday Weekday = iota
+    Monday
+    Tuesday
+    Wednesday
+    Thursday
+    Friday
+    Saturday
+)
+```
+
+- This declares Sunday to be 0, Monday to be 1, and so on.
+
+- As iota increments, each constant is assigned the value of `1 << iota`,  
+    which evaluates to successive powers of 2, each corresponding to a single bit.  
+    We can use these constants within functions that test, set, or clear one or more of these bits:
+
+```go
+type Flags uint
+
+const (
+    FlagUp Flags = 1 << iota    // is up
+    FlagBroadcast               // supports broadcast access capability
+    FlagLoopback                // is a loopback interface
+    FlagPointToPoint            // belongs to a point-to- point link
+    FlagMulticast               // supports multicast access capability
+)
+
+func IsUp(v Flags) bool {
+     return v&FlagUp == FlagUp
+}
+
+func TurnDown(v *Flags) {
+    *v &^= FlagUp
+}
+
+func SetBroadcast(v *Flags) {
+    *v |= FlagBroadcast
+}
+
+func IsCast(v Flags) bool {
+    return v&(FlagBroadcast|FlagMulticast) != 0
+}
+
+func main() {
+    var v Flags = FlagMulticast | FlagUp
+    fmt.Printf("%b %t\n", v, IsUp(v)) // "10001 true"
+
+    TurnDown(&v)
+    fmt.Printf("%b %t\n", v, IsUp(v)) // "10000 false"
+
+    SetBroadcast(&v)
+    fmt.Printf("%b %t\n", v, IsUp(v)) // "10010 false"
+    fmt.Printf("%b %t\n", v, IsCast(v)) // "10010 true"
+}
+```
+
+#### 3.6.2 Untyped Constants
+
+- Many constants are not committed to a particular type.  
+    The compiler represents these uncommitted constants with **much greater numeric precision** than values of basic types,  
+    and arithmetic on them is more precise than machine arithmetic;  
+    you may assume at least 256 bits of precision.  
+    There are six flavors of these uncommitted constants, called: 
+    - `untyped boolean`
+    - `untyped integer`
+    - `untyped rune`
+    - `untyped floating-point`
+    - `untyped complex`
+    - `untyped string`
+
+```go
+// Untyped constants example:
+var x float32 = math.Pi
+var y float64 = math.Pi
+var z complex128 = math.Pi
+
+var f float64 = 212
+fmt.Println((f - 32) * 5 / 9)       // "100"; (f - 32) * 5 is a float64
+fmt.Println(5 / 9 * (f - 32))       // "0"; 5/9 is an untyped integer, 0
+fmt.Println(5.0 / 9.0 * (f - 32))   // "100"; 5.0/9.0 is an untyped float
+
+var f float64 = 3 + 0i              // untyped complex -> float64
+f = 2                               // untyped integer -> float64
+f = 1e123                           // untyped floating-point -> float64
+f = 'a'                             // untyped rune -> float64
+
+i := 0                              // untyped integer; implicit int(0)
+r := '\000'                         // untyped rune; implicit rune('\000')
+f := 0.0                            // untyped floating-point; implicit float64(0.0)
+c := 0i                             // untyped complex; implicit complex128(0i)
+
+fmt.Printf("%T\n", 0)               // "int"
+fmt.Printf("%T\n", 0.0)             // "float64"
+fmt.Printf("%T\n", 0i)              // "complex128"
+fmt.Printf("%T\n", '\000')          // "int32" (rune)
+```
+
+## 4. Composite Types
+
+- `Arrays` and `structs` are *aggregate types*;  
+    their values are concatenations of other values in memory.
+- `Arrays` are *homogeneous* their elements all have the same type  
+-   whereas `structs` are *heterogeneous*.
+- Both `arrays` and `structs` are *fixed size*.  
+    In contrast, `slices` and `maps` are *dynamic data structures* that grow as values are added.
+
+### 4.1 Arrays
+
+- An `array` is a *fixed-length* sequence of zero or more elements of a particular *type*. 
+    Because of their *fixed length*, `arrays` are rarely used directly in Go.  
+    `Slices`, which can grow and shrink, are much more *versatile*.
+
+```go
+var a [3]int                        // array of 3 integers
+fmt.Println(a[0])                   // print the first element
+fmt.Println(a[len(a)-1])            // print the last element, a[2]
+
+// Print the indices and elements.
+for i, v := range a {
+    fmt.Printf("%d %d\n", i, v)
+}
+
+// Print the elements only.
+for _, v := range a {
+    fmt.Printf("%d\n", v)
+}
+```
+
+-  We can use an *array literal* to initialize an `array` with a list of values
+
+```go
+var q [3]int = [3]int{1, 2, 3}
+var r [3]int = [3]int{1, 2}
+fmt.Println(r[2])                   // "0"
+```
+
+- In an *array literal*, if an ellipsis *"..."* appears in place of the length,  
+    the array length is determined by the number of initializers. 
+    The definition of q can be simplified to:
+
+```go
+q := [...]int{1, 2, 3}
+fmt.Printf("%T\n", q)               // "[3]int"
+```
+
+- Is also possible to specify a list of index and value pairs, like this:
+
+```go
+type Currency int
+
+const (
+    USD Currency = iota
+    EUR
+    GBP
+    RMB
+)
+
+symbol := [...]string{USD: "$", EUR: "€", GBP: "£",RMB: "¥"}
+fmt.Println(RMB, symbol[RMB])       // "3 ¥"
+```
+
+- Defines an array r with 100 elements, all zero except for the last, which has value −1:
+
+```go
+r := [...]int{99: -1}
+```
+- Arrays are comparable:
+
+```go
+a := [2]int{1, 2}
+b := [...]int{1, 2}
+c := [2]int{1, 3}
+
+fmt.Println(a == b, a == c, b == c) // "true false false"
+
+d := [3]int{1, 2}
+fmt.Println(a == d)                 // compile error: cannot compare [2]int == [3]int
+```
+
+```go
+import "crypto/sha256"
+
+func main() {
+    c1 := sha256.Sum256([]byte("x"))
+    c2 := sha256.Sum256([]byte("X"))
+    fmt.Printf("%x\n%x\n%t\n%T\n", c1, c2, c1 == c2, c1)
+    // Output:
+    // 2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db0225871792
+    // 4b68ab3847feda7d6c62c1fbcbeebfa35eab7351ed5e78f4ddadea5df6
+    // false
+    // [32]uint8
+}
+```
+
+- Notice the `Printf` verbs: `%x` to print all the elements of an array or slice of bytes in *hexadecimal*,  
+    `%t` to show a boolean, and `%T` to display the type of value.
+
+- We can explicitly pass a *pointer* to an `array` 
+    so that any modifications the function makes to array elements will be visible to the caller.  
+    This function zeroes the contents of a [32]byte array:
+
+```go
+func zero(ptr *[32]byte) {
+    *ptr = [32]byte{}
+}
+```
+
+### 4.2 Slices
+
 
