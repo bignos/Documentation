@@ -2475,4 +2475,159 @@ func nonempty2(strings []string) []string {
 }
 ```
 
-**Page 156**
+- A slice can be used to implement a *stack*.  
+    Given an initially empty slice stack,  
+    we can push a new value onto the end of the slice with `append`:
+
+```go
+stack = append(stack, v)        // push v
+
+// The top of the stack is the last element:
+top := stack[len(stack)-1]      // top of stack
+
+// shrinking the stack by popping that element is
+stack = stack[:len(stack)-1]    // pop
+```
+
+- To remove an element from the middle of a slice,  
+    preserving the order of the remaining elements,  
+    use `copy` to slide the higher-numbered elements down by one to fill the gap:
+
+```go
+func remove(slice []int, i int) []int {
+    copy(slice[i:], slice[i+1:])
+    return slice[:len(slice)-1]
+}
+
+func main() {
+    s := []int{5, 6, 7, 8, 9}
+    fmt.Println(remove(s, 2))   // "[5 6 8 9]"
+}
+```
+
+- And if we don’t need to preserve the order,  
+    we can just move the last element into the gap:
+
+```go
+func remove(slice []int, i int) []int {
+    slice[i] = slice[len(slice)-1]
+    return slice[:len(slice)-1]
+}
+func main() {
+    s := []int{5, 6, 7, 8, 9}
+    fmt.Println(remove(s, 2)) // "[5 6 9 8]
+}
+```
+
+### 4.3 Maps
+
+- In Go, a `map` is a reference to a hash table,  
+    and a map type is written `map[K]V`, where `K` and `V` are the **types** of its *keys* and *values*.
+-  All of the **keys** in a given `map` are of the *same type*,  
+    and all of the **values** are of the *same type*.
+- The key *type* `K` must be comparable using `==`.
+
+```go
+ages := make(map[string]int) // mapping from strings to ints
+```
+
+- We can also use a map literal to create a new map populated with some initial key/value pairs:
+
+```go
+ages := map[string]int{
+    "alice":    31,
+    "charlie":  34,
+}
+
+// ==
+
+ages := make(map[string]int)
+ages["alice"]   = 31
+ages["charlie"] = 34
+
+// so an alternative expression for a new empty map is map[string]int{}.
+
+// Map elements are accessed through the usual subscript notation:
+ages["alice"] = 32
+fmt.Println(ages["alice"]) // "32"
+
+// Removed with the built-in function delete:
+delete(ages, "alice") // remove element ages["alice"]
+```
+
+- map element is not a variable, and we cannot take its address:
+
+```go
+_ = &ages["bob"] // compile error: cannot take address of map element
+
+```
+
+- To enumerate all the key/value pairs in the map, we use a range-based for loop
+
+```go
+for name, age := range ages {
+    fmt.Printf("%s\t%d\n", name, age)
+}
+```
+
+- To enumerate the key/value pairs in order, we must sort the keys explicitly,  
+    for instance, using the *Strings* function from the `sort` package if the keys are strings.  
+    This is a common pattern:
+
+```go
+import "sort"
+
+var names []string
+for name := range ages {
+    names = append(names, name)
+}
+
+sort.Strings(names)
+for _, name := range names {
+    fmt.Printf("%s\t%d\n", name, ages[name])
+}
+```
+
+- Storing to a `nil` map causes a panic:
+ 
+```go
+ages["carol"] = 21 // panic: assignment to entry in nil map
+```
+
+- If the element type is numeric,  
+    you might have to distinguish between a nonexistent element  
+    and an element that happens to have the value zero,  
+    using a test like this:
+
+```go
+if age, ok := ages["bob"]; !ok { /* ... */ }
+```
+
+- Subscripting a `map` in this context yields 2 values;  
+    the 2nd is a *boolean* that reports whether the element was present.
+
+- The *dedup* program uses a `map` whose keys represent  
+    the set of lines that have already appeared  
+    to ensure that subsequent occurrences are not printed.
+
+```go
+func main() {
+    seen := make(map[string]bool) // a set of strings
+    input := bufio.NewScanner(os.Stdin)
+
+    for input.Scan() {
+        line := input.Text()
+        if !seen[line] {
+            seen[line] = true
+            fmt.Println(line)
+        }
+    }
+
+    if err := input.Err(); err != nil {
+        fmt.Fprintf(os.Stderr, "dedup: %v\n", err)
+        os.Exit(1)
+    }
+}
+```
+
+P. 163
