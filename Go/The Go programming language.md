@@ -2193,4 +2193,286 @@ func zero(ptr *[32]byte) {
 
 ### 4.2 Slices
 
+- Slices represent variable-length sequences whose elements all have the same type.  
+    A slice type is written `[]T`, where the elements have type `T`;  
+    it looks like an array type without a size.
+- A slice has three components: 
+    - a pointer
+    - a length
+    - a capacity.
+- The built-in functions `len` and `cap` return those values.
 
+- Shows an array of strings for the months of the year,  
+    and two overlapping slices of it.  
+    The array is declared as:
+
+```go
+months := [...]string{1: "January", /* ... */, 12: "December"}
+```
+
+- So *January* is months[1] and *December* is months[12].
+
+- Let’s define overlapping slices for the second quarter and the northern summer:
+
+```go
+Q2 := months[4:7]
+summer := months[6:9]
+
+fmt.Println(Q2)             // ["April" "May" "June"]
+fmt.Println(summer)         // ["June" "July" "August"]
+```
+
+- June is included in each and is the sole output of this (inefficient) test for common elements:
+
+```go
+for _, s := range summer {
+    for _, q := range Q2 {
+        if s == q {
+            fmt.Printf("%s appears in both\n", s)
+        }
+    }
+}
+```
+
+- Slicing beyond `cap(s)` causes a panic, but slicing beyond `len(s)` extends the slice,  
+    so the result may be longer than the original:
+
+```go
+fmt.Println(summer[:20])    // panic: out of range
+endlessSummer := summer[:5] // extend a slice (within capacity)
+fmt.Println(endlessSummer)  // "[June July August September October]"
+```
+
+- Since a slice contains a pointer to an element of an array,  
+    passing a slice to a function permits the function to modify the underlying array elements.  
+    In other words, copying a slice creates an alias for the underlying array.  
+- The function reverse reverses the elements of an []int slice in place, and it may be applied to slices of any length.
+
+```go
+// reverse reverses a slice of ints in place.
+func reverse(s []int) {
+    for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+        s[i], s[j] = s[j], s[i]
+    }
+}
+
+a := [...]int{0, 1, 2, 3, 4, 5}
+reverse(a[:])
+fmt.Println(a) // "[5 4 3 2 1 0]"
+```
+
+- A simple way to *rotate* a slice left by n elements is to apply the `reverse` function three times,  
+    first to the leading `n` elements, then to the remaining elements,  
+    and finally to the whole slice. (To rotate to the right, make the third call first.)
+
+```go
+s := []int{0, 1, 2, 3, 4, 5}
+
+// Rotate s left by two positions.
+reverse(s[:2])
+reverse(s[2:])
+reverse(s)
+
+fmt.Println(s) // "[2 3 4 5 0 1]"
+```
+
+- Unlike arrays, slices are not comparable,  
+    so we cannot use `==` to test whether two slices contain the same elements.  
+    The standard library provides the highly optimized `bytes.Equal` function for comparing two slices of bytes ([]byte),  
+    but for other types of slice, we must do the comparison ourselves:
+
+```go
+func equal(x, y []string) bool {
+    if len(x) != len(y) {
+        return false
+    }
+    for i := range x {
+        if x[i] != y[i] {
+            return false
+        }
+    }
+
+    return true
+}
+```
+
+- The only legal slice comparison is against `nil`
+
+```go
+if summer == nil { /* ... */ }
+```
+
+```go
+var s []int     // len(s) == 0, s == nil
+s = nil         // len(s) == 0, s == nil
+s = []int(nil)  // len(s) == 0, s == nil
+s = []int{}     // len(s) == 0, s != nil
+```
+
+- So, if you need to test whether a slice is empty, use `len(s) == 0`, not `s == nil`.
+
+- The built-in function `make` creates a slice of a specified element type, length, and capacity.  
+    The capacity argument may be omitted, in which case the capacity equals the length.
+
+```go
+make([]T, len)
+make([]T, len, cap) // same as make([]T, cap)[:len]
+```
+
+#### 4.2.1 The append Function
+
+- The built-in append function appends items to slices:
+
+- The `append` function is crucial to understanding how slices work,  
+    so let’s take a look at what is going on.  
+    Here’s a version called `appendInt` that is specialized for `[]int slices`:
+
+```go
+func appendInt(x []int, y int) []int {
+    var z []int
+    zlen := len(x) + 1
+    if zlen <= cap(x) {
+        // There is room to grow. Extend the slice.
+        z = x[:zlen]
+    } else {
+        // There is insufficient space. Allocate a new array.
+        // Grow by doubling, for amortized linear complexity.
+        zcap := zlen
+
+        if zcap < 2*len(x) {
+            zcap = 2 * len(x)
+        }
+
+        z = make([]int, zlen, zcap)
+        copy(z, x) // a built-in function; see text
+    }
+
+    z[len(x)] = y
+    return z
+}
+```
+
+- For efficiency, the new array is usually somewhat larger than the minimum needed to hold `x` and `y`.  
+    Expanding the array by doubling its size at each expansion  
+    avoids an excessive number of allocations and ensures that appending a single element takes constant time on average.  
+    This program demonstrates the effect:
+
+```go
+func main() {
+    var x, y []int
+    for i := 0; i < 10; i++ {
+        y = appendInt(x, i)
+        fmt.Printf("%d cap=%d\t%v\n", i, cap(y), y)
+        x = y
+    }
+}
+```
+
+- Output:
+
+```
+0 cap=1     [0]
+1 cap=2     [0 1]
+2 cap=4     [0 1 2]
+3 cap=4     [0 1 2 3]
+4 cap=8     [0 1 2 3 4]
+5 cap=8     [0 1 2 3 4 5]
+6 cap=8     [0 1 2 3 4 5 6]
+7 cap=8     [0 1 2 3 4 5 6 7]
+8 cap=16    [0 1 2 3 4 5 6 7 8]
+9 cap=16    [0 1 2 3 4 5 6 7 8 9]
+```
+
+- The built-in `append` function may use a more sophisticated growth strategy than `appendInt`’s simplistic one.
+
+- In this respect, slices are not “pure” reference types but resemble an aggregate type such as this struct:
+
+```go
+type IntSlice struct {
+    ptr *int
+    len, cap int
+}
+```
+
+- Our `appendInt` function adds a single element to a slice,  
+    but the built-in `append` lets us add more than one new element,  
+    or even a whole slice of them.
+
+```go
+var x []int
+x = append(x, 1)
+x = append(x, 2, 3)
+x = append(x, 4, 5, 6)
+x = append(x, x...)     // append the slice x
+fmt.Println(x)          // "[1 2 3 4 5 6 1 2 3 4 5 6]"
+```
+
+- With the small modification shown below, we can match the behavior of the built-in `append`.  
+    The ellipsis "..." in the declaration of appendInt makes the function variadic:  
+    it accepts any number of final arguments.  
+    The corresponding ellipsis in the call above to `append` shows how to supply a list of arguments from a slice.
+
+```go
+func appendInt(x []int, y ...int) []int {
+    var z []int
+    zlen := len(x) + len(y)
+
+    // ...expand z to at least zlen...
+    copy(z[len(x):], y)
+    return z
+}
+```
+
+#### 4.2.2 In-Place Slice Techniques
+
+- Let’s see more examples of functions that, like `rotate` and `reverse`,  
+    modify the elements of a slice in place.  
+    Given a list of strings, the nonempty function returns the non-empty ones:
+
+```go
+// Nonempty is an example of an in-place slice algorithm.
+package main
+
+import "fmt"
+
+// nonempty returns a slice holding only the non-empty strings.
+// The underlying array is modified during the call.
+func nonempty(strings []string) []string {
+    i := 0
+    for _, s := range strings {
+        if s != "" {
+            strings[i] = s
+            i++
+        }
+    }
+
+    return strings[:i]
+}
+```
+
+- The subtle part is that the input slice and the output slice share the same underlying array.  
+    This avoids the need to allocate another array, though of course the contents of `data` are partly overwritten,  
+    as evidenced by the second print statement:
+
+```go
+data := []string{"one", "", "three"}
+fmt.Printf("%q\n", nonempty(data))  // `["one" "three"]`
+fmt.Printf("%q\n", data)            // `["one" "three" "three"]`
+```
+
+- The `nonempty` function can also be written using `append`:
+
+```go
+func nonempty2(strings []string) []string {
+    out := strings[:0] // zero-length slice of original
+    for _, s := range strings {
+        if s != "" {
+            out = append(out, s)
+        }
+    }
+
+    return out
+}
+```
+
+**Page 156**
