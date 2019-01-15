@@ -2630,4 +2630,1194 @@ func main() {
 }
 ```
 
-P. 163
+- The example below uses a `map` to record the number of times Add has been called with a given list of strings.  
+    It uses `fmt.Sprintf` to convert a slice of strings into a single string that is a suitable map key,  
+    quoting each slice element with `%q` to record string boundaries faithfully:
+
+```go
+var m = make(map[string]int)
+
+func k(list []string) string { return fmt.Sprintf("%q", list) }
+func Add(list []string) { m[k(list)]++ }
+func Count(list []string) int { return m[k(list)] }
+```
+
+- The same approach can be used for any non-comparable key type, not just slices.  
+    It’s even useful for comparable key types when you want a definition of equality other than `==`,  
+    such as case-insensitive comparisons for strings.  
+    And the type of k(x) needn’t be a string;  
+    any comparable type with the desired equivalence property will do,  
+    such as integers, arrays, or structs.
+
+- Here’s another example of maps in action, a program that counts the occurrences of each distinct Unicode code point in its input.  
+    Since there are a large number of possible characters, only a small fraction of which would appear in any particular document,  
+    a map is a natural way to keep track of just the ones that have been seen and their corresponding counts.
+
+```go
+// Charcount computes counts of Unicode characters.
+package main
+
+import (
+    "bufio"
+    "fmt"
+    "io"
+    "os"
+    "unicode"
+    "unicode/utf8"
+)
+
+func main() {
+    counts := make(map[rune]int) // counts of Unicode characters
+    var utflen [utf8.UTFMax + 1]int // count of lengths of UTF-8 encodings
+    invalid := 0 // count of invalid UTF-8 characters
+    in := bufio.NewReader(os.Stdin)
+
+    for {
+        r, n, err := in.ReadRune() // returns rune, nbytes, error
+
+        if err == io.EOF {
+            break
+        }
+
+        if err != nil {
+            fmt.Fprintf(os.Stderr, "charcount: %v\n", err)
+            os.Exit(1)
+        }
+
+        if r == unicode.ReplacementChar && n == 1 {
+            invalid++
+            continue
+        }
+
+        counts[r]++
+        utflen[n]++
+    }
+
+    fmt.Printf("rune\tcount\n")
+
+    for c, n := range counts {
+        fmt.Printf("%q\t%d\n", c, n)
+    }
+
+    fmt.Print("\nlen\tcount\n")
+
+    for i, n := range utflen {
+        if i > 0 {
+            fmt.Printf("%d\t%d\n", i, n)
+        }
+    }
+
+    if invalid > 0 {
+        fmt.Printf("\n%d invalid UTF-8 characters\n", invalid)
+    }
+}
+```
+
+- The value type of a map can itself be a composite type, such as a map or slice.  
+    In the following code, the key type of graph is `string` and the value type is `map[string]bool`,  representing a set of strings.  
+    Conceptually, `graph` maps a string to a set of related strings, its successors in a directed graph.
+
+```go
+var graph = make(map[string]map[string]bool)
+
+func addEdge(from, to string) {
+    edges := graph[from]
+
+    if edges == nil {
+        edges = make(map[string]bool)
+        graph[from] = edges
+    }
+
+    edges[to] = true
+}
+
+func hasEdge(from, to string) bool {
+    return graph[from][to]
+}
+```
+
+- The `addEdge` function shows the idiomatic way to populate a map lazily,  
+    that is, to initialize each value as its key appears for the first time.  
+    The `hasEdge` function shows how the zero value of a missing map entry is often put to work:  
+    even if neither from nor to is present, `graph[from][to]` will always give a meaningful result.
+
+### 4.4 Structs
+
+- A struct is an aggregate data type that groups together zero or more named values of arbitrary types as a single entity.
+- Each value is called a *field*.
+- These two statements declare a struct type called `Employee`  
+    and a variable called `dilbert` that is an instance of an `Employee`:
+
+```go
+type Employee struct {
+    ID          int
+    Name        string
+    Address     string
+    DoB         time.Time
+    Position    string
+    Salary      int
+    ManagerID   int
+}
+
+var dilbert Employee
+
+dilbert.Salary -= 5000 // demoted, for writing too few lines of code
+
+// Take its address and access it through a pointer:
+position := &dilbert.Position
+*position = "Senior " + *position // promoted, for outsourcing to Elbonia
+
+// The dot notation also works with a pointer to a struct:
+var employeeOfTheMonth *Employee = &dilbert
+employeeOfTheMonth.Position += " (proactive team player)"
+
+// The last statement is equivalent to
+(*employeeOfTheMonth).Position += " (proactive team player)"
+```
+
+- Given an employee’s unique ID, the function `EmployeeByID` returns a pointer to an `Employee` struct.  
+    We can use the dot notation to access its fields:
+
+```go
+func EmployeeByID(id int) *Employee { /* ... */ }
+
+fmt.Println(EmployeeByID(dilbert.ManagerID).Position)   // "Pointy-haired boss"
+id := dilbert.ID
+EmployeeByID(id).Salary = 0                             // fired for... no real reason
+```
+
+- Fields are usually written one per line, with the field’s name preceding its type,  
+    but consecutive fields of the same type may be combined, as with `Name` and `Address` here:
+
+```go
+type Employee struct {
+    ID              int
+    Name, Address   string
+    DoB             time.Time
+    Position        string
+    Salary          int
+    ManagerID       int
+}
+```
+
+- Field order is significant to type identity. 
+    Had we also combined the declaration of the `Position` field (also a string),  
+    or interchanged `Name` and `Address`, we would be defining a different struct type. 
+    Typically we only combine the declarations of related fields.
+
+- The name of a struct field is exported if it begins with a capital letter;  
+    this is Go’s main access control mechanism.  
+    A struct type may contain a mixture of exported and unexported fields.
+
+- A named struct type `S` **can’t declare** a *field* of the same type `S`:  
+    an aggregate value cannot contain itself(An analogous restriction applies to arrays.)  
+    But `S` may declare a field of the pointer type `*S`,  
+    which lets us create recursive data structures like linked lists and trees.  
+    This is illustrated in the code below, which uses a binary tree to implement an insertion sort:
+
+```go
+type tree struct {
+    value       int
+    left, right *tree
+}
+
+// Sort sorts values in place.
+func Sort(values []int) {
+    var root *tree
+    for _, v := range values {
+        root = add(root, v)
+    }
+    appendValues(values[:0], root)
+}
+
+// appendValues appends the elements of t to values in order
+// and returns the resulting slice.
+func appendValues(values []int, t *tree) []int {
+    if t != nil {
+        values = appendValues(values, t.left)
+        values = append(values, t.value)
+        values = appendValues(values, t.right)
+    }
+
+    return values
+}
+
+func add(t *tree, value int) *tree {
+    if t == nil {
+        // Equivalent to return &tree{value: value}.
+        t = new(tree)
+        t.value = value
+        return t
+    }
+
+    if value < t.value {
+        t.left = add(t.left, value)
+    } else {
+        t.right = add(t.right, value)
+    }
+
+    return t
+}
+```
+
+- The struct type with no fields is called the *empty struct*, written `struct{}`.  
+    It has size zero and carries no information but may be useful nonetheless.
+
+#### 4.4.1 Struct Literals
+
+- A value of a struct type can be written using a *struct literal* that specifies values for its fields.
+
+```go
+type Point struct{ X, Y int }
+
+p := Point{1, 2}
+```
+
+- More often, the second form is used, in which a struct value is initialized by listing some  
+    or all of the field names and their corresponding values, as in this statement from the Lissajous program
+
+```go
+anim := gif.GIF{LoopCount: nframes}
+```
+
+- If a field is omitted in this kind of literal, it is set to the zero value for its type.  
+    Because names are provided, the order of fields doesn’t matter.
+- The two forms cannot be mixed in the same literal.
+
+- Struct values can be passed as arguments to functions and returned from them.  
+    For instance, this function scales a Point by a specified factor:
+
+```go
+func Scale(p Point, factor int) Point {
+    return Point{p.X * factor, p.Y * factor}
+}
+
+fmt.Println(Scale(Point{1, 2}, 5)) // "{5 10}"
+```
+
+- For efficiency, larger struct types are usually passed to or returned  
+    from functions indirectly using a pointer:
+
+```go
+func Bonus(e *Employee, percent int) int {
+    return e.Salary * percent / 100
+}
+```
+
+- Because structs are so commonly dealt with through pointers,  
+    it’s possible to use this shorthand notation to create and initialize a struct variable and obtain its address:
+
+```go
+pp := &Point{1, 2}
+
+// Equivalent to
+pp := new(Point)
+*pp = Point{1, 2}
+```
+
+- But `&Point{1, 2}` can be used directly within an expression, such as a function call.
+
+#### 4.4.2 Comparing Structs
+
+- If all the fields of a struct are comparable, the struct itself is comparable,  
+    so two expressions of that type may be compared using `==` or `!=`.  
+    The `==` operation compares the corresponding fields of the two structs in order,  
+    so the two printed expressions below are equivalent:
+
+```go
+type Point struct{ X, Y int }
+p := Point{1, 2}
+q := Point{2, 1}
+fmt.Println(p.X == q.X && p.Y == q.Y)   // "false"
+fmt.Println(p == q)                     // "false"
+```
+
+- Comparable struct types, like other comparable types, may be used as the key type of a map.
+
+```go
+type address struct {
+    hostname string
+    port int
+}
+
+hits := make(map[address]int)
+hits[address{"golang.org", 443}]++
+```
+
+#### 4.4.3 Struct Embedding and Anonymous Fields
+
+- Go’s unusual *struct embedding* mechanism  
+    lets us use one named struct type as an *anonymous field* of another struct type,  
+    providing a convenient syntactic shortcut so that a simple dot expression  
+    like `x.f` can stand for a chain of fields like `x.d.e.f`.
+
+- Consider a 2-D drawing program that provides a library of shapes,  
+    such as rectangles, ellipses, stars, and wheels.  
+    Here are two of the types it might define:
+
+```go
+type Circle struct {
+    X, Y, Radius int
+}
+
+type Wheel struct {
+    X, Y, Radius, Spokes int
+}
+```
+
+- A `Circle` has fields for the `X` and `Y` coordinates of its center, and a Radius.  
+    A Wheel has all the features of a `Circle`, plus `Spokes`, the number of inscribed radial spokes.  
+    Let’s create a wheel:
+
+```go
+var w Wheel
+w.X = 8
+w.Y = 8
+w.Radius = 5
+w.Spokes = 20
+```
+
+- As the set of shapes grows, we’re bound to notice similarities and repetition among them,  
+    so it may be convenient to factor out their common parts:
+
+```go
+type Point struct {
+    X, Y int
+}
+
+type Circle struct {
+    Center Point
+    Radius int
+}
+
+type Wheel struct {
+    Circle Circle
+    Spokes int
+}
+
+// The application may be clearer for it, 
+// but this change makes accessing the fields of a Wheel more verbose
+
+var w Wheel
+w.Circle.Center.X = 8
+w.Circle.Center.Y = 8
+w.Circle.Radius = 5
+w.Spokes = 20
+```
+
+- Go lets us declare a field with a type but no name;  
+    such fields are called *anonymous fields*.  
+    The type of the field must be a named type or a pointer to a named type.  
+    Below, `Circle` and `Wheel` have one anonymous field each. 
+    We say that a `Point` is *embedded* within `Circle`,  
+    and a `Circle` is *embedded* within `Wheel`.
+
+```go
+type Circle struct {
+            Point
+    Radius  int
+}
+type Wheel struct {
+            Circle
+    Spokes  int
+}
+
+// Thanks to embedding, we can refer to the names at the leaves of the implicit tree
+// without giving the intervening names:
+
+var w Wheel
+
+w.X = 8 // equivalent to w.Circle.Point.X = 8
+w.Y = 8 // equivalent to w.Circle.Point.Y = 8
+w.Radius = 5 // equivalent to w.Circle.Radius = 5
+w.Spokes = 20
+```
+
+- Unfortunately, there’s no corresponding shorthand for the struct literal syntax,  
+    so neither of these will compile:
+
+```go
+w = Wheel{8, 8, 5, 20}                          // compile error: unknown fields
+w = Wheel{X: 8, Y: 8, Radius: 5, Spokes: 20}    // compile error: unknown fields
+```
+
+- The struct literal must follow the shape of the type declaration,  
+    so we must use one of the two forms below, which are equivalent to each other:
+
+```go
+w = Wheel{Circle{Point{8, 8}, 5}, 20}
+w = Wheel{
+        Circle: Circle{
+            Point: Point{X: 8, Y: 8},
+            Radius: 5,
+        }, Spokes: 20, // NOTE: trailing comma necessary here (and at Radius)
+}
+
+fmt.Printf("%#v\n", w)
+// Output:
+// Wheel{Circle:Circle{Point:Point{X:8, Y:8}, Radius:5}, Spokes:20}
+
+w.X = 42
+fmt.Printf("%#v\n", w)
+// Output:
+// Wheel{Circle:Circle{Point:Point{X:42, Y:8}, Radius:5}, Spokes:20}
+```
+
+- Because “anonymous” fields do have implicit names,  
+    you *can’t have two anonymous fields of the same type* since their names would conflict.
+
+### 4.5 JSON
+
+- Go has excellent support for encoding and decoding these formats,  
+    provided by the standard library packages `encoding/json`, `encoding/xml`, `encoding/asn1`, and so on,  
+    and these packages all have similar APIs.  
+    This section gives a brief overview of the most important parts of the `encoding/json` package.
+
+- Consider an application that gathers movie reviews and offers recommendations.  
+    Its Movie data type and a typical list of values are declared below.
+
+```go
+type Movie struct {
+    Title   string
+    Year    int       `json:"released"`
+    Color   bool      `json:"color,omitempty"`
+    Actors  []string
+}
+
+var movies = []Movie{
+    {Title: "Casablanca", Year: 1942, Color: false,
+     Actors: []string{"Humphrey Bogart", "Ingrid Bergman"}},
+    {Title: "Cool Hand Luke", Year: 1967, Color: true,
+     Actors: []string{"Paul Newman"}},
+    {Title: "Bullitt", Year: 1968, Color: true,
+     Actors: []string{"Steve McQueen", "Jacqueline Bisset"}},
+// ...
+}
+```
+
+- Data structures like this are an excellent fit for JSON,  
+    and it’s easy to convert in both directions.  
+    Converting a Go data structure like `movies` to JSON is called *marshaling*.  
+    *Marshaling* is done by `json.Marshal`:
+
+```go
+data, err := json.Marshal(movies)
+if err != nil {
+    log.Fatalf("JSON marshaling failed: %s", err)
+}
+
+fmt.Printf("%s\n", data)
+```
+
+- `Marshal` produces a byte slice containing a very long string with no extraneous white space;  
+    we’ve folded the lines so it fits:
+
+```json
+[{"Title":"Casablanca","released":1942,"Actors": ["Humphrey Bogart","Ingrid Bergman"]},{"Title":"Cool Hand Luke","released":1967,"color":true,"Ac tors":["Paul Newman"]}, {"Title":"Bullitt","released":1968,"color":true," Actors":["Steve McQueen","Jacqueline Bisset"]}]
+```
+
+- This compact representation contains all the information but it’s hard to read.  
+    For human consumption, a variant called `json.MarshalIndent` produces neatly indented output.  
+    Two additional arguments define a prefix for each line of output and a string for each level of indentation:
+
+```go
+data, err := json.MarshalIndent(movies, "", " ")
+
+if err != nil {
+    og.Fatalf("JSON marshaling failed: %s", err)
+}
+
+fmt.Printf("%s\n", data)
+```
+
+- The code above prints
+
+```json
+[
+    {
+        "Title": "Casablanca",
+        "released": 1942,
+        "Actors": [
+            "Humphrey Bogart",
+            "Ingrid Bergman"
+        ]
+    },
+    {
+        "Title": "Cool Hand Luke",
+        "released": 1967,
+        "color": true,
+        "Actors": [
+            "Paul Newman"
+        ]
+    },
+    {
+        "Title": "Bullitt",
+        "released": 1968,
+        "color": true,
+        "Actors": [
+            "Steve McQueen",
+            "Jacqueline Bisset"
+        ]
+    }
+]
+```
+
+- Only exported fields are marshaled, which is why we chose capitalized names for all the Go field names.
+
+- You may have noticed that the name of the `Year` field changed to `released` in the output, and `Color` changed to `color`.  
+    That’s because of the *field tags*.  
+    A field tag is a string of metadata associated at compile time with the field of a struct:
+
+```go
+Year int `json:"released"`
+Color bool `json:"color,omitempty"`
+```
+
+- The first part of the `json` field tag specifies an alternative JSON name for the Go field.  
+    Field tags are often used to specify an idiomatic JSON name like `total_count` for a Go field named `TotalCount`.  
+    The tag for Color has an additional option, `omitempty`,  
+    which indicates that *no JSON output* should be produced if the field has the zero value for its type
+
+- By defining suitable Go data structures in this way,  
+    we can select which parts of the JSON input to decode and which to discard.  
+    When Unmarshal returns, it has filled in the slice with the Title information;  
+    other names in the JSON are ignored.
+
+```go
+var titles []struct{ Title string }
+
+if err := json.Unmarshal(data, &titles); err != nil {
+    log.Fatalf("JSON unmarshaling failed: %s", err)
+}
+
+fmt.Println(titles) // "[{Casablanca} {Cool Hand Luke} {Bullitt}]"
+```
+
+- let’s query the GitHub issue tracker using its web-service interface.  
+    First we’ll define the necessary types and constants:
+
+```go
+// Package github provides a Go API for the GitHub issue tracker.
+// See https://developer.github.com/v3/search/#searchissues.
+package github
+
+import "time"
+
+const IssuesURL = "https://api.github.com/search/issues"
+
+type IssuesSearchResult struct {
+    TotalCount int `json:"total_count"`
+    Items []*Issue
+}
+
+type Issue struct {
+    Number int
+    HTMLURL string `json:"html_url"`
+    Title string
+    State string
+    User *User
+    CreatedAt time.Time `json:"created_at"`
+    Body string // in Markdown format
+}
+
+type User struct {
+    Login string
+    HTMLURL string `json:"html_url"`
+}
+```
+
+- The `SearchIssues` function makes an HTTP request and decodes the result as JSON.  
+    Since the query terms presented by a user could contain characters like `?` and `&` that have special meaning in a URL,  
+    we use `url.QueryEscape` to ensure that they are taken literally.
+
+```go
+package github
+
+import (
+    "encoding/json"
+    "fmt"
+    "net/http"
+    "net/url"
+    "strings"
+)
+
+// SearchIssues queries the GitHub issue tracker.
+func SearchIssues(terms []string) (*IssuesSearchResult, error) {
+    q := url.QueryEscape(strings.Join(terms, " "))
+    resp, err := http.Get(IssuesURL + "?q=" + q)
+
+    if err != nil {
+        return nil, err
+    }
+
+    // We must close resp.Body on all execution paths.
+    // (Chapter 5 presents 'defer', which makes this simpler.)
+    if resp.StatusCode != http.StatusOK {
+        resp.Body.Close()
+        return nil, fmt.Errorf("search query failed: %s", resp.Status)
+    }
+
+    var result IssuesSearchResult
+    if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+        resp.Body.Close()
+        return nil, err
+    }
+
+    resp.Body.Close()
+    return &result, nil
+}
+```
+
+```go
+// Issues prints a table of GitHub issues matching the search terms.
+package main
+
+import (
+    "fmt"
+    "log"
+    "os"
+    "./github"
+)
+
+func main() {
+    result, err := github.SearchIssues(os.Args[1:])
+
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    fmt.Printf("%d issues:\n", result.TotalCount)
+
+    for _, item := range result.Items {
+        fmt.Printf("#%-5d %9.9s %.55s\n", item.Number, item.User.Login, item.Title)
+    }
+}
+```
+
+### 4.6 Text and HTML Templates
+
+- This can be done with the `text/template` and `html/template` packages,  
+    which provide a mechanism for substituting the values of variables into a text or HTML template.
+- A template is a string or file containing one or more portions enclosed in double braces,  
+    `{{...}}`, called actions.  
+    Most of the string is printed literally, but the actions trigger other behaviors.
+- A simple template string is shown below:
+
+```go
+const templ = `{{.TotalCount}} issues:
+{{range .Items}}--------------------------------------
+--
+Number: {{.Number}}
+User:   {{.User.Login}}
+Title:  {{.Title | printf "%.64s"}}
+Age:    {{.CreatedAt | daysAgo}} days
+{{end}}`
+
+func daysAgo(t time.Time) int {
+    return int(time.Since(t).Hours() / 24)
+}
+
+report, err := template.New("report").Funcs(template.FuncMap{"daysAgo": daysAgo}).Parse(templ)
+if err != nil {
+    log.Fatal(err)
+}
+```
+
+- Once the template has been created, augmented with `daysAgo`, parsed, and checked,  
+    we can execute it using a `github.IssuesSearchResult` as the data source and `os.Stdout` as the destination:
+
+```go
+var report = template.Must(template.New("issuelist").Funcs(template.FuncMap{"daysAgo": daysAgo}).Parse(templ))
+
+func main() {
+    result, err := github.SearchIssues(os.Args[1:])
+
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    if err := report.Execute(os.Stdout, result); err != nil {
+        log.Fatal(err)
+    }
+}
+```
+
+- The program prints a plain text report like this:
+
+```
+$ go build gopl.io/ch4/issuesreport
+$ ./issuesreport repo:golang/go is:open json decoder
+13 issues:
+----------------------------------------
+Number: 5680
+User:   eaigner
+Title:  encoding/json: set key converter on en/decoder
+Age:    750 days
+----------------------------------------
+Number: 6050
+User:   gopherbot
+Title:  encoding/json: provide tokenizer
+Age:    695 days
+----------------------------------------
+...
+```
+
+- The template below prints the list of issues as an HTML table. Note the different import:
+
+```go
+import "html/template"
+
+var issueList = template.Must(template.New("issuelist").Parse(`
+<h1>{{.TotalCount}} issues</h1>
+<table>
+    <tr style='text-align: left'>
+    <th>#</th>
+    <th>State</th>
+    <th>User</th>
+    <th>Title</th>
+</tr>
+{{range .Items}}
+<tr>
+    <td><a href='{{.HTMLURL}}'>{{.Number}}</td>
+    <td>{{.State}}</td>
+    <td><a href='{{.User.HTMLURL}}'>{{.User.Login}}</a></td>
+    <td><a href='{{.HTMLURL}}'>{{.Title}}</a></td>
+</tr>
+{{end}}
+</table>
+`))
+```
+
+- The program below demonstrates the principle by using two fields with the same value but different types:  
+    `A` is a string and `B` is a template.HTML.
+
+```go
+func main() {
+    const templ = `<p>A: {{.A}}</p><p>B: {{.B}}</p>`
+    t := template.Must(template.New("escape").Parse(templ))
+    var data struct {
+        A string        // untrusted plain text
+        B template.HTML // trusted HTML
+    }
+
+    data.A = "<b>Hello!</b>"
+    data.B = "<b>Hello!</b>"
+
+    if err := t.Execute(os.Stdout, data); err != nil {
+        log.Fatal(err)
+    }
+}
+```
+
+- We can see that `A` was subject to escaping but `B` was not.
+- `String` values are HTML-escaped but `template.HTML` values are not.
+
+## 5. Functions
+
+- A function lets us wrap up a sequence of statements as a unit that can be called from elsewhere in a program,  
+    perhaps multiple times.  
+    Functions make it possible to break a big job into smaller pieces that might well be written  
+    by different people separated by both time and space.
+
+### 5.1 Function Declarations
+
+- A function declaration has a name, a list of parameters, an optional list of results, and a body:
+
+```
+func name(parameter-list) (result-list) {
+    body
+}
+```
+
+- Leaving off the result list entirely declares a function that does not return any value  
+    and is called only for its effects.  
+    In the hypot function
+
+```go
+func hypot(x, y float64) float64 {
+    return math.Sqrt(x*x + y*y)
+}
+
+fmt.Println(hypot(3, 4)) // "5"
+```
+
+- Here are four ways to declare a function with two parameters and one result, all of type int.  
+    The blank identifier can be used to emphasize that a parameter is unused.
+
+```go
+func add(x int, y int) int { return x + y }
+func sub(x, y int) (z int) { z = x - y; return }
+func first(x int, _ int) int { return x }
+func zero(int, int) int { return 0 }
+
+fmt.Printf("%T\n", add)     // "func(int, int) int"
+fmt.Printf("%T\n", sub)     // "func(int, int) int"
+fmt.Printf("%T\n", first)   // "func(int, int) int"
+fmt.Printf("%T\n", zero)    // "func(int, int) int"
+```
+
+- Go has no concept of default parameter values,  
+    nor any way to specify arguments by name, so the names of parameters  
+    and results don’t matter to the caller except as documentation.
+- Arguments are passed by value, so the function receives a copy of each argument;  
+    modifications to the copy do not affect the caller.
+- However, if the argument contains some kind of reference,  
+    like a `pointer`, `slice`, `map`, `function`, or `channel`,  
+    then the caller may be affected by any modifications the function makes to variables indirectly referred to by the argument.
+
+- You may occasionally encounter a function declaration without a body,  
+    indicating that the function is implemented in a language other than Go.  
+    Such a declaration defines the function signature.
+
+```go
+package math
+
+func Sin(x float64) float64 // implemented in assembly language
+```
+
+### 5.2 Recursion
+
+- Functions may be *recursive*, that is, they may call themselves, either directly or indirectly.  
+    Recursion is a powerful technique for many problems, and of course it’s essential for processing recursive data structures.
+
+- The example program below uses a non-standard package, `golang.org/x/net/html`, which provides an HTML parser.  
+    The `golang.org/x/...` repositories hold packages designed and maintained by the Go team  
+    for applications such as: 
+    - networking
+    - internationalized text processing
+    - mobile platforms
+    - image manipulation
+    - cryptography
+    - developer tools
+
+```go
+package html
+
+type Node struct {
+    Type                    NodeType
+    Data                    string
+    Attr                    []Attribute
+    FirstChild, NextSibling *Node
+}
+
+type NodeType int32
+
+const (
+    ErrorNode NodeType = iota
+    TextNode
+    DocumentNode
+    ElementNode
+    CommentNode
+    DoctypeNode
+)
+
+type Attribute struct {
+    Key, Val string
+}
+
+func Parse(r io.Reader) (*Node, error)
+```
+
+- The main function parses the standard input as HTML,  
+    extracts the links using a recursive `visit` function, and prints each discovered link:
+
+```go
+// Findlinks1 prints the links in an HTML document read from standard input.
+package main
+
+import (
+    "fmt"
+    "os"
+    "golang.org/x/net/html"
+)
+
+func main() {
+    doc, err := html.Parse(os.Stdin)
+
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "findlinks1: %v\n", err)
+        os.Exit(1)
+    }
+
+    for _, link := range visit(nil, doc) {
+        fmt.Println(link)
+    }
+}
+```
+
+- The visit function traverses an HTML node tree,  
+    extracts the link from the href attribute of each anchor element `<a href='...'>`,  
+    appends the links to a slice of strings, and returns the resulting slice:
+
+```go
+// visit appends to links each link found in n and returns the result.
+func visit(links []string, n *html.Node) []string {
+    if n.Type == html.ElementNode && n.Data == "a" {
+        for _, a := range n.Attr {
+            if a.Key == "href" {
+                links = append(links, a.Val)
+            }
+        }
+    }
+
+    for c := n.FirstChild; c != nil; c = c.NextSibling {
+        links = visit(links, c)
+    }
+
+    return links
+}
+```
+
+- To descend the tree for a node `n`,  
+    `visit` recursively calls itself for each of `n`’s children,  
+    which are held in the `FirstChild` linked list.
+
+- The next program uses recursion over the HTML node tree to print the structure of the tree in outline.  
+    As it encounters each element, it pushes the element’s tag onto a stack, then prints the stack.
+
+```go
+func main() {
+    doc, err := html.Parse(os.Stdin)
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "outline: %v\n", err)
+        os.Exit(1)
+    }
+
+    outline(nil, doc)
+}
+
+func outline(stack []string, n *html.Node) {
+    if n.Type == html.ElementNode {
+        stack = append(stack, n.Data) // push tag
+        fmt.Println(stack)
+    }
+
+    for c := n.FirstChild; c != nil; c = c.NextSibling {
+        outline(stack, c)
+    }
+}
+```
+
+- Note one subtlety: although outline “pushes” an element on stack, there is no
+corresponding pop. When outline calls itself recursively, the callee receives a copy of stack.
+
+- Go implementations use variable-size stacks  
+    that start small and grow as needed up to a limit on the order of a gigabyte.  
+    This lets us use recursion safely and without worrying about overflow.
+
+### 5.3 Multiple Return Values
+
+- A function can return more than one result.  
+    We’ve seen many examples of functions from standard packages that return two values,  
+    the desired computational result and an error value or boolean that indicates whether the computation worked.
+
+```go
+func main() {
+    for _, url := range os.Args[1:] {
+        links, err := findLinks(url)
+
+        if err != nil {
+            fmt.Fprintf(os.Stderr, "findlinks2: %v\n", err)
+            continue
+        }
+
+        for _, link := range links {
+            fmt.Println(link)
+        }
+    }
+}
+
+// findLinks performs an HTTP GET request for url, parses the
+// response as HTML, and extracts and returns the links.
+func findLinks(url string) ([]string, error) {
+    resp, err := http.Get(url)
+
+    if err != nil {
+        return nil, err
+    }
+
+    if resp.StatusCode != http.StatusOK {
+        resp.Body.Close()
+        return nil, fmt.Errorf("getting %s: %s", url, resp.Status)
+    }
+
+    doc, err := html.Parse(resp.Body)
+    resp.Body.Close()
+
+    if err != nil {
+        return nil, fmt.Errorf("parsing %s as HTML: %v", url, err)
+    }
+
+    return visit(nil, doc), nil
+}
+```
+
+- We must ensure that `resp.Body` is closed  
+    so that network resources are properly released even in case of error.  
+    Go’s garbage collector recycles unused memory,  
+    but do not assume it will release unused operating system resources  
+    like open files and network connections.  
+    They should be closed explicitly.
+
+- A multi-valued call may appear as the sole argument when calling a function of multiple parameters.  
+    Although rarely used in production code,  
+    this feature is sometimes convenient during debugging since it lets us print all the results of a call using a single statement.  
+    The two print statements below have the same effect.
+
+```go
+log.Println(findLinks(url))
+
+// Same as
+links, err := findLinks(url)
+log.Println(links, err)
+```
+
+- Well-chosen names can document the significance of a function’s results.  
+    Names are particularly valuable when a function returns multiple results of the same type, like
+
+```go
+func Size(rect image.Rectangle) (width, height int)
+func Split(path string) (dir, file string)
+func HourMinSec(t time.Time) (hour, minute, second int)
+```
+
+- For instance, convention dictates that a final bool result indicates success;  
+    an error result often needs no explanation.
+- In a function with named results, the operands of a return statement may be omitted.  
+    This is called a *bare return*.
+
+```go
+// CountWordsAndImages does an HTTP GET request for the HTML
+// document url and returns the number of words and images in it.
+func CountWordsAndImages(url string) (words, images int, err error) {
+    resp, err := http.Get(url)
+
+    if err != nil {
+        return
+    }
+
+    doc, err := html.Parse(resp.Body)
+    resp.Body.Close()
+
+    if err != nil {
+        err = fmt.Errorf("parsing HTML: %s", err)
+    return
+    }
+
+    words, images = countWordsAndImages(doc)
+    return
+}
+
+func countWordsAndImages(n *html.Node) (words, images int) { /* ... */ }
+```
+
+- A bare return is a shorthand way to return each of the named result variables in order,  
+    so in the function above, each return statement is equivalent to
+
+```go
+return words, images, err
+```
+
+- the two early returns are equivalent to return 0, 0, err  
+    (because the result variables words and images are initialized to their zero values)  
+    and that the final return is equivalent to return words, images, nil.
+
+### 5.4 Errors
+
+- Errors are thus an important part of a package’s API or an application’s user interface,  
+    and failure is just one of several expected behaviors.  
+    This is the approach Go takes to error handling.
+
+- A function for which failure is an expected behavior   
+    returns an additional result, conventionally the last one.  
+    If the failure has only one possible cause, the result is a boolean, usually called ok,  
+    as in this example of a cache lookup that always succeeds unless there was no entry for that key:
+
+```go
+value, ok := cache.Lookup(key)
+if !ok {
+    // ...cache[key] does not exist...
+}
+```
+
+- More often, and especially for I/O,  
+    the failure may have a variety of causes for which the caller will need an explanation.  
+    In such cases, the type of the additional result is `error`.
+- The built-in type `error` is an *interface type*.
+- `error` may be *nil* or *non-nil*, that *nil* implies success and *non-nil* implies failure,  
+    and that a *non-nil error* has an error message string  
+    which we can obtain by calling its Error method or print by calling fmt.Println(err) or fmt.Printf("%v", err)
+- Go programs use ordinary control-flow mechanisms like if and return to respond to errors.  
+    This style undeniably demands that more attention be paid to error-handling logic,  
+    but that is precisely the point.
+
+#### 5.4.1 Error-Handling Strategies
+
+- When a function call returns an error, it’s the caller’s responsibility to check it and take appropriate action.
+
+- First, and most common, is to propagate the error,  
+    so that a failure in a subroutine becomes a failure of the calling routine.
+
+```go
+resp, err := http.Get(url)
+if err != nil {
+    return nil, err
+}
+```
+
+- In contrast, if the call to `html.Parse` fails, `findLinks` does not return the HTML parser’s error directly  
+    because it lacks two crucial pieces of information:  
+        - that the error occurred in the parser
+        - the URL of the document that was being parsed.  
+    In this case, `findLinks` constructs a new error message that includes  
+    both pieces of information as well as the underlying parse error:
+
+```go
+doc, err := html.Parse(resp.Body)
+resp.Body.Close()
+if err != nil {
+    return nil, fmt.Errorf("parsing %s as HTML: %v", url, err)
+}
+```
+
+- The `fmt.Errorf` function formats an error message using `fmt.Sprintf` and returns a new error value.  
+    We use it to build descriptive errors by successively prefixing additional context information to the original error message.
+- When the error is ultimately handled by the program’s main function,  
+    it should provide a clear causal chain from the root problem to the overall failure
+
+- Because error messages are frequently chained together,  
+    message strings should not be capitalized and newlines should be avoided.  
+    The resulting errors may be long, but they will be self-contained when found by tools like `grep`.
+
+- For example, the `os` package guarantees that every error returned by a file operation,  
+    such as `os.Open` or the `Read`, `Write`, or `Close` methods of an open file,  
+    describes not just the nature of the failure (permission denied, no such directory, and so on)  
+    but also the name of the file, so the caller needn’t include this information in the error message it constructs.
+
+- For errors that represent transient or unpredictable problems,  
+    it may make sense to *retry* the failed operation, possibly with a delay between tries,  
+    and perhaps with a limit on the number of attempts or the time spent trying before giving up entirely.
+
+```go
+// WaitForServer attempts to contact the server of a URL.
+// It tries for one minute using exponential back-off.
+// It reports an error if all attempts fail.
+func WaitForServer(url string) error {
+    const timeout = 1 * time.Minute
+    deadline := time.Now().Add(timeout)
+
+    for tries := 0; time.Now().Before(deadline); tries++ {
+        _, err := http.Head(url)
+        if err == nil {
+            return nil // success
+        }
+
+        log.Printf("server not responding (%s); retrying...", err)
+        time.Sleep(time.Second << uint(tries)) // exponential back-off
+    }
+
+    return fmt.Errorf("server %s failed to respond after %s", url, timeout)
+}
+```
+
+P. 212
