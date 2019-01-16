@@ -3820,4 +3820,433 @@ func WaitForServer(url string) error {
 }
 ```
 
-P. 212
+- Third, if progress is impossible, the caller can print the error and stop the program gracefully,  
+    but this course of action should generally be reserved for the main package of a program.  
+    Library functions should usually propagate errors to the caller,  
+    unless the error is a sign of an internal inconsistency—that is, a bug.
+
+```go
+// (In function main.)
+if err := WaitForServer(url); err != nil {
+    fmt.Fprintf(os.Stderr, "Site is down: %v\n", err)
+    os.Exit(1)
+}
+```
+
+- A more convenient way to achieve the same effect is to call `log.Fatalf`.  
+    As with all the log functions, by default it prefixes the time and date to the error message.
+
+```go
+if err := WaitForServer(url); err != nil {
+    log.Fatalf("Site is down: %v\n", err)
+}
+```
+
+- Fourth, in some cases, it’s sufficient just to log the error and then continue,  
+    perhaps with reduced functionality.  
+    Again there’s a choice between using the log package, which adds the usual prefix:
+
+```go
+if err := Ping(); err != nil {
+    log.Printf("ping failed: %v; networking disabled", err)
+}
+
+// Or Printing directly to the standard error stream:
+if err := Ping(); err != nil {
+    fmt.Fprintf(os.Stderr, "ping failed: %v; networking disabled\n", err)
+}
+```
+
+- fifth and finally, in rare cases we can safely ignore an error entirely:
+
+```go
+dir, err := ioutil.TempDir("", "scratch")
+if err != nil {
+    return fmt.Errorf("failed to create temp dir: %v", err)
+}
+
+// ...use temp dir...
+os.RemoveAll(dir) // ignore errors; $TMPDIR is cleaned periodically
+```
+
+- The call to os.RemoveAll may fail,  
+    but the program ignores it because the operating system periodically cleans out the temporary directory.
+
+
+#### 5.4.2 End of File (EOF)
+
+- the `io` package guarantees that any read failure caused by an end-of-file condition  
+    is always reported by a distinguished error, `io.EOF`, which is defined as follows:
+
+```go
+package io
+
+import "errors"
+
+// EOF is the error returned by Read when no more input is available.
+var EOF = errors.New("EOF")
+```
+
+- The caller can detect this condition using a simple comparison,  
+    as in the loop below, which reads runes from the standard input.
+
+```go
+in := bufio.NewReader(os.Stdin)
+for {
+    r, _, err := in.ReadRune()
+
+    if err == io.EOF {
+        break // finished reading
+    }
+
+    if err != nil {
+        return fmt.Errorf("read failed: %v", err)
+    }
+    // ...use r...
+}
+```
+
+### Function Values
+
+- Functions are *first-class* values in Go:  
+    like other values, function values have *types*, and they may be assigned to variables or passed to or returned from functions.  
+    A function value may be called like any other function. For example:
+
+```go
+func square(n int) int { return n * n }
+func negative(n int) int { return -n }
+func product(m, n int) int { return m * n }
+
+f := square
+fmt.Println(f(3))       // "9"
+
+f = negative
+fmt.Println(f(3))       // "-3"
+
+fmt.Printf("%T\n", f)   // "func(int) int"
+f = product             // compile error: can't assign f(int, int) int to f(int) int
+```
+
+- The zero value of a function type is `nil`.  
+    Calling a nil function value causes a panic:
+
+```go
+var f func(int) int
+f(3)                    // panic: call of nil function
+
+// Function values may be compared with nil
+var f func(int) int
+if f != nil {
+    f(3)
+}
+```
+
+- Functions are not comparable,  
+    so they may not be compared against each other or used as keys in a map.
+
+- Function values let us parameterize our functions over not just data, but behavior too.  
+    The standard libraries contain many examples.  
+    For instance, `strings.Map` applies a function to each character of a string, joining the results to make another string.
+
+```go
+func add1(r rune) rune { return r + 1 }
+
+fmt.Println(strings.Map(add1, "HAL-9000"))  // "IBM.:111"
+fmt.Println(strings.Map(add1, "VMS"))       // "WNT"
+fmt.Println(strings.Map(add1, "Admix"))     // "Benjy"
+```
+
+- Using a function value,  
+    we can separate the logic for tree traversal from the logic for the action to be applied to each node,  
+    letting us reuse the traversal with different actions.
+
+```go
+// forEachNode calls the functions pre(x) and post(x) for each node
+// x in the tree rooted at n. Both functions are optional.
+// pre is called before the children are visited (preorder) and
+// post is called after (postorder).
+func forEachNode(n *html.Node, pre, post func(n *html.Node)) {
+    if pre != nil {
+        pre(n)
+    }
+
+    for c := n.FirstChild; c != nil; c = c.NextSibling {
+        forEachNode(c, pre, post)
+    }
+
+    if post != nil {
+        post(n)
+    }
+}
+```
+
+- The `forEachNode` function accepts two function arguments,  
+    one to call before a node’s children are visited and one to call after. 
+    This arrangement gives the caller a great deal of flexibility.  
+    For example, the functions `startElement` and `endElement` print the start and end tags of an HTML element like `<b>...</b>`:
+
+```go
+var depth int
+
+func startElement(n *html.Node) {
+    if n.Type == html.ElementNode {
+        fmt.Printf("%*s<%s>\n", depth*2, "", n.Data)
+        depth++
+    }
+}
+
+func endElement(n *html.Node) {
+    if n.Type == html.ElementNode {
+        depth--
+        fmt.Printf("%*s</%s>\n", depth*2, "", n.Data)
+    }
+}
+```
+
+- The functions also indent the output using another `fmt.Printf` trick.  
+    The `*` adverb in `%*s` prints a string padded with a variable number of spaces.  
+    The width and the string are provided by the arguments `depth*2` and `""`.
+
+- If we call `forEachNode` on an HTML document, like this:
+
+```go
+forEachNode(doc, startElement, endElement)
+```
+
+### 5.6 Anonymous Functions
+
+- Named functions can be declared only at the package level,  
+    but we can use a function literal to denote a function value within any expression.  
+    A function literal is written like a function declaration, but without a name following the func keyword.  
+    It is an expression, and its value is called an *anonymous function*.
+- Function literals let us define a function at its point of use. As an example,  
+    the earlier call to strings.Map can be rewritten as
+
+```go
+strings.Map(func(r rune) rune { return r + 1 }, "HAL-9000")
+```
+
+- More importantly, functions defined in this way have access to the entire lexical environment,  
+    so the inner function can refer to variables from the enclosing function, as this example shows:
+
+```go
+// squares returns a function that returns
+// the next square number each time it is called.
+func squares() func() int {
+    var x int
+    return func() int {
+        x++
+        return x * x
+    }
+}
+
+func main() {
+    f := squares()
+    fmt.Println(f()) // "1"
+    fmt.Println(f()) // "4"
+    fmt.Println(f()) // "9"
+    fmt.Println(f()) // "16"
+}
+```
+
+- The function `squares` returns another function, of type `func() int`.  
+    A call to `squares` creates a local variable `x` and returns an anonymous function that,  
+    each time it is called, increments `x` and returns its square.  
+    A second call to `squares` would create a second variable `x` and return a new anonymous function which increments that variable.
+
+- Function values like these are implemented using a technique called *closures*,  
+    and Go programmers often use this term for function values.
+
+- Consider the problem of computing a sequence of computer science courses that satisfies the prerequisite requirements of each one.  
+    The prerequisites are given in the prereqs table below,  
+    which is a mapping from each course to the list of courses that must be completed before it.
+
+```go
+// prereqs maps computer science courses to their
+prerequisites.
+var prereqs = map[string][]string{
+    "algorithms":               {"data structures"},
+    "calculus":                 {"linear algebra"},
+    "compilers": {
+                    "data structures",
+                    "formal languages",
+                    "computer organization",
+                 },
+    "data structures":          {"discrete math"},
+    "databases":                {"data structures"},
+    "discrete math":            {"intro to programming"},
+    "formal languages":         {"discrete math"},
+    "networks":                 {"operating systems"},
+    "operating systems":        {"data structures", "computer organization"},
+    "programming languages":    {"data structures", "computer organization"},
+}
+```
+
+- The graph is acyclic: there is no path from a course that leads back to itself.  
+    We can compute a valid sequence using depth-first search through the graph with the code below:
+
+```go
+func main() {
+    for i, course := range topoSort(prereqs) {
+        fmt.Printf("%d:\t%s\n", i+1, course)
+    }
+}
+
+func topoSort(m map[string][]string) []string {
+    var order []string
+    seen := make(map[string]bool)
+    var visitAll func(items []string)
+
+    visitAll = func(items []string) {
+
+        for _, item := range items {
+            if !seen[item] {
+                seen[item] = true
+                visitAll(m[item])
+                order = append(order, item)
+            }
+        }
+    }
+
+    var keys []string
+    for key := range m {
+        keys = append(keys, key)
+    }
+
+    sort.Strings(keys)
+    visitAll(keys)
+
+    return order
+}
+```
+
+- When an anonymous function requires recursion, as in this example,  
+    we must first declare a variable, and then assign the anonymous function to that variable.  
+    Had these two steps been combined in the declaration,  
+    the function literal would not be within the scope of the variable visitAll,  
+    so it would have no way to call itself recursively:
+
+```go
+visitAll := func(items []string) {
+    // ...
+    visitAll(m[item]) // compile error: undefined: visitAll
+    // ...
+}
+```
+
+- We replaced the `visit` function with an anonymous function that appends to the `links` slice directly,  
+    and used `forEachNode` to handle the traversal.  
+    Since `Extract` needs only the `pre` function, it passes `nil` for the post argument.
+
+```go
+// Package links provides a link-extraction function.
+package links
+
+import (
+	"fmt"
+	"golang.org/x/net/html"
+	"net/http"
+)
+
+// Extract makes an HTTP GET request to the specified URL, parses
+// the response as HTML, and returns the links in the HTML document.
+func Extract(url string) ([]string, error) {
+	resp, err := http.Get(url)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		resp.Body.Close()
+		return nil, fmt.Errorf("getting %s: %s", url, resp.Status)
+	}
+
+	doc, err := html.Parse(resp.Body)
+	resp.Body.Close()
+
+	if err != nil {
+		return nil, fmt.Errorf("parsing %s as HTML: %v", url, err)
+	}
+
+	var links []string
+	visitNode := func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "a" {
+			for _, a := range n.Attr {
+				if a.Key != "href" {
+					continue
+				}
+
+				link, err := resp.Request.URL.Parse(a.Val)
+
+				if err != nil {
+					continue // ignore bad URLs
+				}
+
+				links = append(links, link.String())
+			}
+		}
+	}
+
+	forEachNode(doc, visitNode, nil)
+	return links, nil
+}
+```
+
+#### 5.6.1 Caveat: Capturing Iteration Variables
+
+- Consider a program that must create a set of directories and later remove them.  
+    We can use a slice of function values to hold the clean-up operations.  
+    (For brevity, we have omitted all error handling in this example.)
+
+```go
+var rmdirs []func()
+for _, d := range tempDirs() {
+    dir := d                    // NOTE: necessary!
+    os.MkdirAll(dir, 0755)      // creates parent directories too
+    rmdirs = append(rmdirs, func() {
+        os.RemoveAll(dir)
+    })
+}
+
+// ...do some work...
+for _, rmdir := range rmdirs {
+    rmdir() // clean up
+}
+```
+
+- You may be wondering why we assigned the loop variable `d` to a new local variable dir within the loop body,  
+    instead of just naming the loop variable dir as in this subtly incorrect variant:
+
+```go
+var rmdirs []func()
+for _, dir := range tempDirs() {
+    os.MkdirAll(dir, 0755)
+    rmdirs = append(rmdirs, func() {
+        os.RemoveAll(dir) // NOTE: incorrect!
+    })
+}
+```
+
+- The risk is not unique to `range`-based `for` loops.  
+    The loop in the example below suffers from the same problem due to unintended capture of the index variable `i`.
+
+```go
+var rmdirs []func()
+dirs := tempDirs()
+
+for i := 0; i < len(dirs); i++ {
+    os.MkdirAll(dirs[i], 0755) // OK
+    rmdirs = append(rmdirs, func() {
+        os.RemoveAll(dirs[i]) // NOTE: incorrect!
+    })
+}
+```
+
+- The problem of iteration variable capture is most often  
+    encountered when using the `go` statement or with `defer` since both may delay the execution of a function value  
+    until after the loop has finished.  
+    But the problem is not inherent to `go` or `defer`.
+
+### 5.7 Variadic Functions
+
