@@ -4250,3 +4250,500 @@ for i := 0; i < len(dirs); i++ {
 
 ### 5.7 Variadic Functions
 
+- A *variadic function* is one that can be called with varying numbers of arguments.  
+    The most familiar examples are `fmt.Printf` and its variants.  
+    `Printf` requires one fixed argument at the beginning, then accepts any number of subsequent arguments.
+- To declare a variadic function, the type of the final parameter is preceded by an ellipsis, `...`,  
+    which indicates that the function may be called with any number of arguments of this type.
+
+```go
+func sum(vals ...int) int {
+    total := 0
+
+    for _, val := range vals {
+        total += val
+    }
+
+    return total
+}
+
+// usage
+fmt.Println(sum())              // "0"
+fmt.Println(sum(3))             // "3"
+fmt.Println(sum(1, 2, 3, 4))    // "10"
+```
+
+- Implicitly, the caller allocates an array, copies the arguments into it, and passes a slice of the entire array to the function.  
+    The last call above thus behaves the same as the call below,  
+    which shows how to invoke a *variadic* function when the arguments are already in a slice:  
+    place an ellipsis after the final argument.
+
+```go
+values := []int{1, 2, 3, 4}
+fmt.Println(sum(values...))     // "10"
+```
+
+- Although the `...int` parameter behaves like a slice within the function body,  
+    the type of a variadic function is distinct from the type of a function with an ordinary slice parameter.
+
+```go
+func f(...int) {}
+func g([]int) {}
+
+fmt.Printf("%T\n", f)           // "func(...int)"
+fmt.Printf("%T\n", g)           // "func([]int)"
+```
+
+- Variadic functions are often used for string formatting.  
+    The `errorf` function below constructs a formatted error message with a line number at the beginning.  
+    The suffix `f` is a widely followed naming convention for variadic functions that accept a `Printf`-style format string.
+
+```go
+func errorf(linenum int, format string, args ...interface{}) {
+    fmt.Fprintf(os.Stderr, "Line %d: ", linenum)
+    fmt.Fprintf(os.Stderr, format, args...)
+    fmt.Fprintln(os.Stderr)
+}
+
+linenum, name := 12, "count"
+errorf(linenum, "undefined: %s", name) // "Line 12: undefined: count"
+```
+
+- The `interface{}` type means that this function can accept any values at all for its final arguments
+
+### 5.8 Deferred Function Calls
+
+- The program below fetches an HTML document and prints its title.  
+    The `title` function inspects the `Content-Type` header of the server’s response and returns an error if the document is not HTML.
+
+```go
+func title(url string) error {
+    resp, err := http.Get(url)
+    if err != nil {
+        return err
+    }
+
+    // Check Content-Type is HTML (e.g., "text/html; charset=utf-8").
+    ct := resp.Header.Get("Content-Type")
+
+    if ct != "text/html" && !strings.HasPrefix(ct, "text/html;") {
+        resp.Body.Close()
+        return fmt.Errorf("%s has type %s, not text/html", url, ct)
+    }
+
+    doc, err := html.Parse(resp.Body)
+    resp.Body.Close()
+
+    if err != nil {
+        return fmt.Errorf("parsing %s as HTML: %v", url, err)
+    }
+
+    visitNode := func(n *html.Node) {
+        if n.Type == html.ElementNode && n.Data == "title" && n.FirstChild != nil {
+            fmt.Println(n.FirstChild.Data)
+        }
+    }
+
+    forEachNode(doc, visitNode, nil)
+
+    return nil
+}
+```
+
+- Observe the duplicated `resp.Body.Close()` call,  
+    which ensures that `title` closes the network connection on all execution paths, including failures.  
+    As functions grow more complex and have to handle more errors,  
+    such duplication of clean-up logic may become a maintenance problem.  
+    Let’s see how Go’s novel `defer` mechanism makes things simpler.
+- Syntactically, a `defer` statement is an ordinary function or method call prefixed by the keyword `defer`.  
+    The function and argument expressions are evaluated when the statement is executed,  
+    but the actual call is deferred until the function that contains the `defer` statement has finished,  
+    whether normally, by executing a return statement or falling off the end, or abnormally, by panicking.  
+    Any number of calls may be deferred; they are executed in the reverse of the order in which they were deferred.
+- A `defer` statement is often used with paired operations like open and close,  
+    connect and disconnect, or lock and unlock to ensure that resources are released in all cases,  
+    no matter how complex the control flow.
+- The right place for a `defer` statement that releases a resource is immediately after the resource has been successfully acquired.  
+    In the title function below, a single deferred call replaces both previous calls to `resp.Body.Close()`
+
+```go
+func title(url string) error {
+    resp, err := http.Get(url)
+
+    if err != nil {
+        return err
+    }
+
+    defer resp.Body.Close()
+
+    ct := resp.Header.Get("Content-Type")
+    if ct != "text/html" && !strings.HasPrefix(ct, "text/html;") {
+        return fmt.Errorf("%s has type %s, not text/html", url, ct)
+    }
+
+    doc, err := html.Parse(resp.Body)
+
+    if err != nil {
+        return fmt.Errorf("parsing %s as HTML: %v", url, err)
+    }
+
+    // ...print doc's title element...
+    return nil
+}
+```
+
+- The same pattern can be used for other resources beside network connections, for instance to close an open file:
+
+```go
+package ioutil
+
+func ReadFile(filename string) ([]byte, error) {
+    f, err := os.Open(filename)
+    if err != nil {
+        return nil, err
+    }
+
+    defer f.Close()
+
+    return ReadAll(f)
+}
+
+// Or to unlock a mutex
+var mu sync.Mutex
+var m = make(map[string]int)
+
+func lookup(key string) int {
+    mu.Lock()
+    defer mu.Unlock()
+    return m[key]
+}
+```
+
+- The `defer` statement can also be used to pair "on entry" and "on exit" actions when debugging a complex function.  
+    The `bigSlowOperation` function below calls `trace` immediately,  
+    which does the “on entry” action then returns a function value that, when called, does the corresponding "on exit" action.  
+    By deferring a call to the returned function in this way,  
+    we can instrument the entry point and all exit points of a function in a single statement and even pass values,  
+    like the start time, between the two actions.  
+    But don’t forget the final parentheses in the `defer` statement,  
+    or the “on entry” action will happen on exit and the on-exit action won’t happen at all!
+
+```go
+func bigSlowOperation() {
+    defer trace("bigSlowOperation")()   // don't forget the extra parentheses
+    // ...lots of work...
+    time.Sleep(10 * time.Second)        // simulate slow operation by sleeping
+}
+
+func trace(msg string) func() {
+    start := time.Now()
+    log.Printf("enter %s", msg)
+    return func() { 
+        log.Printf("exit %s (%s)", msg,
+        time.Since(start)) 
+    }
+}
+```
+
+- Deferred functions run *after* return statements have updated the function’s result variables.  
+    Because an anonymous function can access its enclosing function’s variables, including named results,  
+    a deferred anonymous function can observe the function’s results.
+
+```go
+func double(x int) int {
+    return x + x
+}
+```
+
+- By naming its result variable and adding a `defer` statement,  
+    we can make the function print its arguments and results each time it is called.
+
+```go
+func double(x int) (result int) {
+    defer func() { 
+        fmt.Printf("double(%d) = %d\n", x, result) 
+    }()
+
+    return x + x
+}
+
+_ = double(4)
+// Output:
+// "double(4) = 8"
+```
+
+- Because deferred functions aren’t executed until the very end of a function’s execution,  
+    a `defer` statement in a loop deserves extra scrutiny.  
+    The code below could run out of file descriptors since no file will be closed until all files have been processed:
+
+```go
+for _, filename := range filenames {
+    f, err := os.Open(filename)
+
+    if err != nil {
+        return err
+    }
+
+    defer f.Close() // NOTE: risky; could run out of file descriptors
+    // ...process f...
+}
+```
+
+- One solution is to move the loop body, including the `defer` statement,  
+    into another function that is called on each iteration.
+
+```go
+for _, filename := range filenames {
+    if err := doFile(filename); err != nil {
+        return err
+    }
+}
+
+func doFile(filename string) error {
+    f, err := os.Open(filename)
+
+    if err != nil {
+        return err
+    }
+
+    defer f.Close()
+    // ...process f...
+}
+```
+
+- The example below is an improved `fetch` program that writes the HTTP response to a local file instead of to the standard output.  
+    It derives the file name from the last component of the URL path, which it obtains using the `path.Base` function.
+
+```go
+// Fetch downloads the URL and returns the
+// name and length of the local file.
+func fetch(url string) (filename string, n int64, err error) {
+    resp, err := http.Get(url)
+
+    if err != nil {
+        return "", 0, err
+    }
+
+    defer resp.Body.Close()
+
+    local := path.Base(resp.Request.URL.Path)
+
+    if local == "/" {
+        local = "index.html"
+    }
+
+    f, err := os.Create(local)
+
+    if err != nil {
+        return "", 0, err
+    }
+
+    n, err = io.Copy(f, resp.Body)
+    // Close file, but prefer error from Copy, if any.
+    if closeErr := f.Close(); err == nil {
+        err = closeErr
+    }
+
+    return local, n, err
+}
+```
+
+### 5.9 Panic
+
+- Go’s type system catches many mistakes at compile time,  
+    but others, like an out-ofbounds array access or nil pointer dereference, require checks at run time.  
+    When the Go runtime detects these mistakes, it *panics*.
+
+- Not all panics come from the runtime.  
+    The built-in `panic` function may be called directly; it accepts any value as an argument.  
+    A panic is often the best thing to do when some "impossible" situation happens,  
+    for instance, execution reaches a case that logically can’t happen:
+
+```go
+switch s := suit(drawCard()); s {
+    case "Spades": // ...
+    case "Hearts": // ...
+    case "Diamonds": // ...
+    case "Clubs": // ...
+    default:
+        panic(fmt.Sprintf("invalid suit %q", s)) // Joker?
+}
+```
+
+- It’s good practice to assert that the preconditions of a function hold,  
+    but this can easily be done to excess.  
+    Unless you can provide a more informative error message or detect an error sooner,  
+    there is no point asserting a condition that the runtime will check for you.
+
+```go
+func Reset(x *Buffer) {
+    if x == nil {
+        panic("x is nil") // unnecessary!
+    }
+
+    x.elements = nil
+}
+```
+
+- In a robust program, "expected" errors, the kind that arise from incorrect input, misconfiguration, or failing I/O,  
+    should be handled gracefully; they are best dealt with using `error` values.
+
+- Since most regular expressions are literals in the program source code,  
+    the `regexp` package provides a wrapper function `regexp.MustCompile` that does this check:
+
+```go
+package regexp
+
+func Compile(expr string) (*Regexp, error) { 
+    /* ... */
+}
+
+func MustCompile(expr string) *Regexp {
+    re, err := Compile(expr)
+    if err != nil {
+        panic(err)
+    }
+
+    return re
+}
+```
+
+- The wrapper function makes it convenient for clients to initialize a package-level variable with a compiled regular expression,  
+    like this:
+
+```go
+var httpSchemeRE = regexp.MustCompile(`^https?:`) // "http:" or "https:"
+```
+
+- Of course, `MustCompile` should not be called with untrusted input values.  
+    The `Must` prefix is a common naming convention for functions of this kind, like `template.Must`.
+
+- For diagnostic purposes, the `runtime` package lets the programmer dump the stack using the same machinery.  
+    By deferring a call to `printStack` in `main`.
+
+```go
+func main() {
+    f(3)
+}
+
+func f(x int) {
+    fmt.Printf("f(%d)\n", x+0/x) // panics if x == 0
+    defer fmt.Printf("defer %d\n", x)
+    f(x - 1)
+}
+
+func main() {
+    defer printStack()
+    f(3)
+}
+
+func printStack() {
+    var buf [4096]byte
+    n := runtime.Stack(buf[:], false)
+    os.Stdout.Write(buf[:n])
+}
+```
+
+- Go’s panic mechanism runs the deferred functions *before* it unwinds the stack.
+
+### 5.10 Recover
+
+- Giving up is usually the right response to a panic, but not always.  
+    It might be possible to recover in some way, or at least clean up the mess before quitting.  
+    For example, a web server that encounters an unexpected problem could close the connection rather  
+    than leave the client hanging, and during development, it might report the error to the client too.
+
+- If the built-in `recover` function is called within a deferred function  
+    and the function containing the `defer` statement is panicking,  
+    recover ends the current state of panic and returns the panic value.  
+    The function that was panicking does not continue where it left off but returns normally.  
+    If `recover` is called at any other time, it has no effect and returns `nil`.
+
+- To illustrate, consider the development of a parser for a language.  
+    Even when it appears to be working well, given the complexity of its job, bugs may still lurk in obscure corner cases.  
+    We might prefer that, instead of crashing, the parser turns these panics into ordinary parse errors,  
+    perhaps with an extra message exhorting the user to file a bug report.
+
+```go
+func Parse(input string) (s *Syntax, err error) {
+    defer func() {
+        if p := recover(); p != nil {
+            err = fmt.Errorf("internal error: %v", p)
+        }
+    }()
+
+    // ...parser...
+}
+```
+
+- The deferred function in `Parse` recovers from a panic, using the panic value to construct an error message;  
+    a fancier version might include the entire call stack using `runtime.Stack`.  
+    The deferred function then assigns to the `err` result, which is returned to the caller.
+
+- Recovering from a panic within the same package can help simplify the handling of complex or unexpected errors,  
+    but as a general rule, you should not attempt to recover from another package’s panic.
+
+- The example below is a variation on the `title` program that reports an error if the HTML document contains multiple `<title>` elements.  
+    If so, it aborts the recursion by calling `panic` with a value of the special type `bailout`.
+
+```go
+// soleTitle returns the text of the first non-empty title element
+// in doc, and an error if there was not exactly one.
+func soleTitle(doc *html.Node) (title string, err error) {
+
+    type bailout struct{}
+
+    defer func() {
+        switch p := recover(); p {
+            case nil:           // no panic
+            case bailout{}:     // "expected" panic
+                err = fmt.Errorf("multiple title elements")
+            default:
+                panic(p) // unexpected panic; carry on panicking
+        }
+    }()
+
+    // Bail out of recursion if we find more than one non-empty title.
+    forEachNode(doc, func(n *html.Node) {
+        if n.Type == html.ElementNode && n.Data == "title" && n.FirstChild != nil {
+            if title != "" {
+                panic(bailout{}) // multiple title elements
+            }
+            title = n.FirstChild.Data
+        }
+    }, nil)
+
+    if title == "" {
+        return "", fmt.Errorf("no title element")
+    }
+
+    return title, nil
+}
+```
+
+- The deferred handler function calls `recover`, checks the panic value,  
+    and reports an ordinary error if the value was bailout{}.  
+    All other non-nil values indicate an unexpected panic,  
+    in which case the handler calls `panic` with that value,  
+    undoing the effect of `recover` and resuming the original state of panic.
+
+## 6. Methods
+
+- Although there is no universally accepted definition of object-oriented programming,  
+    for our purposes, an *object* is simply a value or variable that has methods,  
+    and a method is a function associated with a particular type.  
+    An object-oriented program is one that uses methods to express the properties  
+    and operations of each data structure   
+    so that clients need not access the object’s representation directly.
+
+- We defined a method of our own, a String method for the Celsius type:
+
+```go
+func (c Celsius) String() string { 
+    return fmt.Sprintf("%g°C", c) 
+}
+```
+
+### 6.1 Method Declarations
+
+
