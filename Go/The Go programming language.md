@@ -4746,4 +4746,332 @@ func (c Celsius) String() string {
 
 ### 6.1 Method Declarations
 
+- A method is declared with a variant of the ordinary function declaration  
+    in which an extra parameter appears before the function name. 
+    The parameter attaches the function to the type of that parameter.
 
+- Let’s write our first method in a simple package for plane geometry:
+
+```go
+package geometry
+
+import "math"
+
+type Point struct{ X, Y float64 }
+
+// traditional function
+func Distance(p, q Point) float64 {
+    return math.Hypot(q.X-p.X, q.Y-p.Y)
+}
+
+// same thing, but as a method of the Point type
+func (p Point) Distance(q Point) float64 {
+    return math.Hypot(q.X-p.X, q.Y-p.Y)
+}
+```
+
+- In Go, we don’t use a special name like `this` or `self` for the receiver;  
+    we choose receiver names just as we would for any other parameter.  
+    Since the receiver name will be frequently used, it’s a good idea to choose something short and to be consistent across methods.  
+    A common choice is the first letter of the type name, like `p` for `Point`.
+
+```go
+p := Point{1, 2}
+q := Point{4, 6}
+
+fmt.Println(Distance(p, q)) // "5", function call
+fmt.Println(p.Distance(q))  // "5", method call
+```
+
+- There’s no conflict between the two declarations of functions called Distance above.  
+    The first declares a package-level function called `geometry.Distance`.  
+    The second declares a method of the type `Point`, so its name is `Point.Distance`.
+
+- Since each type has its own name space for methods,  
+    we can use the name `Distance` for other methods so long as they belong to different types.  
+    Let’s define a type `Path` that represents a sequence of line segments and give it a `Distance` method too.
+
+```go
+// A Path is a journey connecting the points with straight lines.
+type Path []Point
+
+// Distance returns the distance traveled along the path.
+func (path Path) Distance() float64 {
+    sum := 0.0
+    for i := range path {
+        if i > 0 {
+            sum += path[i-1].Distance(path[i])
+        }
+    }
+    
+    return sum
+}
+```
+
+- The benefit is magnified for calls originating outside the package,  
+    since they can use the shorter name and omit the package name:
+
+```go
+import "gopl.io/ch6/geometry"
+
+perim := geometry.Path{{1, 1}, {5, 1}, {5, 4}, {1, 1}}
+fmt.Println(geometry.PathDistance(perim))   // "12", standalone function
+fmt.Println(perim.Distance())               // "12", method of geometry.Path
+```
+
+### 6.2 Methods with a Pointer Receiver
+
+- The same goes for methods that need to update the receiver variable:  
+    we attach them to the pointer type, such as `*Point`.
+
+```go
+func (p *Point) ScaleBy(factor float64) {
+    p.X *= factor
+    p.Y *= factor
+}
+```
+
+- In a realistic program, convention dictates that if any method of Point has a pointer receiver,  
+    then *all methods of Point should have a pointer receiver*,  
+    even ones that don’t strictly need it.  
+    We’ve broken this rule for `Point` so that we can show both kinds of method.
+
+- Named types (`Point`) and pointers to them (`*Point`) are the only types that may appear in a receiver declaration.  
+    Furthermore, to avoid ambiguities, method declarations are not permitted on named types that are themselves pointer types:
+
+```go
+type P *int
+func (P) f() { /* ... */ } // compile error: invalid receiver type
+```
+
+- The (`*Point`).`ScaleBy` method can be called by providing a `*Point` receiver, like this:
+
+```go
+r := &Point{1, 2}
+r.ScaleBy(2)
+fmt.Println(*r) // "{2, 4}"
+
+// Or this
+p := Point{1, 2}
+pptr := &p
+pptr.ScaleBy(2)
+fmt.Println(p) // "{2, 4}"
+
+// Or this
+p := Point{1, 2}
+(&p).ScaleBy(2)
+fmt.Println(p) // "{2, 4}"
+```
+
+- But the last two cases are ungainly.  
+    Fortunately, the language helps us here.  
+    If the receiver `p` is a variable of type `Point` but the method requires a `*Point` receiver, we can use this shorthand:
+
+```go
+p.ScaleBy(2)
+```
+
+- We cannot call a *Point method on a non-addressable Point receiver,  
+    because there’s no way to obtain the address of a temporary value.
+
+```go
+Point{1, 2}.ScaleBy(2) // compile error: can't take address of Point literal
+```
+
+- Either the receiver argument has the same type as the receiver parameter,  
+    for example both have type `T` or both have type `*T`:
+
+```go
+Point{1, 2}.Distance(q) // Point
+pptr.ScaleBy(2)         // *Point
+p.ScaleBy(2)            // implicit (&p)
+```
+
+#### 6.2.1 Nil Is a Valid Receiver Value
+
+- Just as some functions allow `nil` pointers as arguments,  
+    so do some methods for their receiver, especially if `nil` is a meaningful zero value of the type,  
+    as with maps and slices.  
+    In this simple linked list of integers, `nil` represents the empty list:
+
+```go
+// An IntList is a linked list of integers.
+// A nil *IntList represents the empty list.
+type IntList struct {
+    Value int
+    Tail *IntList
+}
+
+// Sum returns the sum of the list elements.
+func (list *IntList) Sum() int {
+    if list == nil {
+        return 0
+    }
+
+    return list.Value + list.Tail.Sum()
+}
+```
+
+- Here’s part of the definition of the `Values` type from the `net/url` package:
+
+```go
+package url
+
+// Values maps a string key to a list of values.
+type Values map[string][]string
+
+// Get returns the first value associated with the given key,
+// or "" if there are none.
+func (v Values) Get(key string) string {
+    if vs := v[key]; len(vs) > 0 {
+        return vs[0]
+    }
+
+    return ""
+}
+
+// Add adds the value to key.
+// It appends to any existing values associated with key.
+func (v Values) Add(key, value string) {
+    v[key] = append(v[key], value)
+}
+```
+
+- It exposes its representation as a map  
+    but also provides methods to simplify access to the map,  
+    whose values are slices of strings—it’s a *multimap*.  
+    Its clients can use its intrinsic operators (`make`, slice literals, `m[key]`, and so on),  
+    or its methods, or both, as they prefer:
+
+```go
+m := url.Values{"lang": {"en"}} // direct construction
+
+m.Add("item", "1")
+m.Add("item", "2")
+
+fmt.Println(m.Get("lang"))      // "en"
+fmt.Println(m.Get("q"))         // ""
+fmt.Println(m.Get("item"))      // "1" (first value)
+fmt.Println(m["item"])          // "[1 2]" (direct map access)
+
+m = nil
+fmt.Println(m.Get("item"))      // ""
+m.Add("item", "3")              // panic: assignment to entry in nil map
+```
+
+### 6.3 Composing Types by Struct Embedding
+
+- Consider the type `ColoredPoint`
+
+```go
+import "image/color"
+
+type Point struct{ X, Y float64 }
+
+type ColoredPoint struct {
+    Point
+    Color color.RGBA
+}
+```
+
+- We could have defined `ColoredPoint` as a struct of three fields,  
+    but instead we *embedded* a `Point` to provide the `X` and `Y` fields.  
+    Embedding lets us take a syntactic shortcut to defining a `ColoredPoint`  
+    that contains all the fields of Point, plus some more.  
+    If we want, we can select the fields of `ColoredPoint`  
+    that were contributed by the embedded `Point` without mentioning `Point`:
+
+```go
+var cp ColoredPoint
+
+cp.X = 1
+fmt.Println(cp.Point.X) // "1"
+
+cp.Point.Y = 2
+fmt.Println(cp.Y)       // "2"
+```
+
+- A similar mechanism applies to the *methods* of `Point`.  
+    We can call methods of the embedded `Point` field using a receiver of type `ColoredPoint`,  
+    even though `ColoredPoint` has no declared methods:
+
+```go
+red := color.RGBA{255, 0, 0, 255}
+blue := color.RGBA{0, 0, 255, 255}
+
+var p = ColoredPoint{Point{1, 1}, red}
+var q = ColoredPoint{Point{5, 4}, blue}
+
+fmt.Println(p.Distance(q.Point)) // "5"
+
+p.ScaleBy(2)
+q.ScaleBy(2)
+
+fmt.Println(p.Distance(q.Point)) // "10"
+```
+
+- The methods of Point have been *promoted* to `ColoredPoint`.  
+    In this way, embedding allows complex types with many methods to be built up by the *composition* of several fields,  
+    each providing a few methods.
+- Readers familiar with class-based object-oriented languages may  
+    be tempted to view `Point` as a base class and `ColoredPoint` as a subclass or derived class,  
+    or to interpret the relationship between these types as if a ColoredPoint “is a” Point.   
+    But that would be a mistake.  
+    Notice the calls to Distance above.  
+    Distance has a parameter of type `Point`, and `q` is not a Point,  
+    so although `q` does have an embedded field of that type,  
+    we must explicitly select it. Attempting to pass `q` would be an error:
+
+```go
+p.Distance(q) // compile error: cannot use q (ColoredPoint) as Point
+```
+
+- A `ColoredPoint` is not a `Point`, but it "has a" `Point`,  
+    and it has two additional methods `Distance` and `ScaleBy` promoted from `Point`.  
+    If you prefer to think in terms of implementation, the embedded field instructs the compiler  
+    to generate additional wrapper methods that delegate to the declared methods, equivalent to these:
+
+```go
+func (p ColoredPoint) Distance(q Point) float64 {
+    return p.Point.Distance(q)
+}
+func (p *ColoredPoint) ScaleBy(factor float64) {
+    p.Point.ScaleBy(factor)
+}
+```
+
+- When `Point.Distance` is called by the first of these wrapper methods,  
+    its receiver value is `p.Point`, not `p`,  
+    and there is no way for the method to access the `ColoredPoint` in which the `Point` is embedded.
+
+- The type of an anonymous field may be a *pointer* to a named type,  
+    in which case fields and methods are promoted indirectly from the pointed-to object.  
+    Adding another level of indirection lets us share common structures  
+    and vary the relationships between objects dynamically.  
+    The declaration of `ColoredPoint` below embeds a `*Point`:
+
+```go
+type ColoredPoint struct {
+    *Point
+    Color color.RGBA
+}
+
+p := ColoredPoint{&Point{1, 1}, red}
+q := ColoredPoint{&Point{5, 4}, blue}
+fmt.Println(p.Distance(*q.Point))       // "5"
+q.Point = p.Point                       // p and q now share the same Point
+p.ScaleBy(2)
+fmt.Println(*p.Point, *q.Point)         // "{2 2} {2 2}"
+```
+
+- A struct type may have more than one anonymous field.  
+    Had we declared `ColoredPoint` as
+
+```go
+type ColoredPoint struct {
+    Point
+    color.RGBA
+}
+```
+
+P. 263
