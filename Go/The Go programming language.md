@@ -5534,6 +5534,6 @@ type Stringer interface {
 }
 ```
 
-### 7.2 Interface Types
+### 7.2 Interface Types
 
 P. 281
