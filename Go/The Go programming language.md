@@ -5074,4 +5074,466 @@ type ColoredPoint struct {
 }
 ```
 
-P. 263
+- Methods can be declared only on named types (like `Point`) and pointers to them (`*Point`), but thanks to embedding,  
+    it’s possible and sometimes useful for *unnamed* struct types to have methods too.
+
+```go
+var (
+    mu sync.Mutex   // guards mapping
+    mapping = make(map[string]string)
+)
+
+func Lookup(key string) string {
+    mu.Lock()
+    v := mapping[key]
+    mu.Unlock()
+    return v
+}
+```
+
+- The version below is functionally equivalent  
+    but groups together the two related variables in a single package-level variable, cache:
+
+```go
+var cache = struct {
+        sync.Mutex
+        mapping map[string]string
+    } {
+        mapping: make(map[string]string),
+    }
+
+func Lookup(key string) string {
+    cache.Lock()
+    v := cache.mapping[key]
+    cache.Unlock()
+    return v
+}
+```
+
+- The new variable gives more expressive names to the variables related to the cache,  
+    and because the `sync.Mutex` field is embedded within it,  
+    its `Lock` and `Unlock` methods are promoted to the unnamed struct type,  
+    allowing us to lock the cache with a self-explanatory syntax.
+
+### 6.4 Method Values and Expressions
+
+- Usually we select and call a method in the same expression, as in `p.Distance()`,  
+    but it’s possible to separate these two operations.  
+    The selector `p.Distance` yields a method value, a function that binds a method (`Point.Distance`)  
+    to a specific receiver value `p`.  
+    This function can then be invoked without a receiver value;  
+    it needs only the non-receiver arguments.
+
+```go
+p := Point{1, 2}
+q := Point{4, 6}
+
+distanceFromP := p.Distance         // method value
+fmt.Println(distanceFromP(q))       // "5"
+
+var origin Point                    // {0, 0}
+
+fmt.Println(distanceFromP(origin))  // "2.23606797749979", √5
+
+scaleP := p.ScaleBy                 // method value
+scaleP(2)                           // p becomes (2, 4)
+scaleP(3)                           // then (6, 12)
+scaleP(10)                          // then (60, 120)
+```
+
+- Method values are useful when a package’s API calls for a function value,  
+    and the client’s desired behavior for that function is to call a method on a specific receiver.   
+    For example, the function `time.AfterFunc` calls a function value after a specified delay.  
+    This program uses it to launch the rocket `r` after 10 seconds:
+
+```go
+type Rocket struct { /* ... */ }
+
+func (r *Rocket) Launch() { /* ... */ }
+
+r := new(Rocket)
+time.AfterFunc(10 * time.Second, func() { r.Launch() })
+
+// The method value syntax is shorter
+time.AfterFunc(10 * time.Second, r.Launch)
+```
+
+- A method expression, written `T.f` or `(*T).f` where `T` is a type,  
+    yields a function value with a regular first parameter taking the place of the receiver,  
+    so it can be called in the usual way.
+
+```go
+p := Point{1, 2}
+q := Point{4, 6}
+
+distance := Point.Distance // method expression
+fmt.Println(distance(p, q)) // "5"
+fmt.Printf("%T\n", distance) // "func(Point, Point) float64"
+
+scale := (*Point).ScaleBy
+scale(&p, 2)
+fmt.Println(p) // "{2 4}"
+fmt.Printf("%T\n", scale) // "func(*Point, float64)"
+```
+
+- In the following example, the variable `op` represents either the addition  
+    or the subtraction method of type `Point`, and `Path.TranslateBy` calls it for each point in the Path:
+
+```go
+type Point struct{ X, Y float64 }
+
+func (p Point) Add(q Point) Point { return Point{p.X + q.X, p.Y + q.Y} }
+func (p Point) Sub(q Point) Point { return Point{p.X - q.X, p.Y - q.Y} }
+
+type Path []Point
+
+func (path Path) TranslateBy(offset Point, add bool) {
+    var op func(p, q Point) Point
+    if add {
+        op = Point.Add
+    } else {
+        op = Point.Sub
+    }
+
+    for i := range path {
+        // Call either path[i].Add(offset) or
+        path[i].Sub(offset).path[i] = op(path[i], offset)
+    }
+}
+```
+
+### 6.5 Example: Bit Vector Type
+
+- Sets in Go are usually implemented as a `map[T]bool`, where `T` is the element type.  
+    A set represented by a map is very flexible but,  
+    for certain problems, a specialized representation may outperform it.  
+    For example, in domains such as dataflow analysis where set elements are small non-negative integers,  
+    sets have many elements, and set operations like union and intersection are common, a *bit vector* is ideal.
+
+- A bit vector uses a slice of unsigned integer values or "words," each bit of which represents a possible element of the set.  
+    The set contains `i` if the `i-th` bit is set.  
+    The following program demonstrates a simple bit vector type with three methods:
+
+```go
+// An IntSet is a set of small non-negative integers.
+// Its zero value represents the empty set.
+type IntSet struct {
+    words []uint64
+}
+
+// Has reports whether the set contains the nonnegative value x.
+func (s *IntSet) Has(x int) bool {
+    word, bit := x/64, uint(x%64)
+    return word < len(s.words) && s.words[word]& (1<<bit) != 0
+}
+
+// Add adds the non-negative value x to the set.
+func (s *IntSet) Add(x int) {
+    word, bit := x/64, uint(x%64)
+    for word >= len(s.words) {
+        s.words = append(s.words, 0)
+    }
+
+    s.words[word] |= 1 << bit
+}
+
+// UnionWith sets s to the union of s and t.
+func (s *IntSet) UnionWith(t *IntSet) {
+    for i, tword := range t.words {
+        if i < len(s.words) {
+            s.words[i] |= tword
+        } else {
+            s.words = append(s.words, tword)
+        }
+    }
+}
+```
+
+- This implementation lacks many desirable features, some of which are posed as exercises below,  
+    but one is hard to live without:  
+    way to print an `IntSet` as a string.  
+    Let’s give it a `String` method as we did with `Celsius`.
+
+```go
+// String returns the set as a string of the form "{1 2 3}".
+func (s *IntSet) String() string {
+    var buf bytes.Buffer
+    buf.WriteByte('{')
+    for i, word := range s.words {
+        if word == 0 {
+            continue
+        }
+
+        for j := 0; j < 64; j++ {
+            if word&(1<<uint(j)) != 0 {
+                if buf.Len() > len("{") {
+                    buf.WriteByte(' ')
+                }
+
+                fmt.Fprintf(&buf, "%d", 64*i+j)
+            }
+        }
+    }
+
+    buf.WriteByte('}')
+    return buf.String()
+}
+```
+
+- We can now demonstrate `IntSet` in action:
+
+```go
+var x, y IntSet
+
+x.Add(1)
+x.Add(144)
+x.Add(9)
+
+fmt.Println(x.String())             // "{1 9 144}"
+
+y.Add(9)
+y.Add(42)
+
+fmt.Println(y.String())             // "{9 42}"
+
+x.UnionWith(&y)
+
+fmt.Println(x.String())             // "{1 9 42 144}"
+fmt.Println(x.Has(9), x.Has(123))   // "true false"
+```
+
+- A word of caution: we declared `String` and `Has` as methods of the pointer type `*IntSet` not out of necessity,  
+    but for consistency with the other two methods, which need a pointer receiver because they assign to `s.words`.  
+    Consequently, an `IntSet` *value* does not have a `String` method, occasionally leading to surprises like this:
+
+```go
+fmt.Println(&x)                     // "{1 9 42 144}"
+fmt.Println(x.String())             // "{1 9 42 144}"
+fmt.Println(x)                      // "{[4398046511618 0 65536]}"
+```
+
+- It’s **important** not to forget the & operator.  
+    Making `String` a method of `IntSet`, not `*IntSet`, might be a good idea,  
+    but this is a case-by-case judgment.
+
+### 6.6 Encapsulation
+
+- A variable or method of an object is said to be *encapsulated* if it is inaccessible to clients of the object.  
+    Encapsulation, sometimes called *information hiding*, is a key aspect of object-oriented programming.
+
+- Go has only one mechanism to control the visibility of names:  
+    capitalized identifiers are exported from the package in which they are defined,  
+    and uncapitalized names are not.  
+    The same mechanism that limits access to members of a package  
+    also limits access to the fields of a struct or the methods of a type.  
+    As a consequence, to encapsulate an object, we must make it a struct.
+
+- That’s the reason the `IntSet` type from the previous section  
+    was declared as a struct type even though it has only a single field:
+
+```go
+type IntSet struct {
+    words []uint64
+}
+```
+
+- Encapsulation provides 3 benefits.  
+    First, because clients cannot directly modify the object’s variables,  
+    one need inspect fewer statements to understand the possible values of those variables.
+- Second, hiding implementation details prevents clients from depending on things that might change,  
+    which gives the designer greater freedom to evolve the implementation without breaking API compatibility.
+- When this field was added, because it was not exported,  
+    clients of `Buffer` outside the `bytes` package were unaware of any change except improved performance.  
+    `Buffer` and its `Grow` method are shown below, simplified for clarity:
+
+```go
+type Buffer struct {
+    buf []byte
+    initial [64]byte
+    /* ... */
+}
+
+// Grow expands the buffer's capacity, if necessary,
+// to guarantee space for another n bytes. [...]
+func (b *Buffer) Grow(n int) {
+    if b.buf == nil {
+        b.buf = b.initial[:0]   // use preallocated space initially
+    }
+
+    if len(b.buf)+n > cap(b.buf) {
+        buf := make([]byte, b.Len(), 2*cap(b.buf) + n)
+        copy(buf, b.buf)
+        b.buf = buf
+    }
+}
+```
+
+- The third benefit of encapsulation, and in many cases the most important,  
+    is that it prevents clients from setting an object’s variables arbitrarily.  
+    Because the object’s variables can be set only by functions in the same package,  
+    the author of that package can ensure that all those functions maintain the object’s internal invariants.  
+    For example, the Counter type below permits clients to increment the counter or to reset it to zero, but not to set it to some arbitrary value:
+
+```go
+type Counter struct { n int }
+
+func (c *Counter) N() int { return c.n }
+func (c *Counter) Increment() { c.n++ }
+func (c *Counter) Reset() { c.n = 0 }
+```
+
+- Functions that merely access or modify internal values of a type,  
+    such as the methods of the `Logger` type from `log` package, below, are called *getters* and *setters*.  
+    However, when naming a getter method, we usually omit the `Get` prefix.  
+    This preference for brevity extends to all methods, not just field accessors,  
+    and to other redundant prefixes as well, such as Fetch, Find, and Lookup.
+
+```go
+package log
+
+type Logger struct {
+    flags int
+    prefix string
+    // ...
+}
+
+func (l *Logger) Flags() int
+func (l *Logger) SetFlags(flag int)
+func (l *Logger) Prefix() string
+func (l *Logger) SetPrefix(prefix string)
+```
+
+- Encapsulation is not always desirable.  
+    By revealing its representation as an `int64` number of nanoseconds,  
+    `time.Duration` lets us use all the usual arithmetic and comparison operations with durations,  
+    and even to define constants of this type:
+
+```go
+const day = 24 * time.Hour
+fmt.Println(day.Seconds()) // "86400"
+```
+
+## 7. Interfaces
+
+- Interface types express generalizations or abstractions about the behaviors of other types.  
+    By generalizing, interfaces let us write functions that are more flexible and adaptable  
+    because they are not tied to the details of one particular implementation.
+
+- Many object-oriented languages have some notion of interfaces,  
+    but what makes Go’s interfaces so distinctive is that they are satisfied implicitly.  
+    In other words, there’s no need to declare all the interfaces that a given concrete type satisfies;  
+    simply possessing the necessary methods is enough.  
+    This design lets you create new interfaces that are satisfied by existing concrete types without changing the existing types,  
+    which is particularly useful for types defined in packages that you don’t control.
+
+### 7.1 Interfaces as Contracts
+
+- There is another kind of type in Go called an *interface type*.  
+    An interface is an abstract type.  
+    It doesn’t expose the representation or internal structure of its values,  
+    or the set of basic operations they support;  
+    it reveals only some of their methods.  
+    When you have a value of an interface type, you know nothing about what it is;   
+    you know only what it can do, or more precisely, what behaviors are provided by its methods.
+
+- Both of these functions are, in effect, wrappers around a third function,  
+    `fmt.Fprintf`, that is agnostic about what happens to the result it computes:
+
+```go
+package fmt
+
+func Fprintf(w io.Writer, format string, args ...interface{}) (int, error)
+
+func Printf(format string, args ...interface{}) (int, error) {
+    return Fprintf(os.Stdout, format, args...)
+}
+
+func Sprintf(format string, args ...interface{}) string {
+    var buf bytes.Buffer
+    Fprintf(&buf, format, args...)
+    return buf.String()
+}
+```
+
+- The `F` prefix of `Fprintf` stands for *file* and indicates that the formatted output  
+    should be written to the file provided as the first argument.  
+    In the Printf case, the argument, `os.Stdout`, is an `*os.File`.  
+    In the `Sprintf` case, however, the argument is not a file,  
+    though it superficially resembles one: `&buf` is a pointer to a memory buffer to which bytes can be written.
+
+-  The first parameter of `Fprintf` is not a file either.  
+    It’s an `io.Writer`, which is an interface type with the following declaration:
+
+```go
+package io
+
+// Writer is the interface that wraps the basic Write method.
+type Writer interface {
+    // Write writes len(p) bytes from p to the underlying data stream.
+    // It returns the number of bytes written from p (0 <= n <= len(p))
+    // and any error encountered that caused the write to stop early.
+    // Write must return a non-nil error if it returns n < len(p).
+    // Write must not modify the slice data, even temporarily.
+    //
+    // Implementations must not retain p.
+    Write(p []byte) (n int, err error)
+}
+```
+
+- The `io.Writer` interface defines the contract between `Fprintf` and its callers.  
+    On the one hand, the contract requires that the caller provide a value of a concrete type 
+    like `*os.File` or `*bytes.Buffer` that has a method called `Write` with the appropriate signature and behavior.  
+    On the other hand, the contract guarantees that `Fprintf` will do its job given any value that satisfies the io.Writer interface.  
+    `Fprintf` may not assume that it is writing to a file or to memory, only that it can call `Write`.
+
+- Because `fmt.Fprintf` assumes nothing about the representation of the value  
+    and relies only on the behaviors guaranteed by the `io.Writer` contract,  
+    we can safely pass a value of any concrete type that satisfies `io.Writer` as the first argument to `fmt.Fprintf`.  
+    This freedom to substitute one type for another that satisfies the same interface is called substitutability,  
+    and is a hallmark of object-oriented programming.
+
+- Let’s test this out using a new type.  
+    The `Write` method of the `*ByteCounter` type below merely counts the bytes written to it before discarding them.  
+    (The conversion is required to make the types of `len(p)` and `*c` match in the `+=` assignment statement.)
+
+```go
+type ByteCounter int
+
+func (c *ByteCounter) Write(p []byte) (int, error) {
+    *c += ByteCounter(len(p)) // convert int to ByteCounter
+    return len(p), nil
+}
+```
+
+- Since `*ByteCounter` satisfies the `io.Writer` contract, we can pass it to `Fprintf`,  
+    which does its string formatting oblivious to this change;  
+    the `ByteCounter` correctly accumulates the length of the result.
+
+```go
+var c ByteCounter
+
+c.Write([]byte("hello"))
+fmt.Println(c) // "5", = len("hello")
+
+c = 0 // reset the counter
+var name = "Dolly"
+
+fmt.Fprintf(&c, "hello, %s", name)
+fmt.Println(c) // "12", = len("hello, Dolly")
+```
+
+- Declaring a `String` method makes a type satisfy one of the most widely used interfaces of all, `fmt.Stringer`:
+
+```go
+package fmt
+// The String method is used to print values passed
+// as an operand to any format that accepts a string
+// or to an unformatted printer such as Print.
+type Stringer interface {
+    String() string
+}
+```
+
+### 7.2 Interface Types
+
+P. 281
