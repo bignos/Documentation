@@ -5699,9 +5699,9 @@ var _ io.Writer = (*bytes.Buffer)(nil)
 
 ```go
 type Artifact interface {
-    Title() string
-    Creators() []string
-    Created() time.Time
+    Title()     string
+    Creators()  []string
+    Created()   time.Time
 }
 ```
 
@@ -5711,22 +5711,22 @@ type Artifact interface {
 
 ```go
 type Text interface {
-    Pages() int
-    Words() int
-    PageSize() int
+    Pages()     int
+    Words()     int
+    PageSize()  int
 }
 
 type Audio interface {
-    Stream() (io.ReadCloser, error)
-    RunningTime() time.Duration
-    Format() string                     // e.g., "MP3", "WAV"
+    Stream()        (io.ReadCloser, error)
+    RunningTime()   time.Duration
+    Format()        string                     // e.g., "MP3", "WAV"
 }
 
 type Video interface {
-    Stream() (io.ReadCloser, error)
-    RunningTime() time.Duration
-    Format() string                     // e.g., "MP4", "WMV"
-    Resolution() (x, y int)
+    Stream()        (io.ReadCloser, error)
+    RunningTime()   time.Duration
+    Format()        string                     // e.g., "MP4", "WMV"
+    Resolution()    (x, y int)
 }
 ```
 
