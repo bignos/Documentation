@@ -5536,4 +5536,213 @@ type Stringer interface {
 
 ### 7.2 Interface Types
 
-P. 281
+- An interface type specifies a set of methods that a concrete type must possess to be considered an instance of that interface.
+
+- The `io.Writer` type is one of the most widely used interfaces  
+    because it provides an abstraction of all the types to which bytes can be written,  
+    which includes files, memory buffers, network connections, HTTP clients, archivers, hashers, and so on.  
+    The `io` package defines many other useful interfaces.  
+    A `Reader` represents any type from which you can read bytes,  
+    and a `Closer` is any value that you can close, such as a file or a network connection.
+
+```go
+package io
+
+type Reader interface {
+    Read(p []byte) (n int, err error)
+}
+
+type Closer interface {
+    Close() error
+}
+```
+
+- Looking farther, we find declarations of new interface types as combinations of existing ones. Here are two examples:
+
+```go
+type ReadWriter interface {
+    Reader
+    Writer
+}
+
+type ReadWriteCloser interface {
+    Reader
+    Writer
+    Closer
+}
+```
+
+- The syntax used above, which resembles struct embedding,  
+    lets us name another interface as a shorthand for writing out all of its methods.  
+    This is called embedding an interface.  
+    We could have written `io.ReadWriter` without embedding, albeit less succinctly, like this:
+
+```go
+type ReadWriter interface {
+    Read(p []byte) (n int, err error)
+    Write(p []byte) (n int, err error)
+}
+
+// Or even using a mixture of the two styles:
+type ReadWriter interface {
+    Read(p []byte) (n int, err error)
+    Writer
+}
+```
+
+### 7.3 Interface Satisfaction
+
+- A type *satisfies* an interface if it possesses all the methods the interface requires.  
+    For example, an `*os.File` satisfies `io.Reader`, `Writer`, `Closer`, and `ReadWriter`.  
+    A `*bytes.Buffer` satisfies `Reader`, `Writer`, and `ReadWriter`,  
+    but does not satisfy `Closer` because it does not have a `Close` method.  
+    As a shorthand, Go programmers often say that a concrete type "is a" particular interface type,  
+    meaning that it satisfies the interface.  
+    For example, a `*bytes.Buffer` is an `io.Writer`; an `*os.File` is an `io.ReadWriter`.
+- An expression may be assigned to an interface only if its type satisfies the interface.
+
+```go
+var w io.Writer
+w = os.Stdout                   // OK: *os.File has Write method
+w = new(bytes.Buffer)           // OK: *bytes.Buffer has Write method
+w = time.Second                 // compile error: time.Duration lacks Write method
+
+var rwc io.ReadWriteCloser
+rwc = os.Stdout                 // OK: *os.File has Read, Write, Close methods
+rwc = new(bytes.Buffer)         // compile error: *bytes.Buffer lacks Close method
+
+// This rule applies even when the right-hand side is itself an interface:
+w = rwc                         // OK: io.ReadWriteCloser has Write method
+rwc = w                         // compile error: io.Writer lacks Close method
+```
+
+- The `String` method of the `IntSet` type requires a pointer receiver,  
+    so we cannot call that method on a nonaddressable `IntSet` value:
+
+```go
+type IntSet struct { /* ... */ }
+func (*IntSet) String() string
+var _ = IntSet{}.String()       // compile error: String requires *IntSet receiver
+
+// But we can call it on an IntSet variable:
+var s IntSet
+var _ = s.String()              // OK: s is a variable and &s has a String method
+
+// Since only *IntSet has a String method, only *IntSet satisfies the fmt.Stringer interface:
+var _ fmt.Stringer = &s         // OK
+var _ fmt.Stringer = s          // compile error: IntSet lacks String method
+```
+
+- Only the methods revealed by the interface type may be called, even if the concrete type has others:
+
+```go
+os.Stdout.Write([]byte("hello"))    // OK: *os.File has Write method
+os.Stdout.Close()                   // OK: *os.File has Close method
+
+var w io.Writer
+w = os.Stdout
+w.Write([]byte("hello"))            // OK: io.Writer has Write method
+w.Close()                           // compile error: io.Writer lacks Close method
+```
+
+- This may seem useless, but in fact the type `interface{}`,  
+    which is called the *empty interface* type, is indispensable.  
+    Because the empty interface type places no demands on the types that satisfy it,  
+    we can assign any value to the empty interface.
+
+```go
+var any interface{}
+
+any = true
+any = 12.34
+any = "hello"
+any = map[string]int{"one": 1}
+any = new(bytes.Buffer)
+```
+
+- Although it wasn’t obvious, we’ve been using the empty interface type since the very first example in this book,  
+    because it is what allows functions like `fmt.Println`, or `errorf`, to accept arguments of any type.
+
+- The declaration below asserts at compile time that a value of type `*bytes.Buffer` satisfies `io.Writer`:
+
+```go
+// *bytes.Buffer must satisfy io.Writer
+var w io.Writer = new(bytes.Buffer)
+```
+
+- We needn’t allocate a new variable since any value of type `*bytes.Buffer` will do, even nil,  
+    which we write as `(*bytes.Buffer)(nil)` using an explicit conversion.  
+    And since we never intend to refer to `w`, we can replace it with the blank identifier.  
+    Together, these changes give us this more frugal variant:
+
+```go
+// *bytes.Buffer must satisfy io.Writer
+var _ io.Writer = (*bytes.Buffer)(nil)
+```
+
+- But pointer types are by no means the only types that satisfy interfaces,  
+    and even interfaces with mutator methods may be satisfied by one of Go’s other reference types.
+
+- A concrete type may satisfy many unrelated interfaces.  
+    Consider a program that organizes or sells digitized cultural artifacts like music, films, and books.  
+    It might define the following set of concrete types:
+    - `Album`
+    - `Book`
+    - `Movie`
+    - `Magazine`
+    - `Podcast`
+    - `TVEpisode`
+    - `Track`
+
+- We can express each abstraction of interest as an interface.  
+    Some properties are common to all artifacts, such as a title, a creation date, and a list of creators
+
+```go
+type Artifact interface {
+    Title() string
+    Creators() []string
+    Created() time.Time
+}
+```
+
+- Other properties are restricted to certain types of artifacts.  
+    Properties of the printed word are relevant only to books and magazines,  
+    whereas only movies and TV episodes have a screen resolution.
+
+```go
+type Text interface {
+    Pages() int
+    Words() int
+    PageSize() int
+}
+
+type Audio interface {
+    Stream() (io.ReadCloser, error)
+    RunningTime() time.Duration
+    Format() string                     // e.g., "MP3", "WAV"
+}
+
+type Video interface {
+    Stream() (io.ReadCloser, error)
+    RunningTime() time.Duration
+    Format() string                     // e.g., "MP4", "WMV"
+    Resolution() (x, y int)
+}
+```
+
+- These interfaces are but one useful way to group related concrete types together and express the facets they share in common.  
+    We may discover other groupings later.  
+    For example, if we find we need to handle `Audio` and `Video` items in the same way,  
+    we can define a `Streamer` interface to represent their common aspects without changing any existing type declarations.
+
+```go
+type Streamer interface {
+    Stream()        (io.ReadCloser, error)
+    RunningTime()   time.Duration
+    Format()        string
+}
+```
+
+### 7.4 Parsing Flags with flag.Value
+
+P. 289
