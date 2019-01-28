@@ -5745,4 +5745,494 @@ type Streamer interface {
 
 ### 7.4 Parsing Flags with flag.Value
 
-P. 289
+- see how another standard interface, `flag.Value`, helps us define new notations for command-line flags.  
+    Consider the program below, which sleeps for a specified period of time.
+
+```go
+var period = flag.Duration("period", 1*time.Second, "sleep period")
+
+func main() {
+    flag.Parse()
+    fmt.Printf("Sleeping for %v...", *period)
+    time.Sleep(*period)
+    fmt.Println()
+}
+```
+
+- By default, the sleep period is one second, but it can be controlled through the `-` period command-line flag.  
+    The `flag.Duration` function creates a flag variable of type `time.Duration`  
+    and allows the user to specify the duration in a variety of user-friendly formats,  
+    including the same notation printed by the `String method`.  
+    This symmetry of design leads to a nice user interface.
+
+```
+$ ./sleep -period 50ms
+Sleeping for 50ms...
+
+$ ./sleep -period 2m30s
+Sleeping for 2m30s...
+
+$ ./sleep -period 1.5h
+Sleeping for 1h30m0s...
+```
+
+- Because duration-valued flags are so useful, this feature is built into the flag package,  
+    but it’s easy to define new flag notations for our own data types.  
+    We need only define a type that satisfies the `flag.Value` interface, whose declaration is below:
+
+```go
+package flag
+
+// Value is the interface to the value stored in a flag.
+type Value interface {
+    String()    string
+    Set(string) error
+}
+```
+
+- The `String` method formats the flag’s value for use in command-line help messages;  
+    thus every `flag.Value` is also a `fmt.Stringer`.  
+    The `Set` method parses its string argument and updates the flag value.
+- In effect, the `Set` method is the inverse of the `String` method,  
+    and it is good practice for them to use the same notation.
+
+- Let’s define a `celsiusFlag` type that allows a temperature to be specified in Celsius,  
+    or in Fahrenheit with an appropriate conversion.  
+    Notice that `celsiusFlag` embeds a `Celsius`, thereby getting a `String` method for free.  
+    To satisfy `flag.Value`, we need only declare the `Set` method:
+
+```go
+// *celsiusFlag satisfies the flag.Value interface.
+type celsiusFlag struct{ Celsius }
+
+func (f *celsiusFlag) Set(s string) error {
+    var unit string
+    var value float64
+
+    fmt.Sscanf(s, "%f%s", &value, &unit) // no error check needed
+
+    switch unit {
+        case "C", "°C":
+            f.Celsius = Celsius(value)
+            return nil
+        case "F", "°F":
+            f.Celsius = FToC(Fahrenheit(value))
+            return nil
+    }
+
+    return fmt.Errorf("invalid temperature %q", s)
+}
+```
+
+```go
+// CelsiusFlag defines a Celsius flag with the specified name,
+// default value, and usage, and returns the address of the flag variable.
+// The flag argument must have a quantity and a unit, e.g., "100C".
+func CelsiusFlag(name string, value Celsius, usage string) *Celsius {
+    f := celsiusFlag{value}
+    flag.CommandLine.Var(&f, name, usage)
+    return &f.Celsius
+}
+```
+
+### 7.5 Interface Values
+
+- Conceptually, a value of an interface type, or *interface value*, has two components,  
+    a concrete type and a value of that type.  
+    These are called the interface’s *dynamic type* and *dynamic value*.
+- In the four statements below, the variable `w` takes on 3 different values.  
+    (The initial and final values are the same.)
+
+```go
+var w io.Writer
+
+w = os.Stdout
+w = new(bytes.Buffer)
+w = nil
+```
+
+- An interface value is described as nil or non-nil based on its dynamic type,   
+    so this is a nil interface value.  
+    You can test whether an interface value is nil using `w == nil` or `w != nil`.  
+    Calling any method of a `nil` interface value causes a panic:
+
+```go
+w.Write([]byte("hello")) // panic: nil pointer dereference
+```
+
+- However, if two interface values are compared and have the same dynamic type,  
+    but that type is not comparable (a slice, for instance), then the comparison fails with a panic:
+
+```go
+var x interface{} = []int{1, 2, 3}
+fmt.Println(x == x) // panic: comparing uncomparable type []int
+```
+
+- A similar risk exists when using interfaces as map keys or switch operands.  
+    Only compare interface values if you are certain that they contain dynamic values of comparable types.
+
+- When handling errors, or during debugging, it is often helpful to report the dynamic type of an interface value.  
+    For that, we use the `fmt` package’s `%T` verb:
+
+```go
+var w io.Writer
+
+fmt.Printf("%T\n", w) // "<nil>"
+
+w = os.Stdout
+fmt.Printf("%T\n", w) // "*os.File"
+
+w = new(bytes.Buffer)
+fmt.Printf("%T\n", w) // "*bytes.Buffer"
+```
+
+#### 7.5.1 Caveat: An Interface Containing a Nil Pointer Is Non-Nil
+
+- A nil interface value, which contains no value at all,  
+    is not the same as an interface value containing a pointer that happens to be nil.  
+    This subtle distinction creates a trap into which every Go programmer has stumbled.
+
+- Consider the program below.  
+    With `debug` set to `true`, the main function collects the output of the function `f` in a `bytes.Buffer`.
+
+```go
+const debug = true
+
+func main() {
+    var buf *bytes.Buffer
+
+    if debug {
+        buf = new(bytes.Buffer) // enable collection of output
+    }
+
+    f(buf) // NOTE: subtly incorrect!
+
+    if debug {
+        // ...use buf...
+    }
+}
+
+// If out is non-nil, output will be written to it.
+func f(out io.Writer) {
+    // ...do something...
+    if out != nil {
+        out.Write([]byte("done!\n"))
+    }
+}
+```
+
+- We might expect that changing `debug` to `false` would disable the collection of the output,  
+    but in fact it causes the program to panic during the `out.Write` call:
+
+```go
+if out != nil {
+    out.Write([]byte("done!\n")) // panic: nil pointer dereference
+}
+```
+
+- In particular, the call violates the implicit precondition of `(*bytes.Buffer)`.  
+    `Write` that its receiver is not nil, so assigning the nil pointer to the interface was a mistake.
+- The solution is to change the type of `buf` in main to `io.Writer`,  
+    thereby avoiding the assignment of the dysfunctional value to the interface in the first place:
+
+```go
+var buf io.Writer
+
+if debug {
+    buf = new(bytes.Buffer) // enable collection of output
+}
+f(buf) // OK
+```
+
+### 7.6 Sorting with sort.Interface
+
+- Go’s `sort.Sort` function assumes nothing about the representation of either the sequence or its elements.  
+    Instead, it uses an *interface*, `sort.Interface`, to specify the contract between the generic sort algorithm  
+    and each sequence type that may be sorted.
+
+- An in-place sort algorithm needs 3 things—the length of the sequence,  
+    a means of comparing two elements, and a way to swap two elements—so they are the 3 methods of `sort.Interface`:
+
+```go
+package sort
+
+type Interface interface {
+    Len()           int
+    Less(i, j int)  bool // i, j are indices of sequence elements
+    Swap(i, j int)
+}
+```
+
+- To sort any sequence, we need to define a type that implements these three methods,  
+    then apply `sort.Sort` to an instance of that type.  
+    As perhaps the simplest example, consider sorting a slice of strings.  
+    The new type `StringSlice` and its `Len`, `Less`, and `Swap` methods are shown below.
+
+```go
+type StringSlice []string
+
+func (p StringSlice) Len() int { return len(p) }
+func (p StringSlice) Less(i, j int) bool { return p[i] < p[j] }
+func (p StringSlice) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
+```
+
+- Now we can sort a slice of strings, `names`, by converting the slice to a `StringSlice` like this:
+
+```go
+sort.Sort(StringSlice(names))
+```
+
+- Sorting a slice of strings is so common that the `sort` package provides the `StringSlice` type,  
+    as well as a function called `Strings` so that the call above can be simplified to `sort.Strings(names)`.
+
+- The variable `tracks` below contains a playlist.  
+    (One of the authors apologizes for the other author’s musical tastes.)  
+    Each element is indirect, a pointer to a `Track`.  
+    Although the code below would work if we stored the `Tracks` directly,  
+    the sort function will swap many pairs of elements, so it will run faster if each element is a pointer,  
+    which is a single machine word, instead of an entire `Track`, which might be eight words or more.
+
+```go
+type Track struct {
+    Title   string
+    Artist  string
+    Album   string
+    Year    int
+    Length  time.Duration
+}
+
+var tracks = []*Track{
+    {"Go", "Delilah", "From the Roots Up", 2012, length("3m38s")},
+    {"Go", "Moby", "Moby", 1992, length("3m37s")},
+    {"Go Ahead", "Alicia Keys", "As I Am", 2007, length("4m36s")},
+    {"Ready 2 Go", "Martin Solveig", "Smash", 2011, length("4m24s")},
+}
+
+func length(s string) time.Duration {
+    d, err := time.ParseDuration(s)
+
+    if err != nil {
+        panic(s)
+    }
+
+    return d
+}
+```
+
+- The `printTracks` function prints the playlist as a table.  
+    A graphical display would be nicer,  
+    but this little routine uses the `text/tabwriter` package to produce a table whose columns are neatly aligned and padded as shown below.  
+    Observe that `*tabwriter.Writer` satisfies `io.Writer`.  
+    It collects each piece of data written to it;   
+    its Flush method formats the entire table and writes it to `os.Stdout`.
+
+```go
+func printTracks(tracks []*Track) {
+    const format = "%v\t%v\t%v\t%v\t%v\t\n"
+    tw := new(tabwriter.Writer).Init(os.Stdout, 0, 8, 2, ' ', 0)
+    fmt.Fprintf(tw, format, "Title", "Artist", "Album", "Year", "Length")
+    fmt.Fprintf(tw, format, "-----", "------", "----- ", "----", "------")
+
+    for _, t := range tracks {
+        fmt.Fprintf(tw, format, t.Title, t.Artist, t.Album, t.Year, t.Length)
+    }
+
+    tw.Flush() // calculate column widths and print table
+}
+```
+
+- To sort the playlist by the `Artist` field,  
+    we define a new slice type with the necessary `Len`, `Less`, and `Swap` methods,  
+    analogous to what we did for `StringSlice`.
+
+```go
+type byArtist []*Track
+
+func (x byArtist) Len() int { return len(x) }
+func (x byArtist) Less(i, j int) bool { return x[i].Artist < x[j].Artist }
+func (x byArtist) Swap(i, j int) { x[i], x[j] = x[j], x[i] }
+
+// To call the generic sort routine, we must first convert tracks to the new type, 
+// byArtist, that defines the order:
+sort.Sort(byArtist(tracks))
+```
+
+- In the next example, the concrete type `customSort` combines a slice with a function,  
+    letting us define a new sort order by writing only the comparison function.  
+    Incidentally, the concrete types that implement `sort.Interface` are not always slices;  
+    `customSort` is a struct type.
+
+```go
+type customSort struct {
+    t       []*Track
+    less    func(x, y *Track) bool
+}
+
+func (x customSort) Len() int { return len(x.t) }
+func (x customSort) Less(i, j int) bool { return x.less(x.t[i], x.t[j]) }
+func (x customSort) Swap(i, j int) { x.t[i], x.t[j] = x.t[j], x.t[i] }
+```
+
+- Let’s define a multi-tier ordering function whose primary sort key is the `Title`,  
+    whose secondary key is the `Year`, and whose tertiary key is the running time, `Length`.  
+    Here’s the call to `Sort` using an anonymous ordering function:
+
+```go
+sort.Sort(customSort{tracks, func(x, y *Track) bool {
+    if x.Title != y.Title {
+        return x.Title < y.Title
+    }
+
+    if x.Year != y.Year {
+        return x.Year < y.Year
+    }
+
+    if x.Length != y.Length {
+        return x.Length < y.Length
+    }
+
+    return false
+}})
+```
+
+- Although sorting a sequence of length *n* requires O(*n* log *n*) comparison operations,  
+    testing whether a sequence is already sorted requires at most *n−1* comparisons.  
+    The `IsSorted` function from the `sort` package checks this for us.  
+    Like `sort.Sort`, it abstracts both the sequence and its ordering function using `sort.Interface`,  
+    but it never calls the `Swap` method:  
+    This code demonstrates the `IntsAreSorted` and `Ints` functions and the `IntSlice` type:
+
+```go
+values := []int{3, 1, 4, 1}
+
+fmt.Println(sort.IntsAreSorted(values)) // "false"
+
+sort.Ints(values)
+fmt.Println(values) // "[1 1 3 4]"
+fmt.Println(sort.IntsAreSorted(values)) // "true"
+
+sort.Sort(sort.Reverse(sort.IntSlice(values)))
+fmt.Println(values) // "[4 3 1 1]"
+fmt.Println(sort.IntsAreSorted(values)) // "false"
+```
+
+- For convenience, the `sort` package provides versions of its functions and types specialized for  
+    []int, []string, and []float64 using their natural orderings.
+- For other types, such as []int64 or []uint, we’re on our own, though the path is short.
+
+### 7.7 The http.Handler Interface
+
+- The `ListenAndServe` function requires a server address, such as "localhost:8000",  
+    and an instance of the `Handler` interface to which all requests should be dispatched.  
+    It runs forever, or until the server fails (or fails to start) with an error, always non-nil, which it returns.
+
+- Imagine an e-commerce site with a database mapping the items for sale to their prices in dollars.  
+    The program below shows the simplest imaginable implementation.  
+    It models the inventory as a map type, `database`, to which we’ve attached a `ServeHTTP` method  
+    so that it satisfies the `http.Handler` interface.  
+    The handler ranges over the map and prints the items.
+
+```go
+func main() {
+    db := database{"shoes": 50, "socks": 5}
+    log.Fatal(http.ListenAndServe("localhost:8000", db))
+}
+
+type dollars float32
+
+func (d dollars) String() string { return fmt.Sprintf("$%.2f", d) }
+
+type database map[string]dollars
+
+func (db database) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+    for item, price := range db {
+        fmt.Fprintf(w, "%s: %s\n", item, price)
+    }
+}
+```
+
+- So far, the server can only list its entire inventory and will do this for every request, regardless of URL.  
+    A more realistic server defines multiple different URLs, each triggering a different behavior.  
+    Let’s call the existing one `/list` and add another one called `/price`  
+    that reports the price of a single item, specified as a request parameter like `/price?item=socks`.
+
+```go
+func (db database) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+    switch req.URL.Path {
+        case "/list":
+            for item, price := range db {
+                fmt.Fprintf(w, "%s: %s\n", item, price)
+            }
+        case "/price":
+            item := req.URL.Query().Get("item")
+            price, ok := db[item]
+            if !ok {
+                w.WriteHeader(http.StatusNotFound) // 404
+                fmt.Fprintf(w, "no such item: %q\n", item)
+                return
+            }
+            fmt.Fprintf(w, "%s\n", price)
+        default:
+            w.WriteHeader(http.StatusNotFound) // 404
+            fmt.Fprintf(w, "no such page: %s\n", req.URL)
+    }
+}
+```
+
+- Equivalently, we could use the `http.Error` utility function:
+
+```go
+msg := fmt.Sprintf("no such page: %s\n", req.URL)
+http.Error(w, msg, http.StatusNotFound) // 404
+```
+
+- In the program below, we create a `ServeMux` and use it to associate the URLs   
+    with the corresponding handlers for the `/list` and `/price` operations, which have been split into separate methods.  
+    We then use the `ServeMux` as the main handler in the call to `ListenAndServe`.
+
+```go
+package main
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+)
+
+type dollars float32
+
+type database map[string]dollars
+
+func main() {
+	db := database{"shoes": 50, "socks": 5}
+
+	mux := http.NewServeMux()
+	mux.Handle("/list", http.HandlerFunc(db.list))
+	mux.Handle("/price", http.HandlerFunc(db.price))
+
+	log.Fatal(http.ListenAndServe("localhost:8000", mux))
+}
+
+func (db database) list(w http.ResponseWriter, req *http.Request) {
+	for item, price := range db {
+		fmt.Fprintf(w, "%s: %s\n", item, price)
+	}
+}
+
+func (db database) price(w http.ResponseWriter, req *http.Request) {
+	item := req.URL.Query().Get("item")
+	price, ok := db[item]
+	if !ok {
+		w.WriteHeader(http.StatusNotFound) // 404
+		fmt.Fprintf(w, "no such item: %q\n", item)
+		return
+	}
+
+	fmt.Fprintf(w, "%s\n", price)
+}
+```
+
+P. 314
+
+
+
