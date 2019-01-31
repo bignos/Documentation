@@ -6232,7 +6232,562 @@ func (db database) price(w http.ResponseWriter, req *http.Request) {
 }
 ```
 
-P. 314
+- The expression http.HandlerFunc(db.list) is a conversion, not a function call, since http.HandlerFunc is a type.  
+    It has the following definition:
 
+```go
+package http
 
+type HandlerFunc func(w ResponseWriter, r *Request)
 
+func (f HandlerFunc) ServeHTTP(w ResponseWriter, r *Request) {
+    f(w, r)
+}
+```
+
+- `HandlerFunc` demonstrates some unusual features of Go’s interface mechanism.  
+    It is a function type that has methods and satisfies an interface, `http.Handler`.  
+    The behavior of its `ServeHTTP` method is to call the underlying function.  
+    `HandlerFunc` is thus an adapter that lets a function value satisfy an interface,  
+    where the function and the interface’s sole method have the same signature.  
+    In effect, this trick lets a single type such as database satisfy the `http.Handler` interface several different ways:  
+    once through its list method, once through its price method, and so on.
+
+- Because registering a handler this way is so common,  
+    `ServeMux` has a convenience method called `HandleFunc` that does it for us,  
+    so we can simplify the handler registration code to this:
+
+```go
+mux.HandleFunc("/list", db.list)
+mux.HandleFunc("/price", db.price)
+```
+
+- But in most programs, one web server is plenty.  
+    Also, it’s typical to define HTTP handlers across many files of an application,  
+    and it would be a nuisance if they all had to be explicitly registered with the application’s ServeMux instance.
+
+- So, for convenience, `net/http` provides a global `ServeMux` instance  
+    called `DefaultServeMux` and package-level functions called `http.Handle` and `http.HandleFunc`.  
+    To use `DefaultServeMux` as the server’s main handler, we needn’t pass it to `ListenAndServe`; nil will do.  
+    The server’s main function can then be simplified to
+
+```go
+func main() {
+    db := database{"shoes": 50, "socks": 5}
+    http.HandleFunc("/list", db.list)
+    http.HandleFunc("/price", db.price)
+    log.Fatal(http.ListenAndServe("localhost:8000", nil))
+}
+```
+
+- The web server invokes each handler in a new goroutine,  
+    so handlers must take precautions such as *locking* when accessing variables that other *goroutines*,  
+    including other requests to the same handler, may be accessing.
+
+### 7.8 The error Interface
+
+- We’ve been using and creating values of  
+    the mysterious predeclared `error` type without explaining what it really is.  
+    In fact, it’s just an *interface* type with a single method that returns an error message:
+
+```go
+type error interface {
+    Error() string
+}
+```
+
+- The simplest way to create an error is by calling `errors.New`,  
+    which returns a new error for a given error message.  
+    The entire errors package is only four lines long:
+
+```go
+package errors
+
+func New(text string) error { return &errorString{text} }
+
+type errorString struct { text string }
+
+func (e *errorString) Error() string { return e.text }
+```
+
+- The underlying type of `errorString` is a struct, not a string,  
+    to protect its representation from inadvertent (or premeditated) updates.  
+    And the reason that the pointer type `*errorString`, not `errorString` alone,  
+    satisfies the `error` interface is so that every call to `New`  
+    allocates a distinct `error` instance that is equal to no other.  
+    We would not want a distinguished error such as `io.EOF` to compare equal to one that merely happened to have the same message.
+
+```go
+fmt.Println(errors.New("EOF") == errors.New("EOF")) // "false"
+```
+
+- Calls to errors.New are relatively infrequent because there’s a convenient wrapper function,  
+    `fmt.Errorf`, that does string formatting too.
+
+```go
+package fmt
+
+import "errors"
+
+func Errorf(format string, args ...interface{}) error
+{
+    return errors.New(Sprintf(format, args...))
+}
+```
+
+- Although `*errorString` may be the simplest type of `error`, it is far from the only one.  
+    For example, the `syscall` package provides Go’s low-level system call API.  
+    On many platforms, it defines a numeric type `Errno` that satisfies error,   
+    and on Unix platforms, `Errno’s Error` method does a lookup in a table of strings, as shown below:
+
+```go
+package syscall
+
+type Errno uintptr                  // operating system error code
+
+var errors = [...]string{
+    1: "operation not permitted",   // EPERM
+    2: "no such file or directory", // ENOENT
+    3: "no such process",           // ESRCH
+    // ...
+}
+
+func (e Errno) Error() string {
+    if 0 <= int(e) && int(e) < len(errors) {
+        return errors[e]
+    }
+    return fmt.Sprintf("errno %d", e)
+}
+```
+
+- The following statement creates an interface value holding the Errno value 2,  
+    signifying the POSIX ENOENT condition:
+
+```go
+var err error = syscall.Errno(2)
+
+fmt.Println(err.Error())    // "no such file or directory"
+fmt.Println(err)            // "no such file or directory"
+```
+
+### 7.9 Example: Expression Evaluator
+
+- In this section, we’ll build an evaluator for simple arithmetic expressions.  
+    We’ll use an interface, `Expr`, to represent any expression in this language.  
+    For now, this interface needs no methods, but we’ll add some later.
+
+```go
+// An Expr is an arithmetic expression.
+type Expr interface{}
+```
+
+- Our expression language consists of floating-point literals;  
+    the binary operators `+`, `-`, `*`, and `/`;  
+    the unary operators `-x` and `+x`;  
+    function calls `pow(x,y)`, `sin(x)`, and `sqrt(x)`;  
+    variables such as `x` and `pi`;  
+    and of course parentheses and standard operator precedence.  
+    All values are of type `float64`.  
+    Here are some example expressions:
+
+```
+sqrt(A / pi)
+pow(x, 3) + pow(y, 3)
+(F - 32) * 5 / 9
+```
+
+- The five concrete types below represent particular kinds of expression.  
+    A `Var` represents a reference to a variable.  
+    (We’ll soon see why it is exported.)  
+    A `literal` represents a floating-point constant.  
+    The `unary` and `binary` types represent operator expressions with one or two operands,  
+    which can be any kind of `Expr`.  
+    A call represents a function call; we’ll restrict its `fn` field to `pow`, `sin`, or `sqrt`.
+
+```go
+package eval
+
+import (
+	"fmt"
+	"math"
+)
+
+type Expr interface {
+	// Eval returns the value of this Expr in the environment env.
+	Eval(env Env) float64
+}
+
+type Env map[Var]float64
+
+// A Var identifies a variable, e.g., x.
+type Var string
+
+// A literal is a numeric constant, e.g., 3.141.
+type literal float64
+
+// A unary represents a unary operator expression, e.g., -x.
+type unary struct {
+	op rune // one of '+', '-'
+	x  Expr
+}
+
+// A binary represents a binary operator expression, e.g., x+y.
+type binary struct {
+	op   rune // one of '+', '-', '*', '/'
+	x, y Expr
+}
+
+// A call represents a function call expression, e.g., sin(x).
+type call struct {
+	fn   string // one of "pow", "sin", "sqrt"
+	args []Expr
+}
+
+func (v Var) Eval(env Env) float64 {
+	return env[v]
+}
+
+func (l literal) Eval(_ Env) float64 {
+	return float64(l)
+}
+
+func (u unary) Eval(env Env) float64 {
+	switch u.op {
+	case '+':
+		return +u.x.Eval(env)
+	case '-':
+		return -u.x.Eval(env)
+	}
+	panic(fmt.Sprintf("unsupported unary operator: %q", u.op))
+}
+
+func (b binary) Eval(env Env) float64 {
+	switch b.op {
+	case '+':
+		return b.x.Eval(env) + b.y.Eval(env)
+	case '-':
+		return b.x.Eval(env) - b.y.Eval(env)
+	case '*':
+		return b.x.Eval(env) * b.y.Eval(env)
+	case '/':
+		return b.x.Eval(env) / b.y.Eval(env)
+	}
+	panic(fmt.Sprintf("unsupported binary operator: %q", b.op))
+}
+
+func (c call) Eval(env Env) float64 {
+	switch c.fn {
+	case "pow":
+		return math.Pow(c.args[0].Eval(env), c.args[1].Eval(env))
+	case "sin":
+		return math.Sin(c.args[0].Eval(env))
+	case "sqrt":
+		return math.Sqrt(c.args[0].Eval(env))
+	}
+	panic(fmt.Sprintf("unsupported function call: %s", c.fn))
+}
+```
+
+- The test file (use "$go test -v ./eval" to test the package):
+
+```go
+package eval
+
+import (
+	"fmt"
+	"math"
+	"testing"
+)
+
+//!+Eval
+func TestEval(t *testing.T) {
+	tests := []struct {
+		expr string
+		env  Env
+		want string
+	}{
+		{"sqrt(A / pi)", Env{"A": 87616, "pi": math.Pi}, "167"},
+		{"pow(x, 3) + pow(y, 3)", Env{"x": 12, "y": 1}, "1729"},
+		{"pow(x, 3) + pow(y, 3)", Env{"x": 9, "y": 10}, "1729"},
+		{"5 / 9 * (F - 32)", Env{"F": -40}, "-40"},
+		{"5 / 9 * (F - 32)", Env{"F": 32}, "0"},
+		{"5 / 9 * (F - 32)", Env{"F": 212}, "100"},
+		//!-Eval
+		// additional tests that don't appear in the book
+		{"-1 + -x", Env{"x": 1}, "-2"},
+		{"-1 - x", Env{"x": 1}, "-2"},
+		//!+Eval
+	}
+	var prevExpr string
+	for _, test := range tests {
+		// Print expr only when it changes.
+		if test.expr != prevExpr {
+			fmt.Printf("\n%s\n", test.expr)
+			prevExpr = test.expr
+		}
+		expr, err := Parse(test.expr)
+		if err != nil {
+			t.Error(err) // parse error
+			continue
+		}
+		got := fmt.Sprintf("%.6g", expr.Eval(test.env))
+		fmt.Printf("\t%v => %s\n", test.env, got)
+		if got != test.want {
+			t.Errorf("%s.Eval() in %v = %q, want %q\n",
+				test.expr, test.env, got, test.want)
+		}
+	}
+}
+```
+
+- The concrete `Check` methods are shown below.  
+    Evaluation of `literal` and `Var` cannot fail, so the Check methods for these types return `nil`.  
+    The methods for `unary` and `binary` first check that the operator is valid, then recursively check the operands.  
+    Similarly, the method for `call` first checks that the function is known and has the right number of arguments,  
+    then recursively checks each argument.
+
+```go
+package eval
+
+import (
+	"fmt"
+	"strings"
+)
+
+func (v Var) Check(vars map[Var]bool) error {
+	vars[v] = true
+	return nil
+}
+
+func (literal) Check(vars map[Var]bool) error {
+	return nil
+}
+
+func (u unary) Check(vars map[Var]bool) error {
+	if !strings.ContainsRune("+-", u.op) {
+		return fmt.Errorf("unexpected unary op %q", u.op)
+	}
+	return u.x.Check(vars)
+}
+
+func (b binary) Check(vars map[Var]bool) error {
+	if !strings.ContainsRune("+-*/", b.op) {
+		return fmt.Errorf("unexpected binary op %q", b.op)
+	}
+	if err := b.x.Check(vars); err != nil {
+		return err
+	}
+
+	return b.y.Check(vars)
+}
+
+func (c call) Check(vars map[Var]bool) error {
+	arity, ok := numParams[c.fn]
+	if !ok {
+		return fmt.Errorf("unknown function %q", c.fn)
+	}
+
+	if len(c.args) != arity {
+		return fmt.Errorf("call to %s has %d args, want %d", c.fn, len(c.args), arity)
+	}
+
+	for _, arg := range c.args {
+		if err := arg.Check(vars); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+var numParams = map[string]int{"pow": 2, "sin": 1, "sqrt": 1}
+```
+
+- We can build a web application that receives an expression at run time from the client and plots the surface of that function.  
+    We can use the vars set to check that the expression is a function of only two variables,  
+    x and y—three, actually, since we’ll provide r, the radius, as a convenience.  
+    And we’ll use the `Check` method to reject ill-formed expressions  
+    before evaluation begins so that we don’t repeat those checks during the 40,000 evaluations of the function that follow.
+
+```go
+package main
+
+import (
+	"fmt"
+	"io"
+	"log"
+	"math"
+	"net/http"
+
+	"./eval"
+)
+
+const (
+	width, height = 600, 320            // canvas size in pixels
+	cells         = 100                 // number of grid cells
+	xyrange       = 30.0                // x, y axis range (-xyrange..+xyrange)
+	xyscale       = width / 2 / xyrange // pixels per x or y unit
+	zscale        = height * 0.4        // pixels per z unit
+)
+
+var sin30, cos30 = 0.5, math.Sqrt(3.0 / 4.0) // sin(30°), cos(30°)
+
+func main() {
+	http.HandleFunc("/plot", plot)
+	log.Fatal(http.ListenAndServe("localhost:8000", nil))
+}
+
+func corner(f func(x, y float64) float64, i, j int) (float64, float64) {
+	// find point (x,y) at corner of cell (i,j)
+	x := xyrange * (float64(i)/cells - 0.5)
+	y := xyrange * (float64(j)/cells - 0.5)
+
+	z := f(x, y) // compute surface height z
+
+	// project (x,y,z) isometrically onto 2-D SVG canvas (sx,sy)
+	sx := width/2 + (x-y)*cos30*xyscale
+	sy := height/2 + (x+y)*sin30*xyscale - z*zscale
+	return sx, sy
+}
+
+func surface(w io.Writer, f func(x, y float64) float64) {
+	fmt.Fprintf(w, "<svg xmlns='http://www.w3.org/2000/svg' "+
+		"style='stroke: grey; fill: white; stroke-width: 0.7' "+
+		"width='%d' height='%d'>", width, height)
+	for i := 0; i < cells; i++ {
+		for j := 0; j < cells; j++ {
+			ax, ay := corner(f, i+1, j)
+			bx, by := corner(f, i, j)
+			cx, cy := corner(f, i, j+1)
+			dx, dy := corner(f, i+1, j+1)
+			fmt.Fprintf(w, "<polygon points='%g,%g %g,%g %g,%g %g,%g'/>\n",
+				ax, ay, bx, by, cx, cy, dx, dy)
+		}
+	}
+	fmt.Fprintln(w, "</svg>")
+}
+
+func parseAndCheck(s string) (eval.Expr, error) {
+	if s == "" {
+		return nil, fmt.Errorf("empty expression")
+	}
+
+	expr, err := eval.Parse(s)
+	if err != nil {
+		return nil, err
+	}
+
+	vars := make(map[eval.Var]bool)
+	if err := expr.Check(vars); err != nil {
+		return nil, err
+	}
+
+	for v := range vars {
+		if v != "x" && v != "y" && v != "r" {
+			return nil, fmt.Errorf("undefined variable: %s", v)
+		}
+	}
+	return expr, nil
+}
+
+func plot(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	expr, err := parseAndCheck(r.Form.Get("expr"))
+
+	if err != nil {
+		http.Error(w, "bad expr: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "image/svg+xml")
+	surface(w, func(x, y float64) float64 {
+		r := math.Hypot(x, y) // distance from (0,0)
+		return expr.Eval(eval.Env{"x": x, "y": y, "r": r})
+	})
+}
+```
+
+### 7.10 Type Assertions
+
+- A type assertion is an operation applied to an interface value.  
+    Syntactically, it looks like `x.(T)`, where `x` is an expression of  
+    an interface type and `T` is a type, called the "asserted" type.  
+    A type assertion checks that the dynamic type of its operand matches the asserted type.
+
+- A type assertion to a concrete type extracts the concrete value from its operand.  
+    If the check fails, then the operation panics. For example:
+
+```go
+var w io.Writer
+
+w = os.Stdout
+f := w.(*os.File)       // success: f == os.Stdout
+c := w.(*bytes.Buffer)  // panic: interface holds *os.File, not *bytes.Buffer
+```
+
+- A type assertion to an interface type changes the type of the expression,  
+    making a different (and usually larger) set of methods accessible,   
+    but it preserves the dynamic type and value components inside the interface value.
+
+- After the first type assertion below, both `w` and `rw` hold `os.Stdout`  
+    so each has a dynamic type of `*os.File`, but `w`, an `io.Writer`,  
+    exposes only the file’s Write method, whereas `rw` exposes its `Read` method too.
+
+```go
+var w io.Writer
+w = os.Stdout
+rw := w.(io.ReadWriter) // success: *os.File has both Read and Write
+
+w = new(ByteCounter)
+rw = w.(io.ReadWriter)  // panic: *ByteCounter has no Read method
+```
+
+- No matter what type was asserted, if the operand is a nil interface value, the type assertion fails.  
+    A type assertion to a less restrictive interface type (one with fewer methods)  
+    is rarely needed, as it behaves just like an assignment, except in the nil case.
+
+```go
+w = rw              // io.ReadWriter is assignable to
+io.Writer
+w = rw.(io.Writer)  // fails only if rw == nil
+```
+
+- Often we’re not sure of the dynamic type of an interface value,  
+    and we’d like to test whether it is some particular type.  
+    If the type assertion appears in an assignment in which two results are expected,  
+    such as the following declarations,  
+    the operation does not panic on failure but instead returns an additional second result,  
+    a boolean indicating success:
+
+```go
+var w io.Writer = os.Stdout
+f, ok := w.(*os.File)       // success: ok, f == os.Stdout
+b, ok := w.(*bytes.Buffer)  // failure: !ok, b == nil
+```
+
+- The second result is conventionally assigned to a variable named `ok`.  
+    If the operation failed, `ok` is false,  
+    and the first result is equal to the zero value of the asserted type,  
+    which in this example is a nil `*bytes.Buffer`.
+
+- The `ok` result is often immediately used to decide what to do next.  
+    The extended form of the if statement makes this quite compact:
+
+```go
+if f, ok := w.(*os.File); ok {
+    // ...use f...
+}
+```
+
+- When the operand of a type assertion is a variable,  
+    rather than invent another name for the new local variable,  
+    you’ll sometimes see the original name reused, shadowing the original, like this:
+
+```go
+if w, ok := w.(*os.File); ok {
+    // ...use w...
+}
+```
+
+### 7.11 Discriminating Errors with Type Assertions
+
+P 334
