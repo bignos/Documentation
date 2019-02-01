@@ -6790,4 +6790,826 @@ if w, ok := w.(*os.File); ok {
 
 ### 7.11 Discriminating Errors with Type Assertions
 
-P 334
+- Consider the set of errors returned by file operations in the `os` package.  
+    I/O can fail for any number of reasons, but 3 kinds of failure often must be handled differently:  
+    -   file already exists (for create operations)
+    -   file not found (for read operations)
+    -   permission denied  
+    The `os` package provides these 3 helper functions to classify the failure indicated by a given error value:
+
+```go
+package os
+
+func IsExist(err error) bool
+func IsNotExist(err error) bool
+func IsPermission(err error) bool
+```
+
+- The `os` package defines a type called `PathError` to describe failures involving an operation  
+    on a file path, like `Open` or `Delete`, and a variant called `LinkError`  
+    to describe failures of operations involving two file paths,  
+    like `Symlink` and `Rename`.  
+    Here’s `os.PathError`:
+
+```go
+package os
+
+// PathError records an error and the operation and file path that caused it.
+type PathError struct {
+    Op      string
+    Path    string
+    Err     error
+}
+
+func (e *PathError) Error() string {
+    return e.Op + " " + e.Path + ": " + e.Err.Error()
+}
+```
+
+- Clients that need to distinguish one kind of failure from another  
+    can use a type assertion to detect the specific type of the error;  
+    the specific type provides more detail than a simple string.
+
+```go
+_, err := os.Open("/no/such/file")
+fmt.Println(err)                    // "open /no/such/file: No such file or directory"
+fmt.Printf("%#v\n", err)
+// Output:
+// &os.PathError{Op:"open", Path:"/no/such/file", Err:0x2}
+```
+
+- For example, `IsNotExist`, shown below, reports whether an error is equal to `syscall.ENOENT`   
+    or to the distinguished error `os.ErrNotExist`, or is a `*PathError` whose underlying error is one of those two.
+
+```go
+import (
+    "errors"
+    "syscall"
+)
+
+var ErrNotExist = errors.New("file does not exist")
+
+// IsNotExist returns a boolean indicating whether the error is known to
+// report that a file or directory does not exist. It is satisfied by
+// ErrNotExist as well as some syscall errors.
+func IsNotExist(err error) bool {
+    if pe, ok := err.(*PathError); ok {
+        err = pe.Err
+    }
+    return err == syscall.ENOENT || err == ErrNotExist
+}
+
+// And here it is in action:
+_, err := os.Open("/no/such/file")
+fmt.Println(os.IsNotExist(err))     // "true"
+```
+
+### 7.12 Querying Behaviors with Interface Type Assertions
+
+- The logic below is similar to the part of the `net/http` web server   
+    responsible for writing HTTP header fields such as "`Content-type: text/html`".  
+    The `io.Writer w` represents the HTTP response;  
+    the bytes written to it are ultimately sent to someone’s web browser.
+
+```go
+func writeHeader(w io.Writer, contentType string) error {
+    if _, err := w.Write([]byte("Content-Type: ")); err != nil {
+        return err
+    }
+
+    if _, err := w.Write([]byte(contentType)); err != nil {
+        return err
+    }
+// ...
+}
+```
+
+- We cannot assume that an arbitrary `io.Writer w` also has the `WriteString` method.  
+    But we can define a new interface that has just this method and   
+    use a type assertion to test whether the dynamic type of `w` satisfies this new interface.
+
+```go
+// writeString writes s to w.
+// If w has a WriteString method, it is invoked instead of w.Write.
+func writeString(w io.Writer, s string) (n int, err error) {
+    type stringWriter interface {
+        WriteString(string) (n int, err error)
+    }
+
+    if sw, ok := w.(stringWriter); ok {
+        return sw.WriteString(s)    // avoid a copy
+    }
+
+    return w.Write([]byte(s))       // allocate temporary copy
+}
+
+func writeHeader(w io.Writer, contentType string) error {
+    if _, err := writeString(w, "Content-Type: "); err != nil {
+        return err
+    }
+
+    if _, err := writeString(w, contentType); err != nil {
+        return err
+    }
+// ...
+}
+```
+
+- To avoid repeating ourselves, we’ve moved the check into the utility function `writeString`,  
+    but it is so useful that the standard library provides it as `io.WriteString`.  
+    It is the recommended way to write a string to an `io.Writer`.
+
+- The technique above relies on the assumption that if a type satisfies the interface below,  
+    then `WriteString(s)` must have the same effect as `Write([]byte(s))`.
+
+```go
+interface {
+    io.Writer
+    WriteString(s string) (n int, err error)
+}
+```
+
+- With the exception of the empty interface `interface{}`,  
+    interface types are seldom satisfied by unintended coincidence.
+- `fmt.Fprintf` distinguishes values that satisfy `error` or `fmt.Stringer` from all other values.  
+    Within `fmt.Fprintf`, there is a step that converts a single operand to a string, something like this:
+
+```go
+package fmt
+
+func formatOneValue(x interface{}) string {
+    if err, ok := x.(error); ok {
+        return err.Error()
+    }
+
+    if str, ok := x.(Stringer); ok {
+        return str.String()
+    }
+// ...all other types...
+}
+```
+
+- This makes the assumption that any type with a `String` method   
+    satisfies the behavioral contract of `fmt.Stringer`,  
+    which is to return a string suitable for printing.
+
+### 7.13 Type Switches
+
+- Interfaces are used in two distinct styles.  
+    In the first style, exemplified by `io.Reader`, `io.Writer`, `fmt.Stringer`, `sort.Interface`, `http.Handler`, and `error`,   
+    an interface’s methods express the similarities of the concrete types   
+    that satisfy the interface but hide the representation details and intrinsic operations of those concrete types.  
+    The emphasis is on the methods, not on the concrete types.
+
+- The second style exploits the ability of an interface value   
+    to hold values of a variety of concrete types and considers the interface to be the union of those types.  
+    Type assertions are used to discriminate among these types dynamically and treat each case differently.  
+    In this style, the emphasis is on the concrete types that satisfy the interface,  
+    not on the interface’s methods (if indeed it has any), and there is no hiding of information.  
+    We’ll describe interfaces used this way as *discriminated unions*.
+
+- Go’s API for querying an SQL database, like those of other languages,  
+    lets us cleanly separate the fixed part of a query from the variable parts.  
+    An example client might look like this:
+
+```go
+import "database/sql"
+
+func listTracks(db sql.DB, artist string, minYear, maxYear int) {
+    result, err := db.Exec( "SELECT * FROM tracks WHERE artist = ? AND ?  <= year AND year <= ?", artist, minYear, maxYear)
+    // ...
+}
+```
+
+- The Exec method replaces each '?' in the query string with an SQL literal  
+    denoting the corresponding argument value, which may be a boolean, a number, a string, or nil.  
+    Constructing queries this way helps avoid *SQL injection attacks*,   
+    in which an adversary takes control of the query by exploiting improper quotation of input data.  
+    Within Exec, we might find a function like the one below, which converts each argument value to its literal SQL notation.
+
+```go
+func sqlQuote(x interface{}) string {
+    if x == nil {
+        return "NULL"
+    } else if _, ok := x.(int); ok {
+        return fmt.Sprintf("%d", x)
+    } else if _, ok := x.(uint); ok {
+        return fmt.Sprintf("%d", x)
+    } else if b, ok := x.(bool); ok {
+        if b {
+            return "TRUE"
+        }
+        return "FALSE"
+    } else if s, ok := x.(string); ok {
+        return sqlQuoteString(s) // (not shown)
+    } else {
+        panic(fmt.Sprintf("unexpected type %T: %v", x, x))
+    }
+}
+```
+
+- In its simplest form, a type switch looks like an ordinary switch statement  
+    in which the operand is `x.(type)` that’s literally the keyword `type` and each case has one or more types.  
+    A type switch enables a multi-way branch based on the interface value’s dynamic type.  
+    The `nil` case matches if x == nil, and the default case matches if no other case does.  
+    A type switch for `sqlQuote` would have these cases:
+
+```go
+switch x.(type) {
+case nil:       
+    // ...
+case int, uint: 
+    // ...
+case bool: 
+    // ...
+case string: 
+    // ...
+default: 
+    // ...
+}
+```
+
+- Notice that in the original function, the logic for the `bool` and `string` cases   
+    needs access to the value extracted by the type assertion.  
+    Since this is typical, the type switch statement has an extended form  
+    that binds the extracted value to a new variable within each case:
+
+```go
+switch x := x.(type) { /* ... */ }
+```
+
+- Rewriting `sqlQuote` to use the extended form of type switch makes it significantly clearer:
+
+```go
+func sqlQuote(x interface{}) string {
+    switch x := x.(type) {
+    case nil:
+        return "NULL"
+    case int, uint:
+        return fmt.Sprintf("%d", x) // x has type interface{} here.
+    case bool:
+        if x {
+            return "TRUE"
+        }
+        return "FALSE"
+    case string:
+        return sqlQuoteString(x) // (not shown)
+    default:
+        panic(fmt.Sprintf("unexpected type %T: %v", x, x))
+    }
+}
+```
+
+- Although `sqlQuote` accepts an argument of any type,  
+    the function runs to completion only if the argument’s type matches one of the cases in the type switch;  
+    otherwise it panics with an "unexpected type" message.  
+    Although the type of `x` is `interface{}`, we consider it a *discriminated union* of int, uint, bool, string, and nil.
+
+### 7.14 Example: Token-Based XML Decoding
+
+- The `encoding/xml` package also provides a lower-level token-based API for decoding XML.  
+    In the token-based style, the parser consumes the input   
+    and produces a stream of tokens, primarily of four kinds `StartElement, EndElement, CharData, and Comment`  
+    each being a concrete type in the `encoding/xml` package.  
+    Each call to `(*xml.Decoder).Token` returns a token.
+
+```go
+package xml
+
+type Name struct {
+    Local string // e.g., "Title" or "id"
+}
+
+type Attr struct { // e.g., name="value"
+    Name Name
+    Value string
+}
+
+// A Token includes StartElement, EndElement, CharData,
+// and Comment, plus a few esoteric types (not shown).
+type Token interface{}
+
+type StartElement struct {              // e.g., <name>
+    Name Name
+    Attr []Attr
+}
+
+type EndElement struct { Name Name }    // e.g., </name>
+
+type CharData []byte                    // e.g., <p>CharData</p>
+
+type Comment []byte                     // e.g., <!-- Comment -->
+
+type Decoder struct{ /* ... */ }
+
+func NewDecoder(io.Reader) *Decoder
+func (*Decoder) Token() (Token, error) // returns next Token in sequence
+```
+
+- By contrast, the set of concrete types that satisfy a *discriminated union*  
+    is fixed by the design and exposed, not hidden.  
+    *Discriminated union* types have few methods;  
+    functions that operate on them are expressed as a set of cases using a type switch,  
+    with different logic in each case.
+
+- The `xmlselect` program below extracts and prints the text   
+    found beneath certain elements in an XML document tree.  
+    Using the API above, it can do its job in a single pass over the input without ever materializing the tree.
+
+```go
+// Xmlselect prints the text of selected elements of an XML document.
+package main
+
+import (
+    "encoding/xml"
+    "fmt"
+    "io"
+    "os"
+    "strings"
+)
+
+func main() {
+    dec := xml.NewDecoder(os.Stdin)
+    var stack []string // stack of element names
+
+    for {
+        tok, err := dec.Token()
+        if err == io.EOF {
+            break
+        } else if err != nil {
+            fmt.Fprintf(os.Stderr, "xmlselect: %v\n", err)
+            os.Exit(1)
+        }
+
+        switch tok := tok.(type) {
+        case xml.StartElement:
+            stack = append(stack, tok.Name.Local)   // push
+        case xml.EndElement:
+            stack = stack[:len(stack)-1]            // pop
+        case xml.CharData:
+            if containsAll(stack, os.Args[1:]) {
+                fmt.Printf("%s: %s\n", strings.Join(stack, " "), tok)
+            }
+        }
+    }
+}
+
+// containsAll reports whether x contains the elements of y, in order.
+func containsAll(x, y []string) bool {
+    for len(y) <= len(x) {
+        if len(y) == 0 {
+            return true
+        }
+
+        if x[0] == y[0] {
+            y = y[1:]
+        }
+        x = x[1:]
+    }
+
+    return false
+}
+```
+
+- Each time the loop in `main` encounters a `StartElement`,  
+    it pushes the element’s name onto a stack, and for each `EndElement` it pops the name from the stack.  
+    The API guarantees that the sequence of `StartElement` and `EndElement` tokens will be properly matched,  
+    even in ill-formed documents.  
+    Comments are ignored.  
+    When `xmlselect` encounters a `CharData`,  
+    it prints the text only if the stack contains all the elements named by the command-line arguments, in order.
+
+### 7.15 A Few Words of Advice
+
+- When designing a new package, novice Go programmers   
+    often start by creating a set of interfaces and only later define the concrete types that satisfy them.  
+    This approach results in many interfaces, each of which has only a single implementation.  
+    **Don’t do that**.
+- Such interfaces are unnecessary abstractions; they also have a run-time cost.  
+    You can restrict which methods of a type or fields of a struct are visible outside a package  
+    using the export mechanism.  
+    Interfaces are only needed when there are two or more concrete types that must be dealt with in a uniform way.
+- We make an exception to this rule when an interface is   
+    satisfied by a single concrete type but that type cannot live in the same package   
+    as the interface because of its dependencies.  
+    In that case, an interface is a good way to decouple two packages.
+- Small interfaces are easier to satisfy when new types come along.  
+    A good rule of thumb for interface design is *ask only for what you need*.
+
+## 8. Goroutines and Channels
+
+- Concurrent programming, the expression of a program as a composition of several autonomous activities,  
+    has never been more important than it is today.  
+    Web servers handle requests for thousands of clients at once.  
+    Tablet and phone apps render animations in the user interface  
+    while simultaneously performing computation and network requests in the background.  
+    Even traditional batch problems—read some data, compute, write some output  
+    use concurrency to hide the latency of I/O operations and to exploit a modern computer’s many processors,  
+    which every year grow in number but not in speed.
+
+- Go enables two styles of concurrent programming.  
+    This chapter presents goroutines and channels, which support *communicating sequential processes* or *CSP*,  
+    a model of concurrency in which values are passed between independent activities (goroutines)  
+    but variables are for the most part confined to a single activity.
+
+### 8.1 Goroutines
+
+- In Go, each concurrently executing activity is called a goroutine.  
+    Consider a program that has two functions,  
+    one that does some computation and one that writes some output,  
+    and assume that neither function calls the other.  
+    A sequential program may call one function and then call the other,  
+    but in a concurrent program with two or more goroutines,  
+    calls to both functions can be active at the same time.
+
+- If you have used operating system threads or threads in other languages,  
+    then you can assume for now that a goroutine is similar to a thread,  
+    and you’ll be able to write correct programs.  
+    The differences between threads and goroutines are essentially quantitative, not qualitative.
+
+- When a program starts, its only goroutine is the one that calls the `main` function,  
+    so we call it the *main goroutine*.  
+    New goroutines are created by the go statement.  
+    Syntactically, a `go` statement is an ordinary function or method call prefixed by the keyword `go`.  
+    A `go` statement causes the function to be called in a newly created goroutine.  
+    The `go` statement itself completes immediately:
+
+```go
+f()     // call f(); wait for it to return
+go f()  // create a new goroutine that calls f(); don't wait
+```
+
+- In the example below, the main goroutine computes the 45th Fibonacci number.  
+    Since it uses the terribly inefficient recursive algorithm,  
+    it runs for an appreciable time,  
+    during which we’d like to provide the user with a visual indication that the program is still running,  
+    by displaying an animated textual "spinner".
+
+```go
+func main() {
+    go spinner(100 * time.Millisecond)
+    const n = 45
+
+    fibN := fib(n) // slow
+    fmt.Printf("\rFibonacci(%d) = %d\n", n, fibN)
+}
+
+func spinner(delay time.Duration) {
+    for {
+        for _, r := range `-\|/` {
+            fmt.Printf("\r%c", r)
+            time.Sleep(delay)
+        }
+    }
+}
+
+func fib(x int) int {
+    if x < 2 {
+        return x
+    }
+
+    return fib(x-1) + fib(x-2)
+}
+```
+
+- After several seconds of animation, the `fib(45)` call returns and the `main` function prints its result:  
+    `Fibonacci(45) = 1134903170`
+
+- The `main` function then returns.  
+    When this happens, all goroutines are abruptly terminated and the program exits.  
+    Other than by returning from `main` or exiting the program,  
+    there is no programmatic way for one goroutine to stop another,  
+    but as we will see later, there are ways to communicate with a goroutine to request that it stop itself.
+
+- Notice how the program is expressed as the composition of 2 autonomous activities, spinning and Fibonacci computation.  
+    Each is written as a separate function but both make progress concurrently.
+
+### 8.2 Example: Concurrent Clock Server
+
+- Networking is a natural domain in which to use concurrency  
+    since servers typically handle many connections from their clients at once,  
+    each client being essentially independent of the others.  
+    In this section, we’ll introduce the `net` package,  
+    which provides the components for building networked client and server programs  
+    that communicate over TCP, UDP, or Unix domain sockets.  
+    The `net/http` package is built on top of functions from the `net` package.
+
+- Our first example is a sequential clock server that writes the current time to the client once per second:
+
+```go
+// Clock1 is a TCP server thaht periodically writes the time.
+package main
+
+import (
+	"io"
+	"log"
+	"net"
+	"time"
+)
+
+func main() {
+	listener, err := net.Listen("tcp", "localhost:8000")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			log.Print(err) // e.g., connection aborted
+			continue
+		}
+
+		handleConn(conn) // handle one connection at a time
+	}
+}
+
+func handleConn(c net.Conn) {
+	defer c.Close()
+	for {
+		_, err := io.WriteString(c, time.Now().Format("15:04:05\n"))
+		if err != nil {
+			return // e.g., client disconnected
+		}
+
+		time.Sleep(1 * time.Second)
+	}
+}
+```
+
+- The Listen function creates a `net.Listener`,  
+    an object that listens for incoming connections on a network port, in this case TCP port `localhost:8000`.  
+    The listener’s `Accept` method blocks until an incoming connection request is made,  
+    then returns a `net.Conn` object representing the connection.
+
+- The `handleConn` function handles one complete client connection.  
+    In a loop, it writes the current time, `time.Now()`, to the client.  
+    Since `net.Conn` satisfies the `io.Writer` interface, we can write directly to it.  
+    The loop ends when the write fails, most likely because the client has disconnected,  
+    at which point `handleConn` closes its side of the connection using a deferred call  
+    to `Close` and goes back to waiting for another connection request.
+
+- The `time.Time.Format` method provides a way to format date and time information by example.  
+    Its argument is a template indicating how to format a reference time, specifically `Mon Jan 2 03:04:05PM 2006 UTC-0700`.  
+    The reference time has eight components (day of the week, month, day of the month, and so on).  
+    Any collection of them can appear in the Format string in any order and in a number of formats;  
+    the selected components of the date and time will be displayed in the selected formats.  
+    Here we are just using the hour, minute, and second of the time.  
+    The `time` package defines templates for many standard time formats, such as `time.RFC1123`.  
+    The same mechanism is used in reverse when parsing a time using `time.Parse`.
+
+- The client displays the time sent by the server each second until we interrupt the client with Control-C,  
+    which on Unix systems is echoed as `^C` by the shell.  
+    If `nc` or `netcat` is not installed on your system, you can use `telnet`  
+    or this simple Go version of `netcat` that uses `net.Dial` to connect to a TCP server:
+
+```go
+// Netcat1 is a read-only TCP client.
+package main
+
+import (
+	"io"
+	"log"
+	"net"
+	"os"
+)
+
+func main() {
+	conn, err := net.Dial("tcp", "localhost:8000")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+	mustCopy(os.Stdout, conn)
+}
+
+func mustCopy(dst io.Writer, src io.Reader) {
+	if _, err := io.Copy(dst, src); err != nil {
+		log.Fatal(err)
+	}
+}
+```
+
+- This program reads data from the connection  
+    and writes it to the standard output until an end-of-file condition or an error occurs.
+
+- The second client must wait until the first client is finished because the server is sequential;  
+    it deals with only one client at a time.  
+    Just one small change is needed to make the server concurrent:  
+    adding the `go` keyword to the call to `handleConn` causes each call to run in its own goroutine.
+
+```go
+for {
+    conn, err := listener.Accept()
+    if err != nil {
+        log.Print(err) // e.g., connection aborted
+        continue
+    }
+
+    go handleConn(conn) // handle one connection concurrently
+}
+```
+
+- Now, multiple clients can receive the time at once.
+
+### 8.3 Example: Concurrent Echo Server
+
+- The clock server used one goroutine per connection.  
+    In this section, we’ll build an echo server that uses multiple goroutines per connection.  
+    Most echo servers merely write whatever they read, which can be done with this trivial version of handleConn:
+
+```go
+func handleConn(c net.Conn) {
+    io.Copy(c, c) // NOTE: ignoring errors
+    c.Close()
+}
+```
+
+- A more interesting echo server might simulate the reverberations of a real echo,  
+    with the response loud at first ("HELLO!"), then moderate ("Hello!") after a delay,  
+    then quiet ("hello!") before fading to nothing, as in this version of `handleConn`:
+
+```go
+func echo(c net.Conn, shout string, delay time.Duration) {
+    fmt.Fprintln(c, "\t", strings.ToUpper(shout))
+    time.Sleep(delay)
+    fmt.Fprintln(c, "\t", shout)
+    time.Sleep(delay)
+    fmt.Fprintln(c, "\t", strings.ToLower(shout))
+}
+
+func handleConn(c net.Conn) {
+    input := bufio.NewScanner(c)
+    for input.Scan() {
+        echo(c, input.Text(), 1*time.Second)
+    }
+
+    // NOTE: ignoring potential errors from
+    input.Err()
+    c.Close()
+}
+```
+
+- We’ll need to upgrade our client program  
+    so that it sends terminal input to the server while also copying the server response to the output,  
+    which presents another opportunity to use concurrency:
+
+```go
+func main() {
+    conn, err := net.Dial("tcp", "localhost:8000")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer conn.Close()
+    go mustCopy(os.Stdout, conn)
+    mustCopy(conn, os.Stdin)
+}
+```
+
+- Notice that the third shout from the client is not dealt with until the second shout has petered out,  
+    which is not very realistic.  
+    A real echo would consist of the *composition* of the 3 independent shouts.  
+    To simulate it, we’ll need more goroutines.  
+    Again, all we need to do is add the `go` keyword, this time to the call to `echo`:
+
+```go
+func handleConn(c net.Conn) {
+    input := bufio.NewScanner(c)
+    for input.Scan() {
+        go echo(c, input.Text(), 1*time.Second)
+    }
+    // NOTE: ignoring potential errors from
+    input.Err()
+    c.Close()
+}
+```
+
+- All that was required to make the server use concurrency,  
+    not just to handle connections from multiple clients but even within a single connection,  
+    was the insertion of two `go` keywords.
+
+### 8.4 Channels
+
+- If goroutines are the activities of a concurrent Go program, *channels* are the connections between them.  
+    A channel is a communication mechanism that lets one goroutine send values to another goroutine.  
+    Each channel is a conduit for values of a particular type, called the channel’s element type.  
+    The type of a channel whose elements have type `int` is written `chan int`.
+- To create a channel, we use the built-in `make` function:
+
+```go
+ch := make(chan int)    // ch has type 'chan int'
+```
+
+- As with maps, a channel is a *reference* to the data structure created by make.  
+    When we copy a channel or pass one as an argument to a function, we are copying a reference,  
+    so caller and callee refer to the same data structure.  
+    As with other reference types, the zero value of a channel is nil.
+
+- Two channels of the same type may be compared using `==`.  
+    The comparison is true if both are references to the same channel data structure.  
+    A channel may also be compared to `nil`.
+
+- A channel has two principal operations, *send* and *receive*, collectively known as *communications*.  
+    A send statement transmits a value from one goroutine, through the channel,  
+    to another goroutine executing a corresponding receive expression.  
+    Both operations are written using the `<-` operator.  
+    In a send statement, the `<-` separates the channel and value operands.  
+    In a receive expression, `<-` precedes the channel operand.  
+    A receive expression whose result is not used is a valid statement.
+
+```go
+ch <- x     // a send statement
+x = <-ch    // a receive expression in an assignment statement
+<-ch        // a receive statement; result is discarded
+```
+
+- Channels support a third operation, close,  
+    which sets a flag indicating that no more values will ever be sent on this channel;  
+    subsequent attempts to send will panic.
+- Receive operations on a closed channel yield the values  
+    that have been sent until no more values are left;  
+    any receive operations there after complete immediately  
+    and yield the zero value of the channel’s element type.
+
+- To close a channel, we call the built-in `close` function:
+
+```go
+close(ch)
+```
+
+- A channel created with a simple call to `make` is called an *unbuffered* channel,  
+    but make accepts an optional second argument, an integer called the channel’s *capacity*.  
+    If the capacity is non-zero, `make` creates a *buffered* channel.
+
+```go
+ch = make(chan int)     // unbuffered channel
+ch = make(chan int, 0)  // unbuffered channel
+ch = make(chan int, 3)  // buffered channel with capacity 3
+```
+
+#### 8.4.1 Unbuffered Channels
+
+- A send operation on an unbuffered channel  
+    blocks the sending goroutine until another goroutine executes a corresponding receive on the same channel,  
+    at which point the value is transmitted and both goroutines may continue.  
+    Conversely, if the receive operation was attempted first,  
+    the receiving goroutine is blocked until another goroutine performs a send on the same channel.
+
+- Communication over an unbuffered channel causes the sending and receiving goroutines to *synchronize*.  
+    Because of this, unbuffered channels are sometimes called *synchronous* channels.  
+    When a value is sent on an unbuffered channel,  
+    the receipt of the value *happens before* the reawakening of the sending goroutine.
+
+- In discussions of concurrency, when we say `x happens before y`,  
+    we don’t mean merely that `x` occurs earlier in time than `y`;  
+    we mean that it is guaranteed to do so and that all its prior effects,  
+    such as updates to variables, are complete and that you may rely on them.
+
+- When x neither happens before y nor after y, we say that `x is concurrent with y`.  
+    This doesn’t mean that x and y are necessarily simultaneous,  
+    merely that we cannot assume anything about their ordering.  
+    As we’ll see in the next chapter, it’s necessary to  
+    order certain events during the program’s execution to avoid the problems that arise  
+    when 2 goroutines access the same variable concurrently.
+
+- To make the program wait for the background goroutine to complete before exiting,  
+    we use a channel to synchronize the two goroutines:
+
+```go
+func main() {
+	conn, err := net.Dial("tcp", "localhost:8000")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	done := make(chan struct{})
+	go func() {
+		io.Copy(os.Stdout, conn) 	// NOTE: ignoring errors
+		log.Println("done")
+		done <- struct{}{} 			// signal the main goroutine
+	}()
+
+	mustCopy(conn, os.Stdin)
+	conn.Close()
+	<-done 							// wait for background goroutine to finish
+}
+```
+
+- When the user closes the standard input stream, `mustCopy` returns and the main goroutine calls `conn.Close()`,  
+    closing both halves of the network connection.
+
+- Before it returns, the background goroutine logs a message, then sends a value on the `done` channel.  
+    The main goroutine waits until it has received this value before returning.  
+    As a result, the program always logs the "done" message before exiting.
+
+- Messages sent over channels have two important aspects.  
+    Each message has a value, but sometimes the fact of communication and the moment at which it occurs are just as important.
+- We call messages events when we wish to stress this aspect.  
+    When the event carries no additional information, that is, its sole purpose is synchronization,  
+    we’ll emphasize this by using a channel whose element type is `struct{}`,  
+    though it’s common to use a channel of `bool` or `int` for the same purpose  
+    since `done <- 1` is shorter than `done <- struct{}{}`.
+
+#### 8.4.2 Pipelines
+
+P. 367
