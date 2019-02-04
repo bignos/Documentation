@@ -7612,4 +7612,193 @@ func main() {
 
 #### 8.4.2 Pipelines
 
-P. 367
+- Channels can be used to connect goroutines together so that the output of one is the input to another.  
+    This is called a *pipeline*.  
+    The program below consists of 3 goroutines connected by 2 channels.
+
+- The first goroutine, `counter`, generates the integers 0, 1, 2, ...,  
+    and sends them over a channel to the second goroutine, `squarer`,  
+    which receives each value, squares it,  
+    and sends the result over another channel to the third goroutine, `printer`,  
+    which receives the squared values and prints them.
+
+```go
+func main() {
+    naturals := make(chan int)
+    squares := make(chan int)
+
+    // Counter
+    go func() {
+        for x := 0; ; x++ {
+            naturals <- x
+        }
+    }()
+
+    // Squarer
+    go func() {
+        for {
+            x := <-naturals
+            squares <- x * x
+        }
+    }()
+
+    // Printer (in main goroutine)
+    for {
+        fmt.Println(<-squares)
+    }
+}
+```
+
+- If the sender knows that no further values will ever be sent on a channel,  
+    it is useful to communicate this fact to the receiver goroutines so that they can stop waiting.  
+    This is accomplished by closing the channel using the built-in  `close` function:
+
+```go
+close(naturals)
+```
+
+- There is no way to test directly whether a channel has been closed,  
+    but there is a variant of the receive operation that produces two results:  
+    the received channel element, plus a boolean value, conventionally called `ok`,  
+    which is `true` for a successful receive and `false` for a receive on a closed and drained channel.  
+    Using this feature, we can modify the squarer’s loop to stop  
+    when the `naturals` channel is drained and close the `squares` channel in turn.
+
+```go
+// Squarer
+go func() {
+    for {
+        x, ok := <-naturals
+        if !ok {
+            break // channel was closed and drained
+        }
+        squares <- x * x
+    }
+    close(squares)
+}()
+```
+
+- Because the syntax above is clumsy and this pattern is common,  
+    the language lets us use a `range` loop to iterate over channels too.  
+    This is a more convenient syntax for receiving all the values sent on a channel and terminating the loop after the last one.
+
+- In the pipeline below, when the counter goroutine finishes its loop after 100 elements,  
+    it closes the `naturals` channel, causing the squarer to finish its loop and close the `squares` channel.  
+    (In a more complex program, it might make sense for the counter and squarer functions to defer the calls to `close` at the outset.)  
+    Finally, the main goroutine finishes its loop and the program exits.
+
+```go
+func main() {
+    naturals := make(chan int)
+    squares := make(chan int)
+
+    // Counter
+    go func() {
+        for x := 0; x < 100; x++ {
+            naturals <- x
+        }
+        close(naturals)
+    }()
+
+    // Squarer
+    go func() {
+        for x := range naturals {
+            squares <- x * x
+        }
+        close(squares)
+    }()
+
+    // Printer (in main goroutine)
+    for x := range squares {
+        fmt.Println(x)
+    }
+}
+```
+
+- You needn’t close every channel when you’ve finished with it.  
+    It’s only necessary to close a channel  
+    when it is important to tell the receiving goroutines that all data have been sent.  
+    A channel that the garbage collector determines to be unreachable  
+    will have its resources reclaimed whether or not it is closed.  
+    (Don’t confuse this with the close operation for open files.  
+    It is important to call the `Close` method on every file when you’ve finished with it.)
+
+- Attempting to close an already-closed channel causes a panic, as does closing a nil channel.  
+    Closing channels has another use as a broadcast mechanism.
+
+#### 8.4.3 Unidirectional Channel Types
+
+- As programs grow, it is natural to break up large functions into smaller pieces.  
+    Our previous example used three goroutines, communicating over two channels, which were local variables of `main`.  
+    The program naturally divides into 3 functions:
+
+```go
+func counter(out chan int)
+func squarer(out, in chan int)
+func printer(in chan int)
+```
+
+- The `squarer` function, sitting in the middle of the pipeline,  
+    takes two parameters, the input channel and the output channel.  
+    Both have the same type, but their intended uses are opposite:  
+    `in` is only to be received from, and `out` is only to be sent to.  
+    The names in and out convey this intention,  
+    but still, nothing prevents `squarer` from sending to `in` or receiving from `out`.
+
+- This arrangement is typical.  
+    When a channel is supplied as a function parameter,  
+    it is nearly always with the intent that it be used exclusively for sending or exclusively for receiving.
+
+- To document this intent and prevent misuse,  
+    the Go type system provides unidirectional channel types  
+    that expose only one or the other of the send and receive operations.  
+    The type `chan<- int`, a send-only channel of `int`, allows sends but not receives.  
+    Conversely, the type `<-chan int`, a receive-only channel of `int`, allows receives but not sends.  
+    (The position of the `<-` arrow relative to the `chan` keyword is a mnemonic.)  
+    Violations of this discipline are detected at compile time.
+
+- Since the `close` operation asserts that no more sends will occur on a channel,  
+    only the sending goroutine is in a position to call it,  
+    and for this reason it is a compile-time error to attempt to close a receive-only channel.
+
+```go
+func counter(out chan<- int) {
+    for x := 0; x < 100; x++ {
+        out <- x
+    }
+    close(out)
+}
+
+func squarer(out chan<- int, in <-chan int) {
+    for v := range in {
+        out <- v * v
+    }
+    close(out)
+}
+
+func printer(in <-chan int) {
+    for v := range in {
+        fmt.Println(v)
+    }
+}
+
+func main() {
+    naturals := make(chan int)
+    squares := make(chan int)
+    go counter(naturals)
+    go squarer(squares, naturals)
+    printer(squares)
+}
+```
+
+- The call `counter(naturals)` implicitly converts `naturals`,  
+    a value of type `chan int`, to the type of the parameter, `chan<- int`.  
+    The `printer(squares)` call does a similar implicit conversion to `<-chan int`.  
+    Conversions from bidirectional to unidirectional channel types are permitted in any assignment.  
+    There is no going back, however:  
+    once you have a value of a unidirectional type such as `chan<- int`,  
+    there is no way to obtain from it a value of type `chan int` that refers to the same channel data structure.
+
+#### 8.4.4 Buffered Channels
+
+P. 372
