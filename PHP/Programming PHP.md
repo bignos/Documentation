@@ -493,4 +493,171 @@ left            	 or                                                       	 log
 
 #### Implicit Casting
 
+- Binary math operators typically require both operands to be of the same type.
+- To keep as much of the type details away from the programmer as possible,  
+    PHP converts values from one type to another as necessary.
+
+- *Implicit casting rules for binary arithmetic operations*
+```
+Type of first   Type of seconnd     Conversion performed
+Integer         Floating point      The integer is converted to a floating-point number.
+Integer         String              The string is converted to a number; if the value after conversion is a floating- point number, 
+                                    the integer is converted to a floating-point number.
+Floating point  String              The string is converted to a floating-point number.
+```
+
+- The *string* concatenation operator converts both operands to strings before concatenating them:
+
+```php
+3 . 2.74 // gives the string 32.74
+```
+
+- You can use a string anywhere PHP expects a number.  
+    The string is presumed to start with an integer or floating-point number.  
+    If no number is found at the start of the string, the numeric value of that string is 0.  
+    If the string contains a period (`.`) or upper- or lowercase `e`, evaluating it numerically produces a floating-point number.
+
+```php
+"9 Lives" - 1;             // 8 (int)
+"3.14 Pies" * 2;           // 6.28 (float)
+"9 Lives." - 1;            // 8 (float)
+"1E3 Points of Light" + 1; // 1001 (float)
+```
+
+#### String Concatenation Operator
+
+- Manipulating strings is such a core part of PHP applications that PHP has a separate string concatenation operator (`.`)
+- Operands are first converted to strings, if necessary.
+
+```php
+$n = 5;
+$s = 'There were ' . $n . ' ducks.';  // $s is 'There were 5 ducks'
+```
+
+#### Auto-increment and Auto-decrement Operators
+
+- There are two ways to use auto-increment or auto-decrement in expressions.  
+    If you put the operator in front of the operand, it returns the new value of the operand (incremented or decremented).  
+    If you put the operator after the operand, it returns the original value of the operand (before the increment or decrement).
+
+- These operators can be applied to strings as well as numbers.  
+- Incrementing an alphabetic character turns it into the next letter in the alphabet.  
+- incrementing "z" or "Z" wraps it back to "a" or "A" and increments the previous character by one  
+    (or inserts a new "a" or "A" if at the first character of the string)
+
+#### Comparison Operators
+
+- *Type of comparison performed by the comparison operators*
+
+```
+First operand                       Second operand                      Comparison 
+Number                              Number                              Numeric
+String that is entirely numeric     String that is entirely numeric     Numeric
+String that is entirely numeric     Number                              Numeric
+String that is entirely numeric     String that is not entirely numeric Numeric
+String that is not entirely numeric Number                              Lexicographic
+String that is not entirely numeric String that is not entirely numeric Lexicographic
+```
+
+- The comparison operators are:
+
+- Equality (`==`)  
+    If both operands are equal, this operator returns true; otherwise, it returns false.
+
+- Identity (`===`)  
+    If both operands are equal and are of the same type, this operator returns true;  
+    otherwise, it returns false.  
+    Note that this operator **does not do implicit type casting**.  
+    This operator is useful when you don’t know if the values you’re comparing are of the same type.  
+    Simple comparison may involve value conversion.  
+    For instance, the strings "0.0" and "0" are not equal.  
+    The == operator says they are, but === says they are not.
+
+- Inequality (`!=` or `<>`)
+    If both operands are not equal, this operator returns true; otherwise, it returns false.
+
+- Not identical (`!==`)
+    If both operands are not equal, or they are not of the same type,  
+    this operator returns true; otherwise, it returns false.
+
+#### Bitwise Operators
+
+-  You can use the PHP functions `bindec()`, `decbin()`, `octdec()`, and `decoct()`  
+    to convert numbers back and forth when you are trying to understand binary arithmetic.
+
+
+- Bitwise negation (`~`)
+- Bitwise AND (`&`)
+- Bitwise OR (`|`)
+- Bitwise XOR (`^`)
+- Left shift (`<<`)
+- Right shift (`>>`)
+
+#### Logical Operators
+
+- Logical AND (`&&`, `and`)
+- Logical OR (`||`, `or`)
+- Logical XOR (`xor`)
+- Logical negation (`!`)
+
+#### Casting Operators
+
+-  The casting operators, `(int)`, `(float)`, `(string)`, `(bool)`, `(array)`, `(object)`, and `(unset)`,  
+    allow you to force a value into a particular type.
+
+- Not every cast is useful.  
+    Casting an array to a numeric type gives 1,  
+    and casting an array to a string gives "Array"
+
+- Casting an object to an array builds an array of the properties,  
+    thus mapping property names to values:
+
+```php
+class Person
+{
+    var $name = "Fred";
+    var $age  = 35;
+}
+
+$o = new Person;
+$a = (array) $o;
+
+print_r($a);
+// Array (
+//  [name] => Fred
+//  [age]  => 35
+// )
+```
+
+- You can cast an *array* to an *object*  
+    to build an object whose properties correspond to the array’s keys and values. 
+
+```php
+$a = array('name' => "Fred", 'age' => 35, 'wife' => "Wilma");
+$o = (object) $a;
+echo $o->name;      // Fred
+```
+
+#### Miscellaneous Operators
+
+- Error suppression (`@`)
+    Some operators or functions can generate error messages.  
+    The error suppression operator, is used to prevent these messages from being created.
+
+- Execution (`\`...\` `)
+    The backtick operator executes the string contained between the backticks  
+    as a shell command and returns the output.
+
+- Conditional (`? :`)
+
+- Type (instanceof)
+
+```php
+$a = new Foo;
+$isAFoo = $a instanceof Foo; // true
+$isABar = $a instanceof Bar; // false
+```
+
+### Flow-Control Statements
+
 
