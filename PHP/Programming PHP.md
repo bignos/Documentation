@@ -349,3 +349,148 @@ $v =& retRef(); // note the &
 
 ### Variable Scope
 
+- There are 4 types of variable scope in PHP: 
+    - local
+    - global
+    - static
+    - function parameters
+
+#### Local scope
+
+- A variable declared in a function is *local* to that function.
+- By default, variables defined outside a function (called *global variables*) are not accessible inside the function.
+
+```php
+function updateCounter()
+{
+    $counter++;
+}
+
+$counter = 10;
+
+updateCounter();
+echo $counter; // 10
+```
+
+- **Only functions can provide local scope**.  
+    Unlike in other languages, in PHP you **can’t create** a variable whose scope is: 
+    - a loop, 
+    - conditional branch 
+    - other type of block
+
+#### Global scope
+
+- Variables declared outside a function are global.
+- To allow a function to access a global variable,  
+    you can use the `global` keyword inside the function to declare the variable within the function.
+
+```php
+function updateCounter()
+{
+    global $counter;
+    $counter++;
+}
+
+$counter = 10;
+updateCounter();
+
+echo $counter; // 11
+```
+
+#### Static variables
+
+- A *static* variable retains its value between calls to a function but is visible only within that function. 
+- You declare a variable *static* with the `static` keyword.
+
+```php
+function updateCounter()
+{
+    static $counter = 0;
+    $counter++;
+    echo "Static counter is now {$counter}\n";
+}
+
+$counter = 10;
+updateCounter(); // Static counter is now 1
+updateCounter(); // Static counter is now 2
+echo "Global counter is {$counter}\n"; // Global counter is 10
+```
+
+#### Function parameters
+
+- Function parameters are *local*, meaning that they are available only inside their functions.
+
+### Garbage Collection
+
+- When you copy a value from one variable to another, PHP doesn’t get more memory for a copy of the value.  
+    Instead, it updates the symbol table to indicate that “both of these variables are names for the same chunk of memory.”  
+    So the following code doesn’t actually create a new array:
+
+```php
+$worker = array("Fred", 35, "Wilma");
+$other = $worker; // array isn't copied
+```
+
+- If you subsequently modify either copy, PHP allocates the required memory and makes the copy:
+
+```php
+$worker[1] = 36; // array is copied, value changed
+```
+
+- By delaying the allocation and copying, PHP saves time and memory in a lot of situations.
+- This is *copy-on-write*.
+
+- When the reference count of a value reaches 0, its memory is released.
+- This is reference counting.
+
+-  If you do insist on trying to get a little more information or control over freeing a variable’s value,  
+    use the `isset()` and `unset()` functions
+
+- To see if a variable has been set to something—even the empty string—use `isset()`:
+
+```php
+$s1 = isset($name); // $s1 is false
+$name = "Fred";
+$s2 = isset($name); // $s2 is true
+```
+
+- Use `unset()` to remove a variable’s value:
+
+```php
+$name = "Fred";
+unset($name); // $name is NULL
+```
+
+### Expressions and Operators
+
+```
+[Associativity] 	 [Operators]                                              	 [Additional Information]
+non-associative 	 clone new                                                	 clone and new
+left            	 [                                                        	 array()
+right           	 **                                                       	 arithmetic
+right           	 ++ -- ~ (int) (float) (string) (array) (object) (bool) @ 	 types and increment/decrement
+non-associative 	 instanceof                                               	 types
+right           	 !                                                        	 logical
+left            	 * / %                                                    	 arithmetic
+left            	 + - .                                                    	 arithmetic and string
+left            	 << >>                                                    	 bitwise
+non-associative 	 < <= > >=                                                	 comparison
+non-associative 	 == != === !== <> <=>                                     	 comparison
+left            	 &                                                        	 bitwise and references
+left            	 ^                                                        	 bitwise
+left            	 |                                                        	 bitwise
+left            	 &&                                                       	 logical
+left            	 ||                                                       	 logical
+right           	 ??                                                       	 comparison
+left            	 ? :                                                      	 ternary
+right           	 = += -= *= **= /= .= %= &= |= ^= <<= >>=                 	 assignment
+right           	 yield from                                               	 yield from
+right           	 yield                                                    	 yield
+left            	 and                                                      	 logical
+left            	 xor                                                      	 logical
+left            	 or                                                       	 logical
+```
+
+#### Implicit Casting
+
+
