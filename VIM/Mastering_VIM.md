@@ -28,7 +28,6 @@ ZZ  Save and exit
 :w              Save current buffer
 :w <FILENAME>   Save current buffer in a new file
 :w! <FILENAME>  Save current buffer in an existing file
-
 ```
 
 ## -[ INSERT MODE ] -
