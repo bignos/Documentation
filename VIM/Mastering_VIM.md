@@ -14,10 +14,8 @@
 
 ```
 :   EX MODE
-ZZ  Save and exit
-
 i   INSERT MODE
-
+ZZ  Save and exit
 ```
 
 ## -[ EX MODE ] -
