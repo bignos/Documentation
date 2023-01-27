@@ -10,8 +10,8 @@
 
 ## -[ Abreviations ]-
 
-- {n} Number
-- {to} Text Object
+- **{n}** Number
+- **{to}** Text Object
 
 ## -[ General Form of VI commands ]-
 
