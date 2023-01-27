@@ -4,13 +4,13 @@
 
 ## -[ Abreviations ]-
 
-{n} Number
-{to} Text Object
+- {n} Number
+- {to} Text Object
 
 ## -[ General Form of VI commands ]-
 
-(command)(number)(text object)
-(number)(command)(text object)
+- (command)(number)(text object)
+- (number)(command)(text object)
 
 ## -[ COMMAND LINE ]-
 
