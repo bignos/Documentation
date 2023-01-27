@@ -2,6 +2,12 @@
 
 ---
 
+## -[ COMMAND LINE ]-
+
+```
+
+```
+
 ## -[ Abreviations ]-
 
 - {n} Number
@@ -11,12 +17,6 @@
 
 - (command)(number)(text object)
 - (number)(command)(text object)
-
-## -[ COMMAND LINE ]-
-
-```
-
-```
 
 ---
 
