@@ -45,13 +45,15 @@ ZZ  Save and exit
 ### /- Single Movements ->
 
 ```
-h   Left
-j   Down
-k   Up
-l   Right
+h     Left
+j     Down
+k     Up
+l     Right
 
-0   Begining of the line
-$   End of the line
+0     Begining of the line
+^     Move to the first nonblank character of the line
+$     End of the line
+{n}|  Move to the character {n} on the current line
 ```
 
 ### /- Block Movements ->
@@ -63,6 +65,13 @@ b   Backward one word(Special characters count one word)
 B   Backward one word(Withespace separated)
 e   Forward to the end of the word(Special characters count one word)
 E   Forward to the end of the word(Withespace separated)
+
+(   Move to the begining of current sentence
+)   Move to the begining of the next sentence
+{   Move to the begining of current paragraph
+}   Move to the begining of the next paragraph
+[[   Move to the begining of current section
+]]   Move to the begining of the next section
 
 G     End of the file
 {n}G  Go to line {n}
@@ -117,6 +126,24 @@ U          Undo all edit on the current line
 
 xp         Swap 2 characters
 ~          Swap uppercase/lowercase
+```
+
+### /- Screen Movements ->
+
+```
+[CTRL]+F      Scroll one screen forward
+[CTRL]+B      Scroll one screen backward
+[CTRL]+D      Scroll half screen forward(Down)
+[CTRL]+U      Scroll half screen Backward(Up)
+[CTRL]+E      Scroll the screen one line down
+[CTRL]+Y      Scroll the screen one line up
+
+z [ENTER]     Move the current line on the top of the screen
+z.            Move the current line on the center of the screen
+z-            Move the current line on the bottom of the screen
+{n}z [ENTER]  Move the line {n} on top of the screen
+{n}z.         Move the line {n} on the center of the screen
+{n}z-         Move the line {n} on the bottom of the screen
 ```
 
 ## -[ EX MODE ] -
