@@ -340,15 +340,54 @@ G         Goto the last line of the file
 :g/{pt}/ {ec}             Global search, apply the EX command {ex} on all lines that match the pattern {pt}
 
 :preserve                 Force the system to save the buffer(not the file)
+```
+
+### /- The :set Command ->
+
+```
+:set option               Set general form to enable an option
+:set nooption             Set general form to disable an option
+:set option!              Set general form to toggle(on/off) an option
+:set option?              Set general form to get the name of the option
+
+:set                      Show all options that you have specifically changed
+:set all                  Show all active options
 
 :set number               Display line number
 :set nu                   Display line number
-:set nonumber             Hide line number
 :set nonu                 Hide line number
 :set nu!                  Toggle display/hide line number
 
 :set nowrapscan           Stop search at the bottom(/{pt} or n) or at the top(?{pt} or N)
 :set edcompatible         Record last regular expression modifier and use it for the next substitution
+
+:set ic                   Enable 'ignore case', search patern must ignore case
+:set noic                 Disable 'ignore case', search patern are case sensitive
+```
+
+### /- Abbreviation ->
+
+```
+:ab abbreviation string    General form to declare an abbreviation.
+
+:ab mov Master of VIM      Now in Insert mode if you tape 'mov ' VIM change it for 'Master of VIM'
+:unab mov                  Remove the 'mov' abbreviation
+
+:ab                        List all abbreviation
+```
+
+### /- Shell command ->
+
+```
+// EX MODE
+:!command             General form to send 'command' to the system and display the result
+
+:!pwd                 Get the current directory
+:read !date           Append the result of 'date' command on the buffer
+
+// COMMAND MODE
+!{to}                 Pass the text object {to} to a command
+!{to}!                Repeat last command on text object {to}
 ```
 
 ### /- Filename shortcut ->
@@ -426,12 +465,18 @@ G         Goto the last line of the file
 :s/\(abcd\)\1/alphabet-soup/             Substitute 'abcdabcd' by 'alphabet-soup'
 :%s/Fortran/\U&/                         Substitute 'Fortran' by 'FORTRAN'
 :%s/\<child\>/&ren/g                     Substitute 'child' and only 'child' by 'children' in the whole file
+:%s:/home/tim:/home/tom/g                Substitute '/home/tim' by '/home/tom' (use of separator ':' for readability)
+:%s/  */ /g                              Substitute 2 or more space by one space (TRIM)
+:%s/./\U&/g                              Transform all the character of the buffer to uppercase(\U)
 :%&g                                     Repeat the last substitution everywhere
 :~                                       Repeat the last substitution used in any command
 
 :g/# FIXME/ d                            Delete all lines with 'FIXME' comments on them
 :g/# FIXME/ s/FIXME/DONE/                Substitute all lines with 'FIXME' by 'DONE'
 :g/editer/s//editor/g                    Substitute all line with 'editer' and replace by editor (== ':%s/editer/editor/g')
+:g/<description>/,/<parameters>/-1 d     Delete a block from <description> to <parameters> not include ('-1')
+:g/^/ move 0                             Reverse the lines in the buffer
+:1,10g/^/ 3,4 t $                        Repeat 10 times the copy (t) of lines 3 and 4 at the end of the buffer
 ```
 
 ## -[ INSERT MODE ] -
