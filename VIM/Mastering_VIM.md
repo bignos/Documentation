@@ -109,7 +109,7 @@ m{ch}       Mark the current position with {ch}
 
 > Besides the **/** character, you may use any nonalphanumeric, nonspace character as your delimiter.
 
-> EXCEPT '**\\**', '**"**', and '**\|**'
+> EXCEPT \\, ", \|
 
 ### /- POSIX character classes ->
 
