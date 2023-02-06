@@ -260,6 +260,7 @@ G         Goto the last line of the file
 :args                     List the files from the command line
 :ar                       List the files from the command line
 :n                        Edit next files from the command Line
+:previous                 Edit previous files from the command line
 :prev                     Edit previous files from the command line
 :N                        Edit previous files from the command line
 :rewind                   Edit the first file from the command line
@@ -281,6 +282,13 @@ G         Goto the last line of the file
 :set nu!                  Toggle display/hide line number
 
 :set nowrapscan           Stop search at the bottom(/{pt} or n) or at the top(?{pt} or N)
+```
+
+### /- Filename shortcut ->
+
+```
+%         Current filename
+#         Alternate filename (Previous file)
 ```
 
 ## -[ FULL EX MODE ] -
@@ -318,6 +326,9 @@ G         Goto the last line of the file
 :g!/{pt}            Print all lines that not match the pattern {pt} (GLOBAL SEARCH)
 :v/{pt}             Print all lines that not match the pattern {pt} (GLOBAL SEARCH)
 :g/{pt}/{ec}        Print all lines that match the pattern {pt} (GLOBAL SEARCH) and execute EX command {ec}
+
+:ya {rg}            Yank(Copy) current line to the register {rg}
+:pu {rg}            Put the content of register {rg} after the current line
 
 :visual             Exit Full EX MODE (Return to visual editor[vi])
 :vi                 Exit Full EX MODE (Return to visual editor[vi])
