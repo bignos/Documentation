@@ -5,19 +5,21 @@
 ## -[ COMMAND LINE ]-
 
 ```
-vim <FILENAME>            Open the file <FILENAME> with VIM
+vim <FILENAME>                               Open the file <FILENAME> with VIM
+vim <FILENAME1> <FILENAME2> .. <FILENAMEn>   Open multiple files with VIM
+ex <FILENAME>                                Open the file <FILENAME> with VIM in Ex mode
 
-vim -c {n} <FILENAME>     Open <FILENAME> at the line {n}
-vim -c /{pt} <FILENAME>   Open <FILENAME> at the first occurence of pattern {pt}
-vim + <FILENAME>          Open <FILENAME> at the last line
-vim +{n} <FILENAME>       Open <FILENAME> at the line {n}
+vim -c {n} <FILENAME>                        Open <FILENAME> at the line {n}
+vim -c /{pt} <FILENAME>                      Open <FILENAME> at the first occurence of pattern {pt}
+vim + <FILENAME>                             Open <FILENAME> at the last line
+vim +{n} <FILENAME>                          Open <FILENAME> at the line {n}
 
-vim -R <FILENAME>         Open <FILENAME> in read only mode
-view <FILENAME>           Open <FILENAME> in read only mode
+vim -R <FILENAME>                            Open <FILENAME> in read only mode
+view <FILENAME>                              Open <FILENAME> in read only mode
 
-vim -r                    List all saved buffer by VI(Used for recovery)
-ex -r                     List all saved buffer by VI(Used for recovery)
-vim -r <BUFFER>           Recover the edited <BUFFER>
+vim -r                                       List all saved buffer by VI(Used for recovery)
+ex -r                                        List all saved buffer by VI(Used for recovery)
+vim -r <BUFFER>                              Recover the edited <BUFFER>
 ```
 
 ## -[ Abreviations ]-
@@ -28,6 +30,9 @@ vim -r <BUFFER>           Recover the edited <BUFFER>
 - **{to}** Text Object
 - **{rg}** Register
 - **{pt}** Regular expression pattern
+- **{rpt}** Replacement expression pattern
+- **{rm}** Regular expression modifier
+- **{ec}** EX command
 
 ## -[ General Form of VI commands ]-
 
@@ -79,7 +84,10 @@ m{ch}       Mark the current position with {ch}
 
 ```
 :   EX MODE
+gQ  FULL EX MODE
+
 i   INSERT MODE
+
 ZZ  Save and exit
 ```
 
@@ -235,19 +243,105 @@ G         Goto the last line of the file
 ## -[ EX MODE ] -
 
 ```
-:e <FILENAME>     Open/Edit a file
-:e!               Reload Current file
-:q                Exit VIM
-:q!               Force exit without saving
-:w                Save current buffer
-:w <FILENAME>     Save current buffer in a new file
-:w! <FILENAME>    Save current buffer in an existing file
+:e <FILENAME>             Open/Edit a file
+:e!                       Reload Current file
+:q                        Exit VIM
+:q!                       Force exit without saving
+:w                        Save current buffer
+:w <FILENAME>             Save current buffer in a new file
+:{n},{n}w <FILENAME>      Save the current range in a new file
+:{n},{n}w >> <FILENAME>   Save the current range to the end of <FILENAME> (APPEND)
+:w! <FILENAME>            Save current buffer in an existing file
+:x                        Save current buffer and exit (LIKE 'ZZ' in COMMAND MODE)
 
-:{n}              Goto the line {n}
+:read <FILENAME>          Append current buffer with the content of <FILENAME>
+:r <FILENAME>             Append current buffer with the content of <FILENAME>
 
-:preserve         Force the system to save the buffer(not the file)
+:args                     List the files from the command line
+:ar                       List the files from the command line
+:n                        Edit next files from the command Line
+:prev                     Edit previous files from the command line
+:N                        Edit previous files from the command line
+:rewind                   Edit the first file from the command line
+:rew                      Edit the first file from the command line
+:last                     Edit the last file from the command line
 
-:set nowrapscan   Stop search at the bottom(/{pt} or n) or at the top(?{pt} or N)
+
+:{n}                      Goto the line {n}
+:{n},{n}                  Range of lines
+
+:s/{pt}/{rpt}/{rm}        Search the match pattern {pt} and replace with the replacement expression {rpt} and use regular expression modifier {rm}
+
+:preserve                 Force the system to save the buffer(not the file)
+
+:set number               Display line number
+:set nu                   Display line number
+:set nonumber             Hide line number
+:set nonu                 Hide line number
+:set nu!                  Toggle display/hide line number
+
+:set nowrapscan           Stop search at the bottom(/{pt} or n) or at the top(?{pt} or N)
+```
+
+## -[ FULL EX MODE ] -
+
+```
+:p                  Print current line
+:[ENTER]            Goto next line
+:{n}                Goto line {n}
+:{n}p               Goto line {n} and print
+:{n},{n}            Goto last line of the range and print the range
+:{n};{n}            Goto last line of the range and print the range but the second number {n} is relative to the first
+:{n},{n}#           Goto last line of the range and print the range with lines number
+:$                  Goto last line of the buffer
+:%                  Goto last line of the buffer and print all the buffer(%='All file' like 1,$)
+:/{pt}              Goto the line that match the pattern {pt} forward
+:?{pt}              Goto the line that match the pattern {pt} backward
+
+:delete             Delete the current line
+:d                  Delete the current line
+:move{n}            Move current line to line {n}
+:m{n}               Move current line to line {n}
+:copy{n}            Copy current line and paste to line {n}
+:co{n}              Copy current line and paste to line {n}
+:t{n}               Copy current line and paste to line {n}
+
+:=                  Print total numbers of lines
+:.=                 Print current line number
+:/{pt}/=            Print the line number of the first line that match the pattern {pt} from the current line
+
+:/{pt}/d            Delete the next line containing pattern {pt}
+:/{pt}/+d           Delete the line below the next line containing pattern {pt}
+:/{pt1}/,/{pt2}/d   Delete from the first line containing pattern {pt1} to the first line containing pattern {pt2}
+
+:g/{pt}             Print all lines that match the pattern {pt} (GLOBAL SEARCH)
+:g!/{pt}            Print all lines that not match the pattern {pt} (GLOBAL SEARCH)
+:v/{pt}             Print all lines that not match the pattern {pt} (GLOBAL SEARCH)
+:g/{pt}/{ec}        Print all lines that match the pattern {pt} (GLOBAL SEARCH) and execute EX command {ec}
+
+:visual             Exit Full EX MODE (Return to visual editor[vi])
+:vi                 Exit Full EX MODE (Return to visual editor[vi])
+```
+
+### /- FULL EX MODE Examples ->
+
+```
+:4,15d               Delete lines 4 to 15(inclusive)
+:100,120m20          Move lines 100 to 120 on line 20
+:100,120co20         Copy lines 100 to 120 on line 20
+
+:.,$d                Delete from current line '.' to the end of the buffer '$'
+:5,.m$               Move lines 5 to current line '.' on the end of the buffer '$'
+:%d                  Delete all the buffer
+:%t$                 Copy the buffer to the end of the file (consecutive duplicate)
+
+:.,.+10d             Delete from the current line '.' to the next 10 lines '.+10'
+:100,$m.-4           Move line 100 to the end of the buffer '$' on 4th line above '-4' current line '.'
+:.,+10#              Display line number from current line to 10 lines below
+:-,+t0               Copy 3 lines one above '-', the current line and one below '-' to the top of the buffer '0'
+:10;+3d              Delete from line 10 to line 13 (10 + 3)
+
+:1,5d | s/teh/the/   Delete line 1 to 5 and substitute 'teh' for 'the' on current line (before the first command it was the line 6)
 ```
 
 ## -[ INSERT MODE ] -
