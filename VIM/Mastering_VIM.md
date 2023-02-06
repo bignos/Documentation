@@ -89,11 +89,42 @@ m{ch}       Mark the current position with {ch}
 | ^             | Match only line that begin with pattern after '^'. If '^' is not a the begining of the expression it's just the '^' character |
 | $             | Match only line that end with pattern before '$'. If '$' is not a the end of the expression it's just the '$' character       |
 | \             | Used to escape a character like '\.' to match a point and not any _single_ character                                          |
+| \\{n}         | Recall a _subpattern_ , {n} is between 1 to 9                                                                                 |
 | [ ]           | Match any _one_ of the characters enclosed between the brackets                                                               |
 | [^ ]          | Match any _one_ of the characters that is **NOT** enclosed between the brackets                                               |
+| [: :]         | Match any character which is part of the character classes                                                                    |
+| [. .]         | Match multicharacter sequence that should be treated as a unit                                                                |
+| [= =]         | Match an equivalence class list a set of characters that should be considered equivalent (ex: 'e' and 'é')                    |
 | \\( \\)       | Save the subpattern enclosed between \( and \) into a special holding space (\1 .. \9)                                        |
 | \\<           | Match only character at the begining of a word                                                                                |
 | \\>           | Match only character at the end of a word                                                                                     |
+| &             | Replace the '&' with the entire text matched by the search pattern(**ONLY FOR REPLACEMENT PATTERN {rpt}**)                    |
+| ~             | Replace the '~' with the last used replacement pattern(**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                |
+| \\u           | Force the next characters to be on uppercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
+| \\U           | Force all next characters to be on uppercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
+| \\l           | Force the next characters to be on lowercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
+| \\L           | Force all next characters to be on lowercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
+
+### /- Regular expression delimiter ->
+
+> > Besides the **/** character, you may use any nonalphanumeric, nonspace character as your delimiter, EXECPT '**\*\*', '**"**', and '**|\*\*'
+
+### /- POSIX character classes ->
+
+| Class      | Matching characters                                                 |
+| ---------- | ------------------------------------------------------------------- |
+| [:alnum:]  | Alphanumeric characters                                             |
+| [:alpha:]  | Alphabetic characters                                               |
+| [:blank:]  | Space and Tab characters only                                       |
+| [:cntrl:]  | Control characters                                                  |
+| [:digit:]  | Numeric characters                                                  |
+| [:graph:]  | Printable and visible (nonspace) characters                         |
+| [:lower:]  | Lowercase characters                                                |
+| [:print:]  | Printable characters (includes whitespace)                          |
+| [:punct:]  | Punctuation characters                                              |
+| [:space:]  | All whitespace characters (space, tab, newline, vertical tab, etc.) |
+| [:upper:]  | Uppercase characters                                                |
+| [:xdigit:] | Hexadecimal digits                                                  |
 
 ## -[ Regular expression modifier ]-
 
@@ -118,6 +149,8 @@ gQ  FULL EX MODE
 i   INSERT MODE
 
 ZZ  Save and exit
+
+&   Repeat the last substitution
 ```
 
 ### /- Single Movements ->
@@ -301,6 +334,7 @@ G         Goto the last line of the file
 :{n},{n}                  Range of lines
 
 :s/{pt}/{rpt}/{rm}        Search the match pattern {pt} and replace with the replacement expression {rpt} and use regular expression modifier {rm}
+:s                        Repeat the last substitution
 :g/{pt}/ {ec}             Global search, apply the EX command {ex} on all lines that match the pattern {pt}
 
 :preserve                 Force the system to save the buffer(not the file)
@@ -367,29 +401,33 @@ G         Goto the last line of the file
 ### /- FULL EX MODE Examples ->
 
 ```
-:4,15d                               Delete lines 4 to 15(inclusive)
-:100,120m20                          Move lines 100 to 120 on line 20
-:100,120co20                         Copy lines 100 to 120 on line 20
+:4,15d                                   Delete lines 4 to 15(inclusive)
+:100,120m20                              Move lines 100 to 120 on line 20
+:100,120co20                             Copy lines 100 to 120 on line 20
 
-:.,$d                                Delete from current line '.' to the end of the buffer '$'
-:5,.m$                               Move lines 5 to current line '.' on the end of the buffer '$'
-:%d                                  Delete all the buffer
-:%t$                                 Copy the buffer to the end of the file (consecutive duplicate)
+:.,$d                                    Delete from current line '.' to the end of the buffer '$'
+:5,.m$                                   Move lines 5 to current line '.' on the end of the buffer '$'
+:%d                                      Delete all the buffer
+:%t$                                     Copy the buffer to the end of the file (consecutive duplicate)
 
-:.,.+10d                             Delete from the current line '.' to the next 10 lines '.+10'
-:100,$m.-4                           Move line 100 to the end of the buffer '$' on 4th line above '-4' current line '.'
-:.,+10#                              Display line number from current line to 10 lines below
-:-,+t0                               Copy 3 lines one above '-', the current line and one below '-' to the top of the buffer '0'
-:10;+3d                              Delete from line 10 to line 13 (10 + 3)
+:.,.+10d                                 Delete from the current line '.' to the next 10 lines '.+10'
+:100,$m.-4                               Move line 100 to the end of the buffer '$' on 4th line above '-4' current line '.'
+:.,+10#                                  Display line number from current line to 10 lines below
+:-,+t0                                   Copy 3 lines one above '-', the current line and one below '-' to the top of the buffer '0'
+:10;+3d                                  Delete from line 10 to line 13 (10 + 3)
 
-:1,5d | s/teh/the/                   Delete line 1 to 5 and substitute 'teh' for 'the' on current line (before the first command it was the line 6)
+:1,5d | s/teh/the/                       Delete line 1 to 5 and substitute 'teh' for 'the' on current line (before the first command it was the line 6)
 
-:%s/\(That\) or \(this\)/\2 or \1/   Substitute and swap 'That' and 'this' in all the file
-:s/\(abcd\)\1/alphabet-soup/         substitute 'abcdabcd' by 'alphabet-soup'
+:%s/\(That\) or \(this\)/\2 or \1/       Substitute and swap 'That' and 'this' in all the file
+:%s/\(That\) or \(this\)/\u\2 or \l\1/   Substitute and swap 'That' and 'this' in all the file
+:s/\(abcd\)\1/alphabet-soup/             Substitute 'abcdabcd' by 'alphabet-soup'
+:%s/Fortran/\U&/                         Substitute 'Fortran' by 'FORTRAN'
+:%&g                                     Repeat the last substitution everywhere
+:~                                       Repeat the last substitution used in any command
 
-:g/# FIXME/ d                        Delete all lines with 'FIXME' comments on them
-:g/# FIXME/ s/FIXME/DONE/            Substitute all lines with 'FIXME' by 'DONE'
-:g/editer/s//editor/g                Substitute all line with 'editer' and replace by editor (== ':%s/editer/editor/g')
+:g/# FIXME/ d                            Delete all lines with 'FIXME' comments on them
+:g/# FIXME/ s/FIXME/DONE/                Substitute all lines with 'FIXME' by 'DONE'
+:g/editer/s//editor/g                    Substitute all line with 'editer' and replace by editor (== ':%s/editer/editor/g')
 ```
 
 ## -[ INSERT MODE ] -
