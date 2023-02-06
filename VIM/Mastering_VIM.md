@@ -109,7 +109,7 @@ m{ch}       Mark the current position with {ch}
 
 > Besides the **/** character, you may use any nonalphanumeric, nonspace character as your delimiter.
 >
-> EXCEPT **\\**, **"**, **\|**
+> EXCEPT **\\**, **"** or **\|**
 
 ### /- POSIX character classes ->
 
@@ -348,6 +348,7 @@ G         Goto the last line of the file
 :set nu!                  Toggle display/hide line number
 
 :set nowrapscan           Stop search at the bottom(/{pt} or n) or at the top(?{pt} or N)
+:set edcompatible         Record last regular expression modifier and use it for the next substitution
 ```
 
 ### /- Filename shortcut ->
