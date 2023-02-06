@@ -107,8 +107,8 @@ m{ch}       Mark the current position with {ch}
 
 ### /- Regular expression delimiter ->
 
-Besides the **/** character, you may use any nonalphanumeric, nonspace character as your delimiter.
-EXCEPT \\, ", \|
+Besides the **/** character, you may use any nonalphanumeric, nonspace character as your delimiter.\
+EXCEPT **\\**, **"**, **\|**
 
 ### /- POSIX character classes ->
 
