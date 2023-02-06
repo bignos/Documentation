@@ -425,6 +425,7 @@ G         Goto the last line of the file
 :%s/\(That\) or \(this\)/\u\2 or \l\1/   Substitute and swap 'That' and 'this' in all the file
 :s/\(abcd\)\1/alphabet-soup/             Substitute 'abcdabcd' by 'alphabet-soup'
 :%s/Fortran/\U&/                         Substitute 'Fortran' by 'FORTRAN'
+:%s/\<child\>/&ren/g                     Substitute 'child' and only 'child' by 'children' in the whole file
 :%&g                                     Repeat the last substitution everywhere
 :~                                       Repeat the last substitution used in any command
 
