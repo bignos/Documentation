@@ -80,6 +80,21 @@ m{ch}       Mark the current position with {ch}
 ``          Goto the position of the previous mark or context
 ```
 
+## -[ Regular expression metacharacters]-
+
+| Metacharacter | Description                                                                                                                   |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| .             | Match any _single_ character except a new line                                                                                |
+| \*            | Match 0 or more of the single character that immediately precedes it                                                          |
+| ^             | Match only line that begin with pattern after '^'. If '^' is not a the begining of the expression it's just the '^' character |
+| $             | Match only line that end with pattern before '$'. If '$' is not a the end of the expression it's just the '$' character       |
+| \             | Used to escape a character like '\.' to match a point and not any _single_ character                                          |
+| [ ]           | Match any _one_ of the characters enclosed between the brackets                                                               |
+| [^ ]          | Match any _one_ of the characters that is **NOT** enclosed between the brackets                                               |
+| \( \)         | Save the subpattern enclosed between \( and \) into a special holding space (\1 .. \9)                                        |
+| \<            | Match only character at the begining of a word                                                                                |
+| \>            | Match only character at the end of a word                                                                                     |
+
 ## -[ Regular expression modifier ]-
 
 ```
@@ -352,25 +367,29 @@ G         Goto the last line of the file
 ### /- FULL EX MODE Examples ->
 
 ```
-:4,15d                      Delete lines 4 to 15(inclusive)
-:100,120m20                 Move lines 100 to 120 on line 20
-:100,120co20                Copy lines 100 to 120 on line 20
+:4,15d                               Delete lines 4 to 15(inclusive)
+:100,120m20                          Move lines 100 to 120 on line 20
+:100,120co20                         Copy lines 100 to 120 on line 20
 
-:.,$d                       Delete from current line '.' to the end of the buffer '$'
-:5,.m$                      Move lines 5 to current line '.' on the end of the buffer '$'
-:%d                         Delete all the buffer
-:%t$                        Copy the buffer to the end of the file (consecutive duplicate)
+:.,$d                                Delete from current line '.' to the end of the buffer '$'
+:5,.m$                               Move lines 5 to current line '.' on the end of the buffer '$'
+:%d                                  Delete all the buffer
+:%t$                                 Copy the buffer to the end of the file (consecutive duplicate)
 
-:.,.+10d                    Delete from the current line '.' to the next 10 lines '.+10'
-:100,$m.-4                  Move line 100 to the end of the buffer '$' on 4th line above '-4' current line '.'
-:.,+10#                     Display line number from current line to 10 lines below
-:-,+t0                      Copy 3 lines one above '-', the current line and one below '-' to the top of the buffer '0'
-:10;+3d                     Delete from line 10 to line 13 (10 + 3)
+:.,.+10d                             Delete from the current line '.' to the next 10 lines '.+10'
+:100,$m.-4                           Move line 100 to the end of the buffer '$' on 4th line above '-4' current line '.'
+:.,+10#                              Display line number from current line to 10 lines below
+:-,+t0                               Copy 3 lines one above '-', the current line and one below '-' to the top of the buffer '0'
+:10;+3d                              Delete from line 10 to line 13 (10 + 3)
 
-:1,5d | s/teh/the/          Delete line 1 to 5 and substitute 'teh' for 'the' on current line (before the first command it was the line 6)
+:1,5d | s/teh/the/                   Delete line 1 to 5 and substitute 'teh' for 'the' on current line (before the first command it was the line 6)
 
-:g/# FIXME/ d               Delete all lines with 'FIXME' comments on them
-:g/# FIXME/ s/FIXME/DONE/   Substitute all lines with 'FIXME' by 'DONE'
+:%s/\(That\) or \(this\)/\2 or \1/   Substitute and swap 'That' and 'this' in all the file
+:s/\(abcd\)\1/alphabet-soup/         substitute 'abcdabcd' by 'alphabet-soup'
+
+:g/# FIXME/ d                        Delete all lines with 'FIXME' comments on them
+:g/# FIXME/ s/FIXME/DONE/            Substitute all lines with 'FIXME' by 'DONE'
+:g/editer/s//editor/g                Substitute all line with 'editer' and replace by editor (== ':%s/editer/editor/g')
 ```
 
 ## -[ INSERT MODE ] -
@@ -380,8 +399,3 @@ ESC   Exit INSERT MODE
 ```
 
 ## -[ VISUAL MODE ] -
-
-| Syntax    | Description |
-| --------- | ----------- |
-| Header    | Title       |
-| Paragraph | Text        |
