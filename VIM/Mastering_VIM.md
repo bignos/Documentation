@@ -91,9 +91,9 @@ m{ch}       Mark the current position with {ch}
 | \             | Used to escape a character like '\.' to match a point and not any _single_ character                                          |
 | [ ]           | Match any _one_ of the characters enclosed between the brackets                                                               |
 | [^ ]          | Match any _one_ of the characters that is **NOT** enclosed between the brackets                                               |
-| \( \)         | Save the subpattern enclosed between \( and \) into a special holding space (\1 .. \9)                                        |
-| \<            | Match only character at the begining of a word                                                                                |
-| \>            | Match only character at the end of a word                                                                                     |
+| \\( \\)       | Save the subpattern enclosed between \( and \) into a special holding space (\1 .. \9)                                        |
+| \\<           | Match only character at the begining of a word                                                                                |
+| \\>           | Match only character at the end of a word                                                                                     |
 
 ## -[ Regular expression modifier ]-
 
