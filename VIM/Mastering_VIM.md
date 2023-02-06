@@ -80,7 +80,7 @@ m{ch}       Mark the current position with {ch}
 ``          Goto the position of the previous mark or context
 ```
 
-## -[ Regular expression metacharacters]-
+## -[ Regular expression metacharacters ]-
 
 | Metacharacter | Description                                                                                                                   |
 | ------------- | ----------------------------------------------------------------------------------------------------------------------------- |
