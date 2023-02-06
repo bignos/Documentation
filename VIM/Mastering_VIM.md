@@ -22,7 +22,7 @@ ex -r                                        List all saved buffer by VI(Used fo
 vim -r <BUFFER>                              Recover the edited <BUFFER>
 ```
 
-## -[ Abreviations ]-
+## -[ Abbreviations ]-
 
 - **{n}** Number
 - **{ch}** A character
