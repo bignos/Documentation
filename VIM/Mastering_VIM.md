@@ -107,7 +107,7 @@ m{ch}       Mark the current position with {ch}
 
 ### /- Regular expression delimiter ->
 
-> > Besides the **/** character, you may use any nonalphanumeric, nonspace character as your delimiter, EXECPT '**\*\*', '**"**', and '**|\*\*'
+> > Besides the **/** character, you may use any nonalphanumeric, nonspace character as your delimiter, EXCEPT **\\**, **"**, and **\|**
 
 ### /- POSIX character classes ->
 
