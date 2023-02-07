@@ -105,13 +105,13 @@ m{ch}       Mark the current position with {ch}
 | \\l           | Force the next characters to be on lowercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
 | \\L           | Force all next characters to be on lowercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
 
-### /- Regular expression delimiter ->
+### /- Regular expression delimiter -\
 
 > Besides the **/** character, you may use any nonalphanumeric, nonspace character as your delimiter.
 >
 > EXCEPT **\\**, **"** or **\|**
 
-### /- POSIX character classes ->
+### /- POSIX character classes -\
 
 | Class      | Matching characters                                                 |
 | ---------- | ------------------------------------------------------------------- |
@@ -142,7 +142,7 @@ i               Ignore case
 &               Use previous regular expression modifier, you have to use ':&&' before to save old modifier
 ```
 
-## -[ COMMAND MODE ] -
+## -[ COMMAND MODE ]-
 
 ```
 :   EX MODE
@@ -155,7 +155,7 @@ ZZ  Save and exit
 &   Repeat the last substitution
 ```
 
-### /- Single Movements ->
+### /- Single Movements -\
 
 ```
 h     Left
@@ -169,7 +169,7 @@ $     End of the line
 {n}|  Move to the character {n} on the current line
 ```
 
-### /- Block Movements ->
+### /- Block Movements -\
 
 ```
 w   Forward one word(Special characters count one word)
@@ -190,7 +190,7 @@ G     End of the file
 {n}G  Go to line {n}
 ```
 
-### /- Simple Edit ->
+### /- Simple Edit -\
 
 ```
 i          Insert (under the cursor)
@@ -241,7 +241,7 @@ xp         Swap 2 characters
 ~          Swap uppercase/lowercase
 ```
 
-### /- Line Movements ->
+### /- Line Movements -\
 
 ```
 [ENTER]       Move to the first character of the next line
@@ -252,7 +252,7 @@ xp         Swap 2 characters
 
 ```
 
-### /- Screen Movements ->
+### /- Screen Movements -\
 
 ```
 [CTRL]+F      Scroll one screen forward
@@ -270,7 +270,7 @@ z-            Move the current line on the bottom of the screen
 {n}z-         Move the line {n} on the bottom of the screen
 ```
 
-### /- Search Movements ->
+### /- Search Movements -\
 
 #### Text Search Movements
 
@@ -294,7 +294,7 @@ T{ch}       Find the character after the previous occurrence character {ch} in t
 ,           Repeat the previous find command in the opposite direction
 ```
 
-### /- Line number Movements ->
+### /- Line number Movements -\
 
 ```
 {n}G      Goto the line {n}
@@ -304,7 +304,17 @@ G         Goto the last line of the file
 ''        Goto the start of the line before you use the last 'G' command(Return at the start)
 ```
 
-## -[ EX MODE ] -
+## -[ EX MODE ]-
+
+Use **[CTRL]+V** to get special key:
+
+- **[ENTER]**('^M' or \<cr\>)
+- **[ESC]**('^[')
+- **[BACKSPACE]**('^H')
+- **[DELETE]**('\<del\>')
+- **[CTRL]+T**
+- **[CTRL]+W**
+- **[CTRL]+X**
 
 ```
 :e <FILENAME>             Open/Edit a file
@@ -342,14 +352,14 @@ G         Goto the last line of the file
 :preserve                 Force the system to save the buffer(not the file)
 ```
 
-### /- Filename shortcut ->
+### /- Filename shortcut -\
 
 ```
 %         Current filename
 #         Alternate filename (Previous file)
 ```
 
-### /- The :set Command ->
+### /- The :set Command -\
 
 ```
 :set option               Set general form to enable an option
@@ -372,7 +382,7 @@ G         Goto the last line of the file
 :set noic                 Disable 'ignore case', search patern are case sensitive
 ```
 
-### /- Shell command ->
+### /- Shell command -\
 
 ```
 // EX MODE
@@ -386,7 +396,7 @@ G         Goto the last line of the file
 !{to}!                Repeat last command on text object {to}
 ```
 
-## -[ FULL EX MODE ] -
+## -[ FULL EX MODE ]-
 
 ```
 :p                  Print current line
@@ -429,7 +439,7 @@ G         Goto the last line of the file
 :vi                 Exit Full EX MODE (Return to visual editor[vi])
 ```
 
-### /- FULL EX MODE Examples ->
+### /- FULL EX MODE Examples -\
 
 ```
 :4,15d                                   Delete lines 4 to 15(inclusive)
@@ -468,7 +478,7 @@ G         Goto the last line of the file
 :1,10g/^/ 3,4 t $                        Repeat 10 times the copy (t) of lines 3 and 4 at the end of the buffer
 ```
 
-### /- Saving Commands ->
+### /- Saving Commands -\
 
 #### ]- Abbreviation -[
 
@@ -487,16 +497,6 @@ G         Goto the last line of the file
 
 > Map are for **NORMAL MODE**
 
-Use **[CTRL]+V** to get special key:
-
-- **[ENTER]**('^M' or \<cr\>)
-- **[ESC]**('^[')
-- **[BACKSPACE]**('^H')
-- **[DELETE]**('\<del\>')
-- **[CTRL]+T**
-- **[CTRL]+W**
-- **[CTRL]+X**
-
 ```
 :map x sequence           General form to declare a map(shortcut). Define character 'x' as a sequence of editing commands.
 :unmap x                  General form to unset the map(shortcut) for 'x'
@@ -509,10 +509,10 @@ Use **[CTRL]+V** to get special key:
 :map                      List all maps
 ```
 
-## -[ INSERT MODE ] -
+## -[ INSERT MODE ]-
 
 ```
 ESC   Exit INSERT MODE
 ```
 
-## -[ VISUAL MODE ] -
+## -[ VISUAL MODE ]-
