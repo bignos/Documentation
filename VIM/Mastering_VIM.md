@@ -342,6 +342,13 @@ G         Goto the last line of the file
 :preserve                 Force the system to save the buffer(not the file)
 ```
 
+### /- Filename shortcut ->
+
+```
+%         Current filename
+#         Alternate filename (Previous file)
+```
+
 ### /- The :set Command ->
 
 ```
@@ -365,17 +372,6 @@ G         Goto the last line of the file
 :set noic                 Disable 'ignore case', search patern are case sensitive
 ```
 
-### /- Abbreviation ->
-
-```
-:ab abbreviation string    General form to declare an abbreviation.
-
-:ab mov Master of VIM      Now in Insert mode if you tape 'mov ' VIM change it for 'Master of VIM'
-:unab mov                  Remove the 'mov' abbreviation
-
-:ab                        List all abbreviation
-```
-
 ### /- Shell command ->
 
 ```
@@ -388,13 +384,6 @@ G         Goto the last line of the file
 // COMMAND MODE
 !{to}                 Pass the text object {to} to a command
 !{to}!                Repeat last command on text object {to}
-```
-
-### /- Filename shortcut ->
-
-```
-%         Current filename
-#         Alternate filename (Previous file)
 ```
 
 ## -[ FULL EX MODE ] -
@@ -477,6 +466,47 @@ G         Goto the last line of the file
 :g/<description>/,/<parameters>/-1 d     Delete a block from <description> to <parameters> not include ('-1')
 :g/^/ move 0                             Reverse the lines in the buffer
 :1,10g/^/ 3,4 t $                        Repeat 10 times the copy (t) of lines 3 and 4 at the end of the buffer
+```
+
+### /- Saving Commands ->
+
+#### ]- Abbreviation -[
+
+> Abbreviations are for **INSERT MODE**
+
+```
+:ab abbreviation string    General form to declare an abbreviation.
+
+:ab mov Master of VIM      Now in Insert mode if you tape 'mov ' VIM change it for 'Master of VIM'
+:unab mov                  Remove the 'mov' abbreviation
+
+:ab                        List all abbreviations
+```
+
+#### ]- Map -[
+
+> Map are for **NORMAL MODE**
+
+Use **[CTRL]+V** to get special key:
+
+- **[ENTER]**('^M' or <cr>)
+- **[ESC]**('^[')
+- **[BACKSPACE]**('^H')
+- **[DELETE]**('<del>')
+- **[CTRL]+T**
+- **[CTRL]+W**
+- **[CTRL]+X**
+
+```
+:map x sequence           General form to declare a map(shortcut). Define character 'x' as a sequence of editing commands.
+:unmap x                  General form to unset the map(shortcut) for 'x'
+
+:map x dwelp              Define 'x' to swap 2 words (not perfect example)
+
+:let mapleader="`"        Define '`' as the leader key
+:map <leader>a :q<cr>     Define leader + 'a' to execute :q[ENTER] (quit)
+
+:map                      List all maps
 ```
 
 ## -[ INSERT MODE ] -
