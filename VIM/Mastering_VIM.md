@@ -490,6 +490,8 @@ Use **[CTRL]+V** to get special key:
 :ab mov Master of VIM      Now in Insert mode if you tape 'mov ' VIM change it for 'Master of VIM'
 :unab mov                  Remove the 'mov' abbreviation
 
+:ab 123 One^MTwo^MTree     Use of cariage return(^M) into an abbreviation
+
 :ab                        List all abbreviations
 ```
 
@@ -498,15 +500,23 @@ Use **[CTRL]+V** to get special key:
 > Map are for **NORMAL MODE**
 
 ```
-:map x sequence           General form to declare a map(shortcut). Define character 'x' as a sequence of editing commands.
-:unmap x                  General form to unset the map(shortcut) for 'x'
+:map x sequence                                  General form to declare a map(shortcut). Define character 'x' as a sequence of editing commands.
+:unmap x                                         General form to unset the map(shortcut) for 'x'
 
-:map x dwelp              Define 'x' to swap 2 words (not perfect example)
+:map x dwElp                                     Define 'x' to swap 2 words (not perfect example)
+:map x I<Root>^M^I<Node>^[ea</Node>^M</Root>^[   Define 'x' to encapsulate a word with a Root/Node XML structure
+:map x I/* ^[A */^[                              Define 'x' to add '/*' '*/' arround a line
+:map x :s;.*;/* & */;^M                          Define 'x' to add '/*' '*/' arround a line
 
-:let mapleader="`"        Define '`' as the leader key
-:map <leader>a :q<cr>     Define leader + 'a' to execute :q[ENTER] (quit)
+:let mapleader="`"                               Define '`' as the leader key
+:map <leader>a :q<cr>                            Define leader + 'a' to execute :q[ENTER] (quit)
 
-:map                      List all maps
+:map! x sequence                                 General form to declare a map(shortcut) but for INSERT MODE
+:unmap! x                                        General form to unset the map(shortcut) for INSERT MODE
+:map! + ^[lbi<U>^[ea</U>                         Define '+' to surround a word with <U> </U> on INSERT MODE
+
+:map                                             List all maps for NORMAL MODE
+:map!                                            List all maps for INSERT MODE
 ```
 
 ## -[ INSERT MODE ]-
