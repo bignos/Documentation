@@ -29,6 +29,7 @@ vim -r <BUFFER>                              Recover the edited <BUFFER>
 - **{CH}** An uppercase character
 - **{to}** Text Object
 - **{rg}** Register
+- **{nrg}** Named Register
 - **{pt}** Regular expression pattern
 - **{rpt}** Replacement expression pattern
 - **{rm}** Regular expression modifier
@@ -316,6 +317,8 @@ Use **[CTRL]+V** to get special key:
 - **[CTRL]+W**
 - **[CTRL]+X**
 
+Use the shell command `$ od -c` to get all special key code from the system
+
 ```
 :e <FILENAME>             Open/Edit a file
 :e!                       Reload Current file
@@ -386,14 +389,17 @@ Use **[CTRL]+V** to get special key:
 
 ```
 // EX MODE
-:!command             General form to send 'command' to the system and display the result
+:!command                  General form to send 'command' to the system and display the result
 
-:!pwd                 Get the current directory
-:read !date           Append the result of 'date' command on the buffer
+:!pwd                      Get the current directory
+:read !date                Append the result of 'date' command on the buffer
+
 
 // COMMAND MODE
-!{to}                 Pass the text object {to} to a command
-!{to}!                Repeat last command on text object {to}
+!{to}                      Pass the text object {to} to a command
+!{to}!                     Repeat last command on text object {to}
+
+!!awk '<AWK_SCRIPT>'<cr>   Give the current line as argument to system command 'awk' with '!!'
 ```
 
 ## -[ FULL EX MODE ]-
@@ -497,10 +503,12 @@ Use **[CTRL]+V** to get special key:
 
 #### Map
 
-> Map are for **NORMAL MODE**
+> map are for **NORMAL MODE**
+> map! are for **INSERT MODE**
 
 ```
 :map x sequence                                  General form to declare a map(shortcut). Define character 'x' as a sequence of editing commands.
+:map #1 sequence                                 General form to declare a map(shortcut). Define [F1] as a sequence of editing commands.
 :unmap x                                         General form to unset the map(shortcut) for 'x'
 
 :map x dwElp                                     Define 'x' to swap 2 words (not perfect example)
@@ -517,6 +525,19 @@ Use **[CTRL]+V** to get special key:
 
 :map                                             List all maps for NORMAL MODE
 :map!                                            List all maps for INSERT MODE
+
+:help :map-mode                                  Help about all map mode (map, noremap, map!, unmap)
+```
+
+#### Macro
+
+To use macro you have to use **Named register**.  
+Save the commands sequence on a **Named register**.  
+Call the sequence with **@{nrg}**.  
+You can repeat the last macro with **@@**.
+
+```
+
 ```
 
 ## -[ INSERT MODE ]-
