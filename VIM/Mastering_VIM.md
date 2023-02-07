@@ -308,7 +308,7 @@ G         Goto the last line of the file
 
 Use **[CTRL]+V** to get special key:
 
-- **[ENTER]**('^M' or \<cr\>)
+- **[ENTER]**('^M' or '\<cr\>')
 - **[ESC]**('^[')
 - **[BACKSPACE]**('^H')
 - **[DELETE]**('\<del\>')
