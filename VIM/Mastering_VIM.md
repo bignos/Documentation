@@ -480,7 +480,7 @@ Use **[CTRL]+V** to get special key:
 
 ### /- Saving Commands -\
 
-#### ]- Abbreviation -[
+#### Abbreviation
 
 > Abbreviations are for **INSERT MODE**
 
@@ -493,7 +493,7 @@ Use **[CTRL]+V** to get special key:
 :ab                        List all abbreviations
 ```
 
-#### ]- Map -[
+#### Map
 
 > Map are for **NORMAL MODE**
 
