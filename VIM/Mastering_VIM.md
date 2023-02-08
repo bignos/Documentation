@@ -20,6 +20,8 @@ view <FILENAME>                              Open <FILENAME> in read only mode
 vim -r                                       List all saved buffer by VI(Used for recovery)
 ex -r                                        List all saved buffer by VI(Used for recovery)
 vim -r <BUFFER>                              Recover the edited <BUFFER>
+
+ex -s <FILENAME> < <SCRIPT_FILENAME>         Execute the vim script <SCRIPT_FILENAME> on the file <FILENAME>
 ```
 
 ## -[ Abbreviations ]-
@@ -34,6 +36,7 @@ vim -r <BUFFER>                              Recover the edited <BUFFER>
 - **{rpt}** Replacement expression pattern
 - **{rm}** Regular expression modifier
 - **{ec}** EX command
+- **{fn}** Function name
 
 ## -[ General Form of VI commands ]-
 
@@ -240,6 +243,11 @@ U          Undo all edit on the current line
 
 xp         Swap 2 characters
 ~          Swap uppercase/lowercase
+
+>>         Indent line on right side
+<<         Indent line on left side
+4>>        Indent right the 4 lines under the cursor
+
 ```
 
 ### /- Line Movements -\
@@ -333,6 +341,9 @@ Use the shell command `$ od -c` to get all special key code from the system
 
 :read <FILENAME>          Append current buffer with the content of <FILENAME>
 :r <FILENAME>             Append current buffer with the content of <FILENAME>
+
+:source <FILENAME>        Run the script from <FILENAME>
+:so <FILENAME>            Run the script from <FILENAME>
 
 :args                     List the files from the command line
 :ar                       List the files from the command line
@@ -537,13 +548,63 @@ Call the sequence with **@{nrg}**.
 You can repeat the last macro with **@@**.
 
 ```
+q{nrg}          Start macro recording for named register {nrg}
+q               Stop macro recording
+@{nrg}          Execute macro from named register {nrg}
 
 ```
 
 ## -[ INSERT MODE ]-
 
 ```
-ESC   Exit INSERT MODE
+ESC        Exit INSERT MODE
+
+[CTRL]+T   Increment indentation level for the whole line
+[CTRL]+D   Decrement indentation level for the whole line
+
+[CTRL]+U   Erase all characters on the line before the cursor
 ```
 
 ## -[ VISUAL MODE ]-
+
+# VIM FOR DEVELOPMENT
+
+## -[ COMMAND MODE ]-
+
+```
+%             Move the cursor to the other bracket(Useful to find where you forgot a '}')
+```
+
+## -[ EX MODE ]-
+
+```
+:set autoindent           Automatic indentation control
+:set shiftwidth=4         Indentation width is 4 spaces
+:set tabstop=4            Indentation width of a [TAB]('\t') is 4 spaces
+:set expandtab            Tabs is write with ' ' and not '\t' (Convert TABS to SPACES)
+:set list                 Show hidden characters
+
+:10,20 l                  Show hidden characters from line 10 to 20(Useful to verify some lines)
+
+:set showmatch            Show pair of brackets
+```
+
+### /- Tags -\
+
+To use _tags_ you have to install **ctags** `sudo apt install exuberant-ctags`
+
+```
+:!ctags %                 Generate tag file for the current file
+:!ctags *.c               Generate tag file for the current directory
+
+:tag {fn}                 Move the cursor to the definition of function {fn}
+
+[CTRL]+]                  Goto tag definition of the word under the cursor
+[CTRL]+T                  Goto previous location before the tag jump([CTRL]+])
+```
+
+## -[ INSERT MODE ]-
+
+```
+
+```
