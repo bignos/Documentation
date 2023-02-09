@@ -614,8 +614,47 @@ To use _tags_ you have to install **ctags** `sudo apt install exuberant-ctags`
 In this section you will get all specific **VIM** features over **VI**  
 `help vi_diff`
 
+**Popular VIM features:**
+
+- Initialization
+- Infinite undo
+- GUI
+- Multiple windows
+- Programmer assistance
+- Keyword completion
+- Syntax extensions
+- Scripting and plug-ins
+- Postprocessing
+- Arbitrary length lines and binary data
+- Session context
+- Transitions
+- Transparent editing
+- Meta-information
+- The black hole register
+
+## -[ COMMAND LINE]-
+
+```
+gvim <FILENAME>                             Open GUI version of VIM
+vim -g <FILENAME>                           Open GUI version of VIM
+
+evim <FILENAME>                             Open easy VIM(a more beginner friendly version of VIM)
+vim -y <FILENAME>                           Open easy VIM(a more beginner friendly version of VIM)
+
+vimtutor                                    A VIM tutorial
+```
+
+**VIM Tutorial:**
+
+- [OpenVIM](https://www.openvim.com/)
+- [VIM adventure](https://vim-adventures.com/)
+
 ## -[ COMMAND MODE ]-
 
 ## -[ EX MODE ]-
+
+```
+:set compatible       Remove all specific VIM feature(VI pure compatibility)
+```
 
 ## -[ INSERT MODE ]-
