@@ -696,6 +696,15 @@ vim --server 192.168.0.101:6666 --remote <FILENAME>           Connect to the VIM
 vim --server 192.168.0.101:6666 --remote-send <COMMAND>       Send <COMMAND> to the VIM instance 192.168.0.101:6666
 ```
 
+## -[ Environment variables ]-
+
+| Variable | Description                                                                                                                                                                                                                             |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| VIMINIT  | VIM execute its content as an EX command(_This is the first configuration entry_)                                                                                                                                                       |
+| EXINIT   | VIM execute its content as an EX command(_This is the second configuration entry, executed only if VIMINIT is empty_)                                                                                                                   |
+| MYVIMRC  | Overrides Vim’s search for initialization files. If MYVIMRC has a value when starting, Vim assumes the value is the name of an initialization file and, if the file exists, takes initial settings from it. No other file is consulted. |
+| SHELL    | Define the shell or external command interpreter vim had to use                                                                                                                                                                         | 
+
 ## -[ COMMAND MODE ]-
 
 ```
@@ -711,7 +720,8 @@ vim --server 192.168.0.101:6666 --remote-send <COMMAND>       Send <COMMAND> to 
 :help                 Help introduction to use VIM
 :help <subject>       Help for the subject in parameter
 :h <subject>          Help for the subject in parameter
-
 ```
 
 ## -[ INSERT MODE ]-
+
+
