@@ -55,6 +55,8 @@ ex -s <FILENAME> < <SCRIPT_FILENAME>         Execute the vim script <SCRIPT_FILE
 
 ## -[ TEXT OBJECT ]-
 
+For more information about _Text objects_ check `:help text-objects`
+
 ```
 {n}w        {n} word under the cursor
 {n}W        {n} Word under the cursor(Withespace separated)
@@ -116,6 +118,52 @@ m{ch}       Mark the current position with {ch}
 | \\U           | Force all next characters to be on uppercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
 | \\l           | Force the next characters to be on lowercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
 | \\L           | Force all next characters to be on lowercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
+| \\|           | String choice (ex car\\|moto)                                                                                                 |
+| \\&           | If the pattern before the \\& match the pattern after is evaluated (ex .*Tom\\&.*Jerry)                                       |
+| \\+           | Match 1 or more                                                                                                               |
+| \\=           | Match 0 or 1                                                                                                                  |
+| \\?           | Match 0 or 1                                                                                                                  |
+| \\{...}       | Repeat the match {n} times or {n,m} in acceptable range                                                                       |
+| ~             | Match the last given replacement string                                                                                       |
+| \\(...\\)     | Grouping                                                                                                                      |
+| \\{n}         | Call group {n} capture                                                                                                        |
+
+### /- Regular expression character class -\
+
+| Character class | Description                                                                                                |
+| --------------- | ---------------------------------------------------------------------------------------------------------- |
+| \\a             | Alphabetic character: same as \[A-Za-z]                                                                    |
+| \\A             | Nonalphabetic character: same as \[^A-Za-z]                                                                |
+| \\b             | Backspace                                                                                                  |
+| \\d             | Digit: same as \[0-9]                                                                                      |
+| \\D             | Nondigit: same as \[^0-9]                                                                                  |
+| \\e             | Escape                                                                                                     |
+| \\f             | Matches any filename character, as defined by the isfname option                                           |
+| \\F             | Like \\f, but excluding digits                                                                             |
+| \\h             | Head of word character: same as \[A-Za-z_]                                                                 |
+| \\H             | Non-head-of-word character: same as \[^A-Za-z_]                                                            |
+| \\i             | Matches any identifier character, as defined by the isident option                                         |
+| \\I             | Like \\i, but excluding digits                                                                             |
+| \\k             | Matches any keyword character, as defined by the iskeyword option                                          |
+| \\K             | Like \\k, but excluding digits                                                                             |
+| \\l             | Lowercase character: same as \[a-z]                                                                        |
+| \\L             | Nonlowercase character: same as \[^a-z]                                                                    |
+| \\n             | Matches a newline  Can be used to match multiline patterns                                                 |
+| \\o             | Octal digit: same as \[0-7]                                                                                |
+| \\O             | Non-octal digit: same as \[^0-7]                                                                           |
+| \\p             | Matches any printable character, as defined by the isprint option                                          |
+| \\P             | Like \\p, but excluding digits                                                                             |
+| \\r             | Carriage return                                                                                            |
+| \\s             | Matches a whitespace character (exactly a space or a tab)                                                  |
+| \\S             | Matches anything that isn’t a space or a tab                                                               |
+| \\t             | Matches a tab                                                                                              |
+| \\u             | Uppercase character: same as \[A-Z]                                                                        |
+| \\U             | Nonuppercase character: same as \[^A-Z]                                                                    |
+| \\w             | Word character: same as \[0-9A-Za-z_]                                                                      |
+| \\W             | Nonword character: same as \[^0-9A-Za-z_]                                                                  |
+| \\x             | Hexadecimal digit: same as \[0-9A-Fa-f]                                                                    |
+| \\X             | Nonhexadecimal digit: same as \[^0-9A-Fa-f]                                                                |
+| \\_x            | Where x is any of the previous characters above: match the same character class but with newline included  |
 
 ### /- Regular expression delimiter -\
 
@@ -532,8 +580,8 @@ Use the shell command `$ od -c` to get all special key code from the system
 
 :map x dwElp                                     Define 'x' to swap 2 words (not perfect example)
 :map x I<Root>^M^I<Node>^[ea</Node>^M</Root>^[   Define 'x' to encapsulate a word with a Root/Node XML structure
-:map x I/* ^[A */^[                              Define 'x' to add '/*' '*/' arround a line
-:map x :s;.*;/* & */;^M                          Define 'x' to add '/*' '*/' arround a line
+:map x I/* ^[A */^[                              Define 'x' to add '/*' '*/' around a line
+:map x :s;.*;/* & */;^M                          Define 'x' to add '/*' '*/' around a line
 
 :let mapleader="`"                               Define '`' as the leader key
 :map <leader>a :q<cr>                            Define leader + 'a' to execute :q[ENTER] (quit)
@@ -573,8 +621,6 @@ ESC        Exit INSERT MODE
 [CTRL]+U   Erase all characters on the line before the cursor
 ```
 
-## -[ VISUAL MODE ]-
-
 # VIM FOR DEVELOPMENT
 
 ## -[ COMMAND MODE ]-
@@ -609,12 +655,6 @@ To use _tags_ you have to install **ctags** `sudo apt install exuberant-ctags`
 
 [CTRL]+]                  Goto tag definition of the word under the cursor
 [CTRL]+T                  Goto previous location before the tag jump([CTRL]+])
-```
-
-## -[ INSERT MODE ]-
-
-```
-
 ```
 
 # VIM SPECIFIC
@@ -710,6 +750,19 @@ vim --server 192.168.0.101:6666 --remote-send <COMMAND>       Send <COMMAND> to 
 ```
 [CTRL]+]                    Goto mark under the cursor
 [CTRL]+O                    Goto previous position
+
+v                           VISUAL MODE
+```
+
+
+### /- Movements -\
+
+```
+[CTRL]+<end>                Goto the last character of the file
+[CTRL]+<home>               Goto the first character of the file
+
+{n}%                        Goto the {n} percentage of the file
+:go {n}                     Goto the {n} byte in the file
 ```
 
 ## -[ EX MODE ]-
@@ -722,6 +775,27 @@ vim --server 192.168.0.101:6666 --remote-send <COMMAND>       Send <COMMAND> to 
 :h <subject>          Help for the subject in parameter
 ```
 
-## -[ INSERT MODE ]-
+## -[ VISUAL MODE ]-
+
+**a** for Around  
+**i** for Inner
+
+Movement general form: 
+> `{n} a|i {to}` Add {n} {to} around or inner 
+
+```
+{n}aw | {n}aW   Add {n} word on the selection
+{n}iw | {n}iW   Add {n} inner word on the selection(White space count as a word)
+as    | is      Add a sentence(a) or an inner(i) sentence on the selection
+ap    | ip      Add a paragraph or an inner paragraph on the selection
+
+a'    | i'    Add the content of the ' block on the selection
+a"    | i"    Add the content of the " block on the selection
+a`    | i`    Add the content of the ` block on the selection
+a{    | i{    Add the content of the { block on the selection
+a[    | i[    Add the content of the [ block on the selection
+a(    | i(    Add the content of the ( block on the selection
+a<    | i<    Add the content of the < block on the selection
+```
 
 
