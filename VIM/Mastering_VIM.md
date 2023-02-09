@@ -17,6 +17,14 @@ vim +{n} <FILENAME>                          Open <FILENAME> at the line {n}
 vim -R <FILENAME>                            Open <FILENAME> in read only mode
 view <FILENAME>                              Open <FILENAME> in read only mode
 
+rvim <FILENAME>                              Open <FILENAME> in restrictive mode(no shell command allowed)
+rview <FILENAME>                             Open <FILENAME> in restrictive mode(no shell command allowed) and read only mode
+
+evim <FILENAME>                              Open <FILENAME> with easy mode(VIM for beginner)
+eview <FILENAME>                             Open <FILENAME> with easy mode(VIM for beginner) and read only mode
+
+vimdiff <FILENAME1> <FILENAME2>              Open VIM on DIFF mode to compare <FILENAME1> and <FILENAME2>
+
 vim -r                                       List all saved buffer by VI(Used for recovery)
 ex -r                                        List all saved buffer by VI(Used for recovery)
 vim -r <BUFFER>                              Recover the edited <BUFFER>
@@ -632,7 +640,16 @@ In this section you will get all specific **VIM** features over **VI**
 - Meta-information
 - The black hole register
 
-## -[ COMMAND LINE]-
+**VIM Tutorial:**
+
+- [OpenVIM](https://www.openvim.com/)
+- [VIM adventure](https://vim-adventures.com/)
+
+**VIM Startup**
+
+- Check `:help startup` for up to date information about VIM Startup
+
+## -[ COMMAND LINE ]-
 
 ```
 gvim <FILENAME>                             Open GUI version of VIM
@@ -644,17 +661,57 @@ vim -y <FILENAME>                           Open easy VIM(a more beginner friend
 vimtutor                                    A VIM tutorial
 ```
 
-**VIM Tutorial:**
+### /- Specific command line VIM options -\
 
-- [OpenVIM](https://www.openvim.com/)
-- [VIM adventure](https://vim-adventures.com/)
+| Option       | Description                                                                                             |
+| ------------ | ------------------------------------------------------------------------------------------------------- |
+| -b           | Edit file in binary mode                                                                                |
+| -c _command_ | Execute _command_ as an EX command                                                                      |
+| -C           | Run VIM in compatible VI mode                                                                           |
+| -d           | Start VIM in DIFF mode                                                                                  |
+| -E           | Start VIM in improved EX mode                                                                           |
+| -F or -A     | Start VIM in Farsi or Arabic modes                                                                      |
+| -g           | Start VIM in GUI mode                                                                                   |
+| -M           | Turn off the write option (Read Only mode)                                                              |
+| -o[{n}]      | Open all files in separate windows. The optionally integer {n} is used to specify the number of windows |
+| -O[{n}]      | Like `-o` but with _vertical split_                                                                     |
+| -y           | Start VIM in EASY mode                                                                                  |
+| -Z           | Start VIM in restricted mode                                                                            |
+
+#### Remote configuration example
+
+**Server VIM instance**
+
+To get more information: `:help client-server`
+
+```
+vim --listen 192.168.0.101:6666                               Run a server instance of vim on host 192.168.0.101 port 6666
+```
+
+**Remote client**
+
+```
+vim --server 192.168.0.101:6666 --remote <FILENAME>           Connect to the VIM instance 192.168.0.101:6666 and open the file <FILENAME> on the remote host
+
+vim --server 192.168.0.101:6666 --remote-send <COMMAND>       Send <COMMAND> to the VIM instance 192.168.0.101:6666
+```
 
 ## -[ COMMAND MODE ]-
+
+```
+[CTRL]+]                    Goto mark under the cursor
+[CTRL]+O                    Goto previous position
+```
 
 ## -[ EX MODE ]-
 
 ```
 :set compatible       Remove all specific VIM feature(VI pure compatibility)
+
+:help                 Help introduction to use VIM
+:help <subject>       Help for the subject in parameter
+:h <subject>          Help for the subject in parameter
+
 ```
 
 ## -[ INSERT MODE ]-
