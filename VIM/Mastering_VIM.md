@@ -96,8 +96,10 @@ m{ch}       Mark the current position with {ch}
 
 ## -[ Regular expression metacharacters ]-
 
+For more information check `:help regexp`
+
 | Metacharacter | Description                                                                                                                   |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ----- |
 | .             | Match any _single_ character except a new line                                                                                |
 | \*            | Match 0 or more of the single character that immediately precedes it                                                          |
 | ^             | Match only line that begin with pattern after '^'. If '^' is not a the begining of the expression it's just the '^' character |
@@ -118,7 +120,7 @@ m{ch}       Mark the current position with {ch}
 | \\U           | Force all next characters to be on uppercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
 | \\l           | Force the next characters to be on lowercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
 | \\L           | Force all next characters to be on lowercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
-| \\|           | String choice (ex car\\|moto)                                                                                                 |
+| \\            |                                                                                                                               | String choice (ex car\\ | moto) |
 | \\&           | If the pattern before the \\& match the pattern after is evaluated (ex .*Tom\\&.*Jerry)                                       |
 | \\+           | Match 1 or more                                                                                                               |
 | \\=           | Match 0 or 1                                                                                                                  |
@@ -130,40 +132,40 @@ m{ch}       Mark the current position with {ch}
 
 ### /- Regular expression character class -\
 
-| Character class | Description                                                                                                |
-| --------------- | ---------------------------------------------------------------------------------------------------------- |
-| \\a             | Alphabetic character: same as \[A-Za-z]                                                                    |
-| \\A             | Nonalphabetic character: same as \[^A-Za-z]                                                                |
-| \\b             | Backspace                                                                                                  |
-| \\d             | Digit: same as \[0-9]                                                                                      |
-| \\D             | Nondigit: same as \[^0-9]                                                                                  |
-| \\e             | Escape                                                                                                     |
-| \\f             | Matches any filename character, as defined by the isfname option                                           |
-| \\F             | Like \\f, but excluding digits                                                                             |
-| \\h             | Head of word character: same as \[A-Za-z_]                                                                 |
-| \\H             | Non-head-of-word character: same as \[^A-Za-z_]                                                            |
-| \\i             | Matches any identifier character, as defined by the isident option                                         |
-| \\I             | Like \\i, but excluding digits                                                                             |
-| \\k             | Matches any keyword character, as defined by the iskeyword option                                          |
-| \\K             | Like \\k, but excluding digits                                                                             |
-| \\l             | Lowercase character: same as \[a-z]                                                                        |
-| \\L             | Nonlowercase character: same as \[^a-z]                                                                    |
-| \\n             | Matches a newline  Can be used to match multiline patterns                                                 |
-| \\o             | Octal digit: same as \[0-7]                                                                                |
-| \\O             | Non-octal digit: same as \[^0-7]                                                                           |
-| \\p             | Matches any printable character, as defined by the isprint option                                          |
-| \\P             | Like \\p, but excluding digits                                                                             |
-| \\r             | Carriage return                                                                                            |
-| \\s             | Matches a whitespace character (exactly a space or a tab)                                                  |
-| \\S             | Matches anything that isn’t a space or a tab                                                               |
-| \\t             | Matches a tab                                                                                              |
-| \\u             | Uppercase character: same as \[A-Z]                                                                        |
-| \\U             | Nonuppercase character: same as \[^A-Z]                                                                    |
-| \\w             | Word character: same as \[0-9A-Za-z_]                                                                      |
-| \\W             | Nonword character: same as \[^0-9A-Za-z_]                                                                  |
-| \\x             | Hexadecimal digit: same as \[0-9A-Fa-f]                                                                    |
-| \\X             | Nonhexadecimal digit: same as \[^0-9A-Fa-f]                                                                |
-| \\_x            | Where x is any of the previous characters above: match the same character class but with newline included  |
+| Character class | Description                                                                                               |
+| --------------- | --------------------------------------------------------------------------------------------------------- |
+| \\a             | Alphabetic character: same as \[A-Za-z]                                                                   |
+| \\A             | Nonalphabetic character: same as \[^A-Za-z]                                                               |
+| \\b             | Backspace                                                                                                 |
+| \\d             | Digit: same as \[0-9]                                                                                     |
+| \\D             | Nondigit: same as \[^0-9]                                                                                 |
+| \\e             | Escape                                                                                                    |
+| \\f             | Matches any filename character, as defined by the isfname option                                          |
+| \\F             | Like \\f, but excluding digits                                                                            |
+| \\h             | Head of word character: same as \[A-Za-z\_]                                                               |
+| \\H             | Non-head-of-word character: same as \[^A-Za-z\_]                                                          |
+| \\i             | Matches any identifier character, as defined by the isident option                                        |
+| \\I             | Like \\i, but excluding digits                                                                            |
+| \\k             | Matches any keyword character, as defined by the iskeyword option                                         |
+| \\K             | Like \\k, but excluding digits                                                                            |
+| \\l             | Lowercase character: same as \[a-z]                                                                       |
+| \\L             | Nonlowercase character: same as \[^a-z]                                                                   |
+| \\n             | Matches a newline Can be used to match multiline patterns                                                 |
+| \\o             | Octal digit: same as \[0-7]                                                                               |
+| \\O             | Non-octal digit: same as \[^0-7]                                                                          |
+| \\p             | Matches any printable character, as defined by the isprint option                                         |
+| \\P             | Like \\p, but excluding digits                                                                            |
+| \\r             | Carriage return                                                                                           |
+| \\s             | Matches a whitespace character (exactly a space or a tab)                                                 |
+| \\S             | Matches anything that isn’t a space or a tab                                                              |
+| \\t             | Matches a tab                                                                                             |
+| \\u             | Uppercase character: same as \[A-Z]                                                                       |
+| \\U             | Nonuppercase character: same as \[^A-Z]                                                                   |
+| \\w             | Word character: same as \[0-9A-Za-z\_]                                                                    |
+| \\W             | Nonword character: same as \[^0-9A-Za-z\_]                                                                |
+| \\x             | Hexadecimal digit: same as \[0-9A-Fa-f]                                                                   |
+| \\X             | Nonhexadecimal digit: same as \[^0-9A-Fa-f]                                                               |
+| \\\_x           | Where x is any of the previous characters above: match the same character class but with newline included |
 
 ### /- Regular expression delimiter -\
 
@@ -743,7 +745,7 @@ vim --server 192.168.0.101:6666 --remote-send <COMMAND>       Send <COMMAND> to 
 | VIMINIT  | VIM execute its content as an EX command(_This is the first configuration entry_)                                                                                                                                                       |
 | EXINIT   | VIM execute its content as an EX command(_This is the second configuration entry, executed only if VIMINIT is empty_)                                                                                                                   |
 | MYVIMRC  | Overrides Vim’s search for initialization files. If MYVIMRC has a value when starting, Vim assumes the value is the name of an initialization file and, if the file exists, takes initial settings from it. No other file is consulted. |
-| SHELL    | Define the shell or external command interpreter vim had to use                                                                                                                                                                         | 
+| SHELL    | Define the shell or external command interpreter vim had to use                                                                                                                                                                         |
 
 ## -[ COMMAND MODE ]-
 
@@ -753,7 +755,6 @@ vim --server 192.168.0.101:6666 --remote-send <COMMAND>       Send <COMMAND> to 
 
 v                           VISUAL MODE
 ```
-
 
 ### /- Movements -\
 
@@ -780,8 +781,9 @@ v                           VISUAL MODE
 **a** for Around  
 **i** for Inner
 
-Movement general form: 
-> `{n} a|i {to}` Add {n} {to} around or inner 
+Movement general form:
+
+> `{n} a|i {to}` Add {n} {to} around or inner
 
 ```
 {n}aw | {n}aW   Add {n} word on the selection
@@ -797,5 +799,3 @@ a[    | i[    Add the content of the [ block on the selection
 a(    | i(    Add the content of the ( block on the selection
 a<    | i<    Add the content of the < block on the selection
 ```
-
-
