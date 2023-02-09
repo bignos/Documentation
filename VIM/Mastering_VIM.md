@@ -608,3 +608,14 @@ To use _tags_ you have to install **ctags** `sudo apt install exuberant-ctags`
 ```
 
 ```
+
+# VIM SPECIFIC
+
+In this section you will get all specific **VIM** features over **VI**  
+`help vi_diff`
+
+## -[ COMMAND MODE ]-
+
+## -[ EX MODE ]-
+
+## -[ INSERT MODE ]-
