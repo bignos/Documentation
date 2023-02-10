@@ -46,6 +46,7 @@ ex -s <FILENAME> < <SCRIPT_FILENAME>         Execute the vim script <SCRIPT_FILE
 - **{ec}** EX command
 - **{fn}** Function name
 - **{tg}** Tag
+- **{ra}** Range
 
 ## -[ General Form of VI commands ]-
 
@@ -302,6 +303,7 @@ U          Undo all edit on the current line
 
 xp         Swap 2 characters
 ~          Swap uppercase/lowercase
+g~~        Swap uppercase/lowercase for the whole line
 
 >>         Indent line on right side
 <<         Indent line on left side
@@ -658,6 +660,54 @@ To use _tags_ you have to install **ctags** `sudo apt install exuberant-ctags`
 
 [CTRL]+]                  Goto tag definition of the word under the cursor
 [CTRL]+T                  Goto previous location before the tag jump([CTRL]+])
+```
+
+### /- Folding and Outlining -\
+
+VIM provide `:mkview` to save fold configuration and `:loadview` to load previous configuration
+
+For more information about **Fold** check `:help fold.txt`
+
+#### COMMAND MODE
+
+All fold command begin by **z**
+
+> When a fold is close, you can operate on it like it was only one line(very powerfull feature)
+
+```
+zf{to}              Create a fold with the text object {to}
+zf%                 Create a fold with brace block ('{' and '}' it's an example)
+{n}zF               Create a fold covering count{n} lines, starting with the current line
+zd                  Delete fold under the cursor
+zE                  Delete all fold in the window
+
+zo                  Open the fold under the cursor
+zc                  Close the fold under the cursor
+za                  Toggle the fold under the cursor
+
+zO                  Open all folds recursively
+zA                  Toggle all folds recursively
+zC                  Close all folds recursively
+zD                  Delete all folds recursively
+
+zr                  Increment foldlevel
+zm                  Decrement foldlevel
+zM                  Set option foldlevel to 0
+zn                  Unset the foldenable option
+zN                  Set the foldenable option
+```
+
+#### EX MODE
+
+```
+:{ra}fold           Create a fold with the lines of the range {ra}
+```
+
+#### Options
+
+```
+:set foldcolumn={n}     Define the width of the folder column, to see folder indicator in the margin
+:set foldlevel={n}      Define the fold level to open, displays only lines whose fold levels are less than or egal to {n}
 ```
 
 # VIM SPECIFIC
