@@ -45,6 +45,7 @@ ex -s <FILENAME> < <SCRIPT_FILENAME>         Execute the vim script <SCRIPT_FILE
 - **{rm}** Regular expression modifier
 - **{ec}** EX command
 - **{fn}** Function name
+- **{tg}** Tag
 
 ## -[ General Form of VI commands ]-
 
@@ -99,7 +100,7 @@ m{ch}       Mark the current position with {ch}
 For more information check `:help regexp`
 
 | Metacharacter | Description                                                                                                                   |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ----- |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | .             | Match any _single_ character except a new line                                                                                |
 | \*            | Match 0 or more of the single character that immediately precedes it                                                          |
 | ^             | Match only line that begin with pattern after '^'. If '^' is not a the begining of the expression it's just the '^' character |
@@ -120,7 +121,7 @@ For more information check `:help regexp`
 | \\U           | Force all next characters to be on uppercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
 | \\l           | Force the next characters to be on lowercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
 | \\L           | Force all next characters to be on lowercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
-| \\            |                                                                                                                               | String choice (ex car\\ | moto) |
+| \\\|          | String choice (ex car\\\| moto)                                                                                               |
 | \\&           | If the pattern before the \\& match the pattern after is evaluated (ex .*Tom\\&.*Jerry)                                       |
 | \\+           | Match 1 or more                                                                                                               |
 | \\=           | Match 0 or 1                                                                                                                  |
@@ -701,6 +702,9 @@ evim <FILENAME>                             Open easy VIM(a more beginner friend
 vim -y <FILENAME>                           Open easy VIM(a more beginner friendly version of VIM)
 
 vimtutor                                    A VIM tutorial
+
+vim -o <FILENAME1>..<FILENAMEn>             Open all files in separate windows
+vim -p <FILENAME1>..<FILENAMEn>             Open all files in separate tabs
 ```
 
 ### /- Specific command line VIM options -\
@@ -783,6 +787,63 @@ v                           VISUAL MODE
 :help usr_32.txt      More information about how to navigate changes as a tree
 ```
 
+### /- Buffers -\
+
+```
+:ls                   List the buffers
+:ls!                  List all buffers of all VIM instance
+:buffers              List the buffers
+:files                List the buffers
+
+:cwindow              Open error window (quickfix)
+:lwindow              Open location window
+
+:windo {ec}           Execute EX command {ec} on all windows
+:bufdo {ec}           Execute EX command {ec} on all buffers
+
+:ball                 Edit all args or buffers
+:sball                Edit all args or buffers and open them in new windows
+:unhide               Edit all loaded buffer
+:sunhide              Edit all loaded buffer and open them in new windows
+
+:badd <FILENAME>      Add file to the buffer list
+:bunload              Unload current buffer
+:bdelete              Unload current buffer and delete from the buffer list
+:buffer {n}           Load buffer {n}
+:sbuffer {n}          Load buffer {n} in a new window
+:bnext                Move to the next buffer
+:bnext {n}            Move to the {n}th next buffer
+:sbnext {n}           Load the {n}th next buffer in a new window
+:bNext                Move to previous buffer
+:bprevious            Move to previous buffer
+:bNext {n}            Move to the {n}th previous buffer
+:sbNext {n}           Load the {n}th previous buffer in a new window
+:blast                Move to the last buffer
+:sblast               Load the last buffer in a new window and split horizontally
+:vertical sblast      Load the last buffer in a new window and split vertically
+:bmod {n}             Move to the {n}th modified buffer
+:sbmod {n}            Load to the {n}th modified buffer in a new window
+
+:stag {tg}            Load the file that containt the tag{tg} definition in a new window
+```
+
+#### Status flags
+
+| Code   | Description                                                                                                                                                                                                                                                                                        |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| u      | Unlisted buffer. This buffer is not listed unless you use the ! modifier. To see an example of an unlisted buffer, type :help. Vim splits the current window to include a new window in which the built-in help appears. The plain :ls command will not show the help buffer, but :ls! includes it |
+| % or # | % is the buffer for the current window. # is the buffer to which you would switch with the :edit # command. These are mutually exclusive                                                                                                                                                           |
+| a or h | a indicates an active buffer. That means the buffer is loaded and visible. h indicates a hidden buffer. The hidden buffer exists but is not visible in any window. These are mutually exclusive                                                                                                    |
+| - or = | - indicates a buffer has the modifiable option turned off. The file is read-only. = is a read-only buffer that cannot be made modifiable (for instance, because you don’t have filesystem privileges to write to the file). These are mutually exclusive                                           |
+| + or x | + indicates a modified buffer. x is a buffer with read errors. These are mutually exclusive                                                                                                                                                                                                        |
+
+#### Special buffers
+
+- _directory_: List directory content (read-only buffer), when you type [ENTER], the file under the cursor is loaded
+- _help_: Show help buffer (read-only buffer)
+- _QuickFix_: Contains the list of errors created by your commands(View with `:cwindow` and for location `:lwindow`)
+- _scratch_: These buffers contain text for general purposes
+
 ## -[ VISUAL MODE ]-
 
 **a** for Around  
@@ -800,7 +861,7 @@ ap    | ip      Add a paragraph or an inner paragraph on the selection
 
 a'    | i'    Add the content of the ' block on the selection
 a"    | i"    Add the content of the " block on the selection
-a\`    | i\`    Add the content of the \` block on the selection
+a`    | i`    Add the content of the ` block on the selection
 a{    | i{    Add the content of the { block on the selection
 a[    | i[    Add the content of the [ block on the selection
 a(    | i(    Add the content of the ( block on the selection
@@ -818,9 +879,84 @@ All windows command are prefixed with **[CTRL]+W**
 #### Opening and closing window
 
 ```
-CTRL+W s                Split current window in 2, Horizontal split
-CTRL+W v                Split current window in 2, Vertical split
-CTRL+W n                Create a new window and split horizontally
+[CTRL]+W s                Split current window in 2, Horizontal split
+[CTRL]+W v                Split current window in 2, Vertical split
+[CTRL]+W n                Create a new window and split horizontally
+
+[CTRL]+W ^                Split current window in 2 and edit the alternate file, Horizontal split
+
+[CTRL]+W q                Quit the current window
+[CTRL]+W c                Close the current window
+[CTRL]+W o                Close all window except the current one
+```
+
+#### Moving to other windows
+
+```
+[CTRL]+W j                Move to the next bottom window
+[CTRL]+W <down>           Move to the next bottom window
+
+[CTRL]+W k                Move to the next top window
+[CTRL]+W <up>             Move to the next top window
+
+[CTRL]+W h                Move to the next left window
+[CTRL]+W <left>           Move to the next left window
+
+[CTRL]+W l                Move to the next right window
+[CTRL]+W <right>          Move to the next right window
+
+[CTRL]+W w                Move to the next window (cycle)
+[CTRL]+W p                Move to the last accessed window
+
+[CTRL]+W t                Move to the top left window
+[CTRL]+W b                Move to the bottom right window
+
+```
+
+#### Moving windows
+
+```
+[CTRL]+W r                Rotate windows downwards/rightwards
+[CTRL]+W R                Rotate windows upwards/leftwards
+
+[CTRL]+W x                Exchange current window with the next one
+
+[CTRL]+W K            	  Move the current window to be at the very top
+[CTRL]+W J	              Move the current window to be at the very bottom
+[CTRL]+W H	              Move the current window to be at the far left
+[CTRL]+W L	              Move the current window to be at the far right
+[CTRL]+W T	              Move the current window to a new tab page.
+```
+
+#### Window resizing
+
+```
+[CTRL]+W =	              Make all windows (almost) equally high and wide
+[CTRL]+W _	              Set current window height to N (default: highest possible).
+[CTRL]+W |	              Set current window width to N (default: widest possible).
+[CTRL]+W -	              Decrease current window height by N (default 1)
+[CTRL]+W +	              Increase current window height by N (default 1)
+[CTRL]+W <	              Decrease current window width by N (default 1)
+[CTRL]+W >	              Increase current window width by N (default 1)
+
+{n}z[ENTER]               Set current window height to {n} lines
+```
+
+#### Windows and Tags
+
+```
+[CTRL]+W ]                Open a new window with the file that define the tag under the cursor (perform a ':tag')
+[CTRL]+W g ]              Open a new window with the list of the corresponding tag under the cursor(perform a ':tselect')
+[CTRL]+W g [CTRL]+]       Open a new window with the list of the corresponding tag under the cursor(perform a ':tjump')
+
+[CTRL]+W f                Open(if exist) the filename under the cursor in a new window(like 'gf')
+[CTRL]+W F                Open(if exist) the filename under the cursor and go to the line number (ex: '/a/b/myfile:82') in a new window(like 'gF')
+
+[CTRL]+W gf               Open(if exist) the filename under the cursor in a new tab(like 'gf')
+[CTRL]+W gF               Open(if exist) the filename under the cursor and go to the line number (ex: '/a/b/myfile:82') in a new tab(like 'gF')
+
+[CTRL]+W gt               Goto next tab
+[CTRL]+W gT               Goto previous tab
 ```
 
 ### /- EX MODE -\
@@ -844,4 +980,52 @@ CTRL+W n                Create a new window and split horizontally
 :vsplit                               Split current window in 2, Vertical split
 :{n}split                             Split current window in 2 with {n} lines, Horizontal split
 :{n}vsplit                            Split current window in 2 with {n} columns, Vertical split
+:new                                  Create a new window and split horizontally
+:vnew                                 Create a new window and split vertically
+:sview                                Split current window in 2 but the new window is in read-only mode(view)
+:sfind <FILENAME>                     Split horizontally only if the <FILENAME> exist
+
+:close                                Close the current window
+:hide                                 Hide the current window
+:only                                 Close all window except the current one
+
+:resize                               Set current window height to highest possible
+:resize -{n}                          Decrease current window height by {n} lines
+:resize +{n}                          Increase current window height by {n} lines
+:resize {n}                           Set current window height to {n} lines
+:vertical resize {n}                  Set current window width to {n} columns
+```
+
+## -[ Tabs ]-
+
+### /- COMMAND MODE -\
+
+```
+[CTRL]+<pagedown>                     Goto the next tab
+gt                                    Goto the next tab
+[CTRL]+<pageup>                       Goto the previous tab
+gT                                    Goto the previous tab
+
+[CTRL]+<tab>                          Goto the last accessed tab
+g<tab>                                Goto the last accessed tab
+```
+
+### /- EX MODE -\
+
+```
+:tabnew                               Open a new tab
+:tabnew <FILENAME>                    Open the file <FILENAME> in a new tab
+:tabedit <FILENAME>                   Open the file <FILENAME> in a new tab
+
+:tabclose                             Close the current tab
+
+:tabonly                              Close all tabs except the current
+
+:tabnext                              Goto the next tab
+:tabprevious                          Goto the previous tab
+:tabNext                              Goto the previous tab
+:tabfirst                             Goto the first tab
+:tablast                              Goto the last tab
+
+:tabs                                 List all the tabs
 ```
