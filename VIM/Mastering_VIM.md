@@ -770,10 +770,17 @@ v                           VISUAL MODE
 
 ```
 :set compatible       Remove all specific VIM feature(VI pure compatibility)
+:set incsearch        Activate incremental search(Move directly on the buffer as you type on the keyboard)
+
+:set undolevels={n}   Define the number of undoable changes you can make in an editing session
 
 :help                 Help introduction to use VIM
 :help <subject>       Help for the subject in parameter
 :h <subject>          Help for the subject in parameter
+
+:undo                 Undo the last command
+:redo                 Redo the last command
+:help usr_32.txt      More information about how to navigate changes as a tree
 ```
 
 ## -[ VISUAL MODE ]-
@@ -793,9 +800,48 @@ ap    | ip      Add a paragraph or an inner paragraph on the selection
 
 a'    | i'    Add the content of the ' block on the selection
 a"    | i"    Add the content of the " block on the selection
-a`    | i`    Add the content of the ` block on the selection
+a\`    | i\`    Add the content of the \` block on the selection
 a{    | i{    Add the content of the { block on the selection
 a[    | i[    Add the content of the [ block on the selection
 a(    | i(    Add the content of the ( block on the selection
 a<    | i<    Add the content of the < block on the selection
+```
+
+## -[ Multiple Windows ]-
+
+For more information check `:help windows.txt`
+
+### /- COMMAND MODE -\
+
+All windows command are prefixed with **[CTRL]+W**
+
+#### Opening and closing window
+
+```
+CTRL+W s                Split current window in 2, Horizontal split
+CTRL+W v                Split current window in 2, Vertical split
+CTRL+W n                Create a new window and split horizontally
+```
+
+### /- EX MODE -\
+
+#### Settings
+
+```
+:set winheight={n}      Minimal number of line for the current window
+:set winwidth={n}       Minimal number of columns for the current window
+:set winminheight={n}   Minimal number of line for all windows
+:set winminwidth={n}    Minimal number of columns for all windows
+```
+
+#### Commands
+
+```
+:wincmd {ch}                          Send window command({ch}), exactly the same behaviour as [CTRL]+W in COMMAND MODE (ex: ':wincmd s' to split)
+
+:{n}split [++opt] [+cmd] <FILENAME>   General split command format
+:split                                Split current window in 2, Horizontal split
+:vsplit                               Split current window in 2, Vertical split
+:{n}split                             Split current window in 2 with {n} lines, Horizontal split
+:{n}vsplit                            Split current window in 2 with {n} columns, Vertical split
 ```
