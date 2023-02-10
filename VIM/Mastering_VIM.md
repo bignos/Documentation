@@ -47,6 +47,7 @@ ex -s <FILENAME> < <SCRIPT_FILENAME>         Execute the vim script <SCRIPT_FILE
 - **{fn}** Function name
 - **{tg}** Tag
 - **{ra}** Range
+- **{pl}** Path list(with separator ';')
 
 ## -[ General Form of VI commands ]-
 
@@ -76,6 +77,15 @@ f{ch}       To the next occurrence of character {ch} on the current line
 F{ch}       To the previous occurrence of character {ch} on the current line
 t{ch}       Before the next occurrence of character {ch} on the current line
 T{ch}       After the previous occurrence of character {ch} on the current line
+
+(			sentences backward
+)			sentences forward
+{			paragraphs backward
+}			paragraphs forward
+]]			sections forward or to the next "{" in the first column. When used after an operator, then also stops below a "}" in the first column
+][			sections forward or to the next '}' in the first column
+[[			sections backward or to the previous "{" in the first column
+[]			sections backward or to the previous "}" in the first column
 ```
 
 ## -[ REGISTER ]-
@@ -646,6 +656,10 @@ ESC        Exit INSERT MODE
 :10,20 l                  Show hidden characters from line 10 to 20(Useful to verify some lines)
 
 :set showmatch            Show pair of brackets
+
+:set taglength={n}        Controls the number of significant characters in a tag that is to be looked up. The default value of 0 indicates that all characters are significant
+:set tags={pl}            List of the files{pl} to look for the tags
+:set tagrelative          If using a tags file in another directory, file names in that tags file are relative to the directory where the tags file is
 ```
 
 ### /- Tags -\
@@ -656,10 +670,18 @@ To use _tags_ you have to install **ctags** `sudo apt install exuberant-ctags`
 :!ctags %                 Generate tag file for the current file
 :!ctags *.c               Generate tag file for the current directory
 
-:tag {fn}                 Move the cursor to the definition of function {fn}
+:tag {tg}                 Move the cursor to the definition of function {fn}
 
 [CTRL]+]                  Goto tag definition of the word under the cursor
 [CTRL]+T                  Goto previous location before the tag jump([CTRL]+])
+
+:tags                     List all tags
+:tselect {tg}             List all tags corresponding to the tag{tg}, user can choose
+:stselect {tg}            List all tags corresponding to the tag{tg}, user can choose in a new window
+:tnext                    Goto the next matching tag
+:tprev                    Goto the previous matching tag
+:tfirst                   Goto the first matching tag
+:tlast                    Goto the last matching tag
 ```
 
 ### /- Folding and Outlining -\
@@ -708,6 +730,52 @@ zN                  Set the foldenable option
 ```
 :set foldcolumn={n}     Define the width of the folder column, to see folder indicator in the margin
 :set foldlevel={n}      Define the fold level to open, displays only lines whose fold levels are less than or egal to {n}
+```
+
+### /- Auto and smart indenting -\
+
+For more information about **indenting** check ':help indent.txt'
+
+#### Options
+
+```
+:set autoindent         Activate auto indentation
+:set smartindent        Activate smart indentation (more powerfull than 'autoindent')
+:set cindent            Activate C style indentation, more C-type language specific
+:set indentexpr         This lets you define your own expression, which VIM evaluates in the context of each new line you begin
+
+:set paste              Activate paste compatibility to avoid autoindent issue during the action
+:set nopaste
+```
+
+### /- Word completion -\
+
+For more information check `:help ins-completion`
+
+#### INSERT MODE
+
+```
+[CTRL]+n                Next completion
+[CTRL]+p                Previous completion
+
+All specifics completion commands start with [CTRL]+x
+
+[CTRL]+x [CTRL]+l       Line
+[CTRL]+x [CTRL]+f       Filename
+[CTRL]+x [CTRL]+i       Included files
+[CTRL]+x [CTRL]+d       Definition
+
+[CTRL]+x [CTRL]+n       Current file forwards
+[CTRL]+x [CTRL]+p       Current file backwards
+[CTRL]+x [CTRL]+k       Dictionary
+[CTRL]+x [CTRL]+t       Thesaurus
+[CTRL]+x [CTRL]+]       Tag
+[CTRL]+x [CTRL]+v       VIM commands
+[CTRL]+x [CTRL]+u       User defined
+[CTRL]+x [CTRL]+o       Omni
+[CTRL]+x [CTRL]+s       Spelling suggestions
+
+[CTRL]+x [CTRL]+z       Stop completion
 ```
 
 # VIM SPECIFIC
