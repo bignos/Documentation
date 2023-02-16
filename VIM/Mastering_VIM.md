@@ -48,6 +48,13 @@ ex -s <FILENAME> < <SCRIPT_FILENAME>         Execute the vim script <SCRIPT_FILE
 - **{tg}** Tag
 - **{ra}** Range
 - **{pl}** Path list(with separator ';')
+- **{lg}** Language
+- **{cs}** Color scheme
+- **{cl}** Color
+- **{hg}** Highlight group
+- **{hs}** Highlight setting
+- **{sc}** Shell command
+- **{fp}** Files pattern
 
 ## -[ General Form of VI commands ]-
 
@@ -638,6 +645,8 @@ ESC        Exit INSERT MODE
 
 # VIM FOR DEVELOPMENT
 
+**$VIMRUNTIME**=`/usr/share/nvim/runtime`
+
 ## -[ COMMAND MODE ]-
 
 ```
@@ -776,6 +785,53 @@ All specifics completion commands start with [CTRL]+x
 [CTRL]+x [CTRL]+s       Spelling suggestions
 
 [CTRL]+x [CTRL]+z       Stop completion
+```
+
+### /- Syntax Highlighting -\
+
+All syntax files are on **$VIMRUNTIME** + `/syntax`  
+All color scheme files are on **$VIMRUNTIME** + `/colors`
+
+For list and description of all **Highlight groups** check `:help highlight-groups`
+
+#### EX MODE
+
+```
+:syntax enable          Enable syntax mode
+:syntax on              Enable syntax highlighting
+
+:set syntax={lg}        Set syntax highlighting for a specific language{lg}
+
+:colorscheme{cs}        Use the color scheme {cs}
+
+:set background?        Get background color
+:set background={cl}    Set background color with the color {cl}
+
+:highlight              Get all highlight group configuration
+:highlight {hg}         Get the highlight configuration for the highlight group {hg}
+:highlight {hg} {hs}    Set the highlight setting{hs} for the highlight group {hg}
+:help highlight         Get help about highlight for more information about all settings possibilities
+```
+
+### /- Compiling -\
+
+#### EX MODE
+
+```
+:make <FILENAME>        Compile <FILENAME>
+:set makeprg={sc}       Set the shell command used by make
+```
+
+### /- Quickfix list window -\
+
+#### EX MODE
+
+```
+:copen                  Open QuickFix list window
+:cnext                  Goto next quickfix occurence(default error)
+:cprevious              Goto previous quickfix occurence(default error)
+
+:vimgrep {pt} {fp}      Search pattern {pt} for all files in {fp}(VIM grep alternative). Results goes on quickfix
 ```
 
 # VIM SPECIFIC
@@ -1147,3 +1203,13 @@ g<tab>                                Goto the last accessed tab
 
 :tabs                                 List all the tabs
 ```
+
+# VIM Script
+
+For more informations check all these help topics:
+
+- **autocmd**
+- **scripts**
+- **variables**
+- **functions**
+- **usr_41.txt**
