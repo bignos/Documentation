@@ -49,12 +49,14 @@ ex -s <FILENAME> < <SCRIPT_FILENAME>         Execute the vim script <SCRIPT_FILE
 - **{ra}** Range
 - **{pl}** Path list(with separator ';')
 - **{lg}** Language
+- **{li}** Lang ISO CODE (ex: 'en_us')
 - **{cs}** Color scheme
 - **{cl}** Color
 - **{hg}** Highlight group
 - **{hs}** Highlight setting
 - **{sc}** Shell command
 - **{fp}** Files pattern
+- **{wd}** Word
 
 ## -[ General Form of VI commands ]-
 
@@ -117,47 +119,47 @@ m{ch}       Mark the current position with {ch}
 
 For more information check `:help regexp`
 
-| Metacharacter | Description                                                                                                                   |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| .             | Match any _single_ character except a new line                                                                                |
-| \*            | Match 0 or more of the single character that immediately precedes it                                                          |
-| ^             | Match only line that begin with pattern after '^'. If '^' is not a the begining of the expression it's just the '^' character |
-| $             | Match only line that end with pattern before '$'. If '$' is not a the end of the expression it's just the '$' character       |
-| \             | Used to escape a character like '\.' to match a point and not any _single_ character                                          |
-| \\{n}         | Recall a _subpattern_ , {n} is between 1 to 9                                                                                 |
-| [ ]           | Match any _one_ of the characters enclosed between the brackets                                                               |
-| [^ ]          | Match any _one_ of the characters that is **NOT** enclosed between the brackets                                               |
-| [: :]         | Match any character which is part of the character classes                                                                    |
-| [. .]         | Match multicharacter sequence that should be treated as a unit                                                                |
-| [= =]         | Match an equivalence class list a set of characters that should be considered equivalent (ex: 'e' and 'é')                    |
-| \\( \\)       | Save the subpattern enclosed between \( and \) into a special holding space (\1 .. \9)                                        |
-| \\<           | Match only character at the begining of a word                                                                                |
-| \\>           | Match only character at the end of a word                                                                                     |
-| &             | Replace the '&' with the entire text matched by the search pattern(**ONLY FOR REPLACEMENT PATTERN {rpt}**)                    |
-| ~             | Replace the '~' with the last used replacement pattern(**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                |
-| \\u           | Force the next characters to be on uppercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
-| \\U           | Force all next characters to be on uppercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
-| \\l           | Force the next characters to be on lowercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
-| \\L           | Force all next characters to be on lowercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                         |
-| \\\|          | String choice (ex car\\\| moto)                                                                                               |
-| \\&           | If the pattern before the \\& match the pattern after is evaluated (ex .*Tom\\&.*Jerry)                                       |
-| \\+           | Match 1 or more                                                                                                               |
-| \\=           | Match 0 or 1                                                                                                                  |
-| \\?           | Match 0 or 1                                                                                                                  |
-| \\{...}       | Repeat the match {n} times or {n,m} in acceptable range                                                                       |
-| ~             | Match the last given replacement string                                                                                       |
-| \\(...\\)     | Grouping                                                                                                                      |
-| \\{n}         | Call group {n} capture                                                                                                        |
+| Metacharacter | Description                                                                                                                  |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| .             | Match any _single_ character except a new line                                                                               |
+| \*            | Match 0 or more of the single character that immediately precedes it                                                         |
+| ^             | Match only line that begin with pattern after '^'. If '^' is not the beginning of the expression it's just the '^' character |
+| $             | Match only line that end with pattern before '$'. If '$' is not the end of the expression it's just the '$' character        |
+| \             | Used to escape a character like '\.' to match a point and not any _single_ character                                         |
+| \\{n}         | Recall a _subpattern_ , {n} is between 1 to 9                                                                                |
+| [ ]           | Match any _one_ of the characters enclosed between the brackets                                                              |
+| [^ ]          | Match any _one_ of the characters that is **NOT** enclosed between the brackets                                              |
+| [: :]         | Match any character which is part of the character classes                                                                   |
+| [. .]         | Match multicharacter sequence that should be treated as a unit                                                               |
+| [= =]         | Match an equivalence class list a set of characters that should be considered equivalent (ex: 'e' and 'é')                   |
+| \\( \\)       | Save the subpattern enclosed between \( and \) into a special holding space (\1 .. \9)                                       |
+| \\<           | Match only character at the beginning of a word                                                                              |
+| \\>           | Match only character at the end of a word                                                                                    |
+| &             | Replace the '&' with the entire text matched by the search pattern(**ONLY FOR REPLACEMENT PATTERN {rpt}**)                   |
+| ~             | Replace the '~' with the last used replacement pattern(**ONLY FOR REPLACEMENT PATTERN {rpt}**)                               |
+| \\u           | Force the next characters to be on uppercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                        |
+| \\U           | Force all next characters to be on uppercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                        |
+| \\l           | Force the next characters to be on lowercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                        |
+| \\L           | Force all next characters to be on lowercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                        |
+| \\\|          | String choice (ex car\\\| moto)                                                                                              |
+| \\&           | If the pattern before the \\& match the pattern after is evaluated (ex .*Tom\\&.*Jerry)                                      |
+| \\+           | Match 1 or more                                                                                                              |
+| \\=           | Match 0 or 1                                                                                                                 |
+| \\?           | Match 0 or 1                                                                                                                 |
+| \\{...}       | Repeat the match {n} times or {n,m} in acceptable range                                                                      |
+| ~             | Match the last given replacement string                                                                                      |
+| \\(...\\)     | Grouping                                                                                                                     |
+| \\{n}         | Call group {n} capture                                                                                                       |
 
 ### /- Regular expression character class -\
 
 | Character class | Description                                                                                               |
 | --------------- | --------------------------------------------------------------------------------------------------------- |
 | \\a             | Alphabetic character: same as \[A-Za-z]                                                                   |
-| \\A             | Nonalphabetic character: same as \[^A-Za-z]                                                               |
+| \\A             | Non alphabetic character: same as \[^A-Za-z]                                                              |
 | \\b             | Backspace                                                                                                 |
 | \\d             | Digit: same as \[0-9]                                                                                     |
-| \\D             | Nondigit: same as \[^0-9]                                                                                 |
+| \\D             | Non digit: same as \[^0-9]                                                                                |
 | \\e             | Escape                                                                                                    |
 | \\f             | Matches any filename character, as defined by the isfname option                                          |
 | \\F             | Like \\f, but excluding digits                                                                            |
@@ -168,7 +170,7 @@ For more information check `:help regexp`
 | \\k             | Matches any keyword character, as defined by the iskeyword option                                         |
 | \\K             | Like \\k, but excluding digits                                                                            |
 | \\l             | Lowercase character: same as \[a-z]                                                                       |
-| \\L             | Nonlowercase character: same as \[^a-z]                                                                   |
+| \\L             | Non lowercase character: same as \[^a-z]                                                                  |
 | \\n             | Matches a newline Can be used to match multiline patterns                                                 |
 | \\o             | Octal digit: same as \[0-7]                                                                               |
 | \\O             | Non-octal digit: same as \[^0-7]                                                                          |
@@ -179,16 +181,16 @@ For more information check `:help regexp`
 | \\S             | Matches anything that isn’t a space or a tab                                                              |
 | \\t             | Matches a tab                                                                                             |
 | \\u             | Uppercase character: same as \[A-Z]                                                                       |
-| \\U             | Nonuppercase character: same as \[^A-Z]                                                                   |
+| \\U             | Non uppercase character: same as \[^A-Z]                                                                  |
 | \\w             | Word character: same as \[0-9A-Za-z\_]                                                                    |
-| \\W             | Nonword character: same as \[^0-9A-Za-z\_]                                                                |
+| \\W             | Non word character: same as \[^0-9A-Za-z\_]                                                               |
 | \\x             | Hexadecimal digit: same as \[0-9A-Fa-f]                                                                   |
-| \\X             | Nonhexadecimal digit: same as \[^0-9A-Fa-f]                                                               |
+| \\X             | Non hexadecimal digit: same as \[^0-9A-Fa-f]                                                              |
 | \\\_x           | Where x is any of the previous characters above: match the same character class but with newline included |
 
 ### /- Regular expression delimiter -\
 
-> Besides the **/** character, you may use any nonalphanumeric, nonspace character as your delimiter.
+> Besides the **/** character, you may use any non alphanumeric, non space character as your delimiter.
 >
 > EXCEPT **\\**, **"** or **\|**
 
@@ -201,7 +203,7 @@ For more information check `:help regexp`
 | [:blank:]  | Space and Tab characters only                                       |
 | [:cntrl:]  | Control characters                                                  |
 | [:digit:]  | Numeric characters                                                  |
-| [:graph:]  | Printable and visible (nonspace) characters                         |
+| [:graph:]  | Printable and visible (non space) characters                        |
 | [:lower:]  | Lowercase characters                                                |
 | [:print:]  | Printable characters (includes whitespace)                          |
 | [:punct:]  | Punctuation characters                                              |
@@ -592,8 +594,8 @@ Use the shell command `$ od -c` to get all special key code from the system
 
 #### Map
 
-> map are for **NORMAL MODE**
-> map! are for **INSERT MODE**
+> map is for **NORMAL MODE**
+> map! is for **INSERT MODE**
 
 ```
 :map x sequence                                  General form to declare a map(shortcut). Define character 'x' as a sequence of editing commands.
@@ -1206,10 +1208,123 @@ g<tab>                                Goto the last accessed tab
 
 # VIM Script
 
-For more informations check all these help topics:
+For more information check all these help topics:
 
 - **autocmd**
 - **scripts**
 - **variables**
 - **functions**
 - **usr_41.txt**
+
+# VIM Tools
+
+## -[ Spellchecking ]-
+
+For more information check `:help spell` or `:help spell.txt`
+
+### /- COMMAND MODE -\
+
+By default spellchecking is not active on VIM, **you must must activate it on demand**
+
+```
+]s  Goto the next occurrence of a misspelled word
+[s  Goto the previous occurrence of a misspelled word
+zg  Add the word under the cursor to the list of good words
+zG  Add the word under the cursor to the list of good words in the internal-wordlist
+zw  Add the word under the cursor to the list of bad words
+zW  Add the word under the cursor to the list of bad words in the internal-wordlist
+z=  Display the list of suggestions for replacement of a bad word
+```
+
+### /- EX MODE -\
+
+```
+:setlocal spell spelllang={li}   Turn on spellchecking and set the spellchecking region with the language ISO CODE {li}
+:setlocal nospell                Turn off spellchecking
+
+:spellgood {wd}                  Add word {wd} to the good word list
+:spellgood! {wd}                 Add word {wd} to the good word list in internal-list
+:spellwrong {wd}                 Add word {wd} to the bad word list
+:spellwrong! {wd}                Add word {wd} to the bad word list in internal-list
+```
+
+## -[ Binary files ]-
+
+### /- Command line -\
+
+```
+vim -b <FILENAME>
+```
+
+### /- EX MODE -\
+
+```
+:set binary                     Enable Binary mode
+
+:%!xxd                          Transform the file in hexadecimal representation
+:%!xxd -r                       Revert to string representation
+:set filetype=xxd               Syntax highlighting for hexadecimal representation
+```
+
+## -[ Non ASCII Characters ]-
+
+AKA **Digraph**
+
+Check the disgraph table with: `:help digraph-table`
+
+Digraph is used on _INSERT MODE_ with **[CTRL]+k** and a combination of one character and one Metacharacter
+
+**Example:**
+
+You want to write 'É', you have to use `[CTRL]+k E,`
+You want to write 'π', you have to use `[CTRL]+k p*`
+
+### -[ Digraph metacharacters ]-
+
+| char name         | char | meaning                           |
+| ----------------- | ---- | --------------------------------- |
+| Exclamation mark  | !    | Grave                             |
+| Apostrophe        | '    | Acute accent                      |
+| Greater-Than sign | >    | Circumflex accent                 |
+| Question mark     | ?    | Tilde                             |
+| Hyphen-Minus      | -    | Macron                            |
+| Left parenthesis  | (    | Breve                             |
+| Full stop         | .    | Dot above                         |
+| Colon             | :    | Diaeresis                         |
+| Comma             | ,    | Cedilla                           |
+| Underline         | \_   | Underline                         |
+| Solidus           | /    | Stroke                            |
+| Quotation mark    | "    | Double acute accent               |
+| Semicolon         | ;    | Ogonek                            |
+| Less-Than sign    | <    | Caron                             |
+| Zero              | 0    | Ring above                        |
+| Two               | 2    | Hook                              |
+| Nine              | 9    | Horn                              |
+| Equals            | =    | Cyrillic (= used as second char)  |
+| Asterisk          | \*   | Greek                             |
+| Percent sign      | %    | Greek/Cyrillic special            |
+| Plus              | +    | smalls: Arabic, capitals: Hebrew  |
+| Three             | 3    | some Latin/Greek/Cyrillic letters |
+| Four              | 4    | Bopomofo                          |
+| Five              | 5    | Hiragana                          |
+| Six               | 6    | Katakana                          |
+
+## -[ Edit files over network ]-
+
+You can do this only if **netrw** ist _enabled_(On default VIM version it's the case)
+
+### /- Command line -\
+
+```
+vim <PROTOCOL>://<USER>@<HOST>:<PORT>//<PATH>                   General form of netrw remote file accessing
+vim scp://bignose@192.168.1.101//home/bignose/test.txt          Open a distant file over SSH, absolute version
+vim scp://bignose@192.168.1.101/test.txt                        Open a distant file over SSH, relative to user home
+vim scp://bignose@192.168.1.101/                                Open a distant directory
+```
+
+### /- EX MODE -\
+
+```
+:Nread <PROTOCOL>://<USER>@<HOST>:<PORT>//<PATH>                General form of netrw remote file accessing for reading
+:Nwrite <PROTOCOL>://<USER>@<HOST>:<PORT>//<PATH>               General form of netrw remote file writing
+```
