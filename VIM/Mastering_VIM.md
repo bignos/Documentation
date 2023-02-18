@@ -2,6 +2,11 @@
 
 ---
 
+## -[ Links ]-
+
+- [VIM FAQ](https://vimhelp.org/vim_faq.txt.html)
+- [VIM TIPS WIKI](https://vim.fandom.com/wiki/Vim_Tips_Wiki)
+
 ## -[ COMMAND LINE ]-
 
 ```
@@ -24,6 +29,7 @@ evim <FILENAME>                              Open <FILENAME> with easy mode(VIM 
 eview <FILENAME>                             Open <FILENAME> with easy mode(VIM for beginner) and read only mode
 
 vimdiff <FILENAME1> <FILENAME2>              Open VIM on DIFF mode to compare <FILENAME1> and <FILENAME2>
+vim -d <FILENAME1> <FILENAME2>               Open VIM on DIFF mode to compare <FILENAME1> and <FILENAME2>
 
 vim -r                                       List all saved buffer by VI(Used for recovery)
 ex -r                                        List all saved buffer by VI(Used for recovery)
@@ -47,7 +53,8 @@ ex -s <FILENAME> < <SCRIPT_FILENAME>         Execute the vim script <SCRIPT_FILE
 - **{fn}** Function name
 - **{tg}** Tag
 - **{ra}** Range
-- **{pl}** Path list(with separator ';')
+- **{pl;}** Path list(with separator ';')
+- **{pl,}** Path list(with separator ',')
 - **{lg}** Language
 - **{li}** Lang ISO CODE (ex: 'en_us')
 - **{cs}** Color scheme
@@ -669,7 +676,7 @@ ESC        Exit INSERT MODE
 :set showmatch            Show pair of brackets
 
 :set taglength={n}        Controls the number of significant characters in a tag that is to be looked up. The default value of 0 indicates that all characters are significant
-:set tags={pl}            List of the files{pl} to look for the tags
+:set tags={pl;}            List of the files{pl;} to look for the tags
 :set tagrelative          If using a tags file in another directory, file names in that tags file are relative to the directory where the tags file is
 ```
 
@@ -1327,4 +1334,87 @@ vim scp://bignose@192.168.1.101/                                Open a distant d
 ```
 :Nread <PROTOCOL>://<USER>@<HOST>:<PORT>//<PATH>                General form of netrw remote file accessing for reading
 :Nwrite <PROTOCOL>://<USER>@<HOST>:<PORT>//<PATH>               General form of netrw remote file writing
+```
+
+## -[ Changing directories ]-
+
+You can do this only if **netrw** ist _enabled_(On default VIM version it's the case)
+
+### /- EX MODE -\
+
+```
+:Explore                        Open explorer(netrw)
+:Lexplore                       Toggle left explorer window
+:Sexplore                       Open explorer to current directory in an horizontal window
+:Sexplore!                      Open explorer to current directory in an horizontal window
+```
+
+## -[ Backup ]-
+
+VIM backup files for recovery crash.  
+The user can change some settings
+
+### /- EX MODE -\
+
+```
+:set backup                     Enable backup (Keep alternate backup during the session)
+:set nobackup                   Disable backup
+:set writebackup                Enable write backup (Save alternate before save the buffer, after remove the backup )
+:set nowritebackup              Disable write backup
+
+:set backupdir={pl,}            Define directories {pl,} where backup can be found and save
+```
+
+## -[ Convert to HTML ]-
+
+### /- EX MODE -\
+
+```
+:runtime!syntax/2html.vim       Tranform the current buffer to HTML for visualization
+:TOhtml                         Tranform the current buffer to HTML for visualization
+```
+
+## -[ Environment backup ]-
+
+You can change general environment backup with the `viminfo` _option_.  
+Check `:help 'viminfo'` for more information about the expected format.
+
+You can also use **session** for specific environment backup.
+
+### /- EX MODE -\
+
+```
+:mksession <FILENAME>           Save actual VIM session on the file <FILENAME>
+:source <FILENAME>              Load the VIM session from the file <FILENAME>
+```
+
+## -[ Lines settings ]-
+
+### /- EX MODE -\
+
+```
+:set wrap                       Enable line wraping if the line is larger than the screen
+:set nowrap                     Disable line wraping
+
+:set list                       Enable displaying of non visible characters
+:set nolist                     Disable displaying of non visible characters
+:help 'listchars'               More information about non visible characters and how to represent on screen
+```
+
+## -[ Tips ]-
+
+### /- COMMAND MODE -\
+
+```
+q:                              Open window command history
+q/                              Open window forward search history
+q?                              Open window backward search history
+```
+
+### /- EX MODE -\
+
+```
+[CTRL]+F                        Open window command/search history
+
+:set cmdwinheight={n}           Define the height of the command history window
 ```
