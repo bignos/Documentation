@@ -1411,6 +1411,27 @@ q/                              Open window forward search history
 q?                              Open window backward search history
 ```
 
+### /- Shell -\
+
+Check `man 3 readline` to know how to edit **readline** configuration with **.inputrc** in your home directory  
+With this you can use all commands that use **readline** with VI keystroke
+
+`set editing-mode vi` to activate VI mode for readline
+
+```
+set -o vi                       Enable VI editing mode for the shell(Append to your _.bashrc_)
+shopt -s lithist                Enable multiline history for Bash
+```
+
+#### Shell VI COMMAND MODE
+
+```
+[ESC]                           Go on COMMAND MODE but for the shell this time
+v                               Edit the command line with VIM(Default system $EDITOR)
+
+:cq                             To quit VIM without execute the command line
+```
+
 ### /- EX MODE -\
 
 ```
@@ -1418,3 +1439,56 @@ q?                              Open window backward search history
 
 :set cmdwinheight={n}           Define the height of the command history window
 ```
+
+# Extend VIM
+
+## -[ Plug-ins ]-
+
+You can check the populare VIM plug-in manager: [**Vundle**](https://github.com/VundleVim/Vundle.vim)
+
+Use [VIM Awesome](https://vimawesome.com) to found a _plug-in_ according to your needs
+
+### /- Populars Plug-ins -\
+
+| Plug-in                                                                    | Description                                                                                                             |
+| -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| [**EditorConfig**](https://github.com/editorconfig/editorconfig-vim)       | Allow VIM to use [_EditorConfig_](https://editorconfig.org) files                                                       |
+| [**NERDTree**](https://github.com/preservim/nerdtree)                      | File explorer                                                                                                           |
+| [**nerdtree-git-plug-in**](https://github.com/Xuyuanp/nerdtree-git-plugin) | Git plug-in for _NERDTree_                                                                                              |
+| [**Fugitive**](https://github.com/tpope/vim-fugitive)                      | Git on VIM                                                                                                              |
+| [**YouCompleteMe**](https://github.com/ycm-core/YouCompleteMe)             | Completion                                                                                                              |
+| [**The Asynchronous Lint Engine**](https://github.com/dense-analysis/ale)  | Completion                                                                                                              |
+| [**Syntastic**](https://github.com/vim-syntastic/syntastic)                | Completion                                                                                                              |
+| [**Conquer of Completion**](https://github.com/neoclide/coc.nvim)          | Completion                                                                                                              |
+| [**Jedi-vim**](https://github.com/davidhalter/jedi-vim)                    | Python autocompletion                                                                                                   |
+| [**Kite**](https://www.kite.com)                                           | AI-based autocompletion **COMERCIAL SOFTWARE**                                                                          |
+| **Termdebug**                                                              | GDB for VIM. This plug-in is included with VIM, to install you have to use `:packadd termdebug` and `:Termdebug` to run |
+
+#### All-in-One IDE configurations
+
+| Link                                                                                                      | Description                                    |
+| --------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| [**VIM as an IDE**](https://github.com/jez/vim-as-an-ide)                                                 | How to transform VIM as an IDE(_Old tutorial_) |
+| [**VIMspector**](https://github.com/puremourning/vimspector)                                              | Multi language graphical debugger for VIM      |
+| [**VIMCPP**](https://github.com/kingofctrl/vim.cpp)                                                       | C/C++ IDE                                      |
+| [**Python-mode**](https://github.com/python-mode/python-mode)                                             | Python IDE                                     |
+| [**Vim and Python—A Match Made in Heaven**](https://realpython.com/vim-and-python-a-match-made-in-heaven) | Python IDE                                     |
+| [**Vim Upgrade 2017**](https://haridas.in/vim-upgrade-2017.html)                                          | Python IDE                                     |
+| [**Vim as a Python IDE**](https://rapphil.github.io/vim-python-ide)                                       | Python IDE                                     |
+| [**chenfjm’s VimPlugins**](https://github.com/chenfjm/VimPlugins)                                         | IDE Neovim configuration                       |
+
+#### Writer plug-ins
+
+Check [Top 10 Vim Plugins for Writers](https://tomfern.com/posts/vim-for-writers) for more informations
+
+| Plug-in                                                                    | Description                                                                                                            |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| [**vim-pencil**](https://github.com/reedes/vim-pencil)                     | Tools for writer                                                                                                       |
+| [**vim-ditto**](https://github.com/dbmrq/vim-ditto)                        | Highlights repeated words in a paragraph                                                                               |
+| [**vim-goyo**](https://github.com/junegunn/goyo.vim)                       | Zen mode(no distraction)                                                                                               |
+| [**vim-colors-pencil**](https://github.com/reedes/vim-colors-pencil)       | Low contrast colorscheme                                                                                               |
+| [**vim-litecorrect**](https://github.com/reedes/vim-litecorrect)           | Auto-correct common mistakes                                                                                           |
+| [**vim-lexical**](https://github.com/reedes/vim-lexical)                   | Combined spellchecker and thesaurus                                                                                    |
+| [**vim-textobj-sentence**](https://github.com/reedes/vim-textobj-sentence) | Better sentence navigation                                                                                             |
+| [**vim-textobj-quote**](https://github.com/reedes/vim-textobj-quote)       | Smartly creates quotes                                                                                                 |
+| [**ALE**](https://github.com/dense-analysis/ale)                           | Supports a bunch of style checkers like [proselint](http://proselint.com) and [LanguageTool](https://languagetool.org) |
