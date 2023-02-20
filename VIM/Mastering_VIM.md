@@ -155,12 +155,24 @@ T{ch}       After the previous occurrence of character {ch} on the current line
 
 ## -[ Marker ]-
 
+**Tips**: To get the char '`' you have to press the key twice
+
 ```
 m{ch}       Mark the current position with {ch}
+
 '{ch}       Goto the first character of the line marked by {ch}
-''          Goto the first character of the previous mark or context
-`{ch}       Goto the position of the mark {ch}
-``          Goto the position of the previous mark or context
+''          Goto the first character of the line marked by the previous mark or context
+
+\`{ch}       Goto the position of the mark {ch}
+\`\`          Goto the position of the previous mark or context
+
+\`[          Goto the begining of the previous text operation
+\`]          Goto the end of the previous text operation
+
+']          Goto the line of the previous text operation
+
+\`.          Goto the last change in the buffer
+
 ```
 
 ## -[ Regular expression metacharacters ]-
