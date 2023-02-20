@@ -64,20 +64,20 @@ For more information about command line arguments check `:help cli-arguments`
 | --noplugin    | Do not load any plug-ins                                                                                                                                                                                                                                                                                                                   |
 | -N            | Run VIM in a non-vi-compatible mode                                                                                                                                                                                                                                                                                                        |
 | -o{n}         | Start VIM with {n} open windows                                                                                                                                                                                                                                                                                                            |
-| -O{n}         | Start Vim with {n} open windows(split vertically)                                                                                                                                                                                                                                                                                          |
+| -O{n}         | Start VIM with {n} open windows(split vertically)                                                                                                                                                                                                                                                                                          |
 | -r <FILENAME> | Recovery mode; recover and resume editing on file after an aborted editor session or system crash<br> Without file, list files available for recovery                                                                                                                                                                                      |
 | -R            | Edit files in read-only mode                                                                                                                                                                                                                                                                                                               |
 | -s <FILENAME> | Read and execute commands given in the specified scriptfile <FILENAME>                                                                                                                                                                                                                                                                     |
 | -S <FILENAME> | Read and execute commands given in commandfile <FILENAME><br> Shorthand for `vim -c 'source <FILENAME>'`                                                                                                                                                                                                                                   |
 | -t {tg}       | Edit the file containing tag {tg}, and position the cursor at its definition                                                                                                                                                                                                                                                               |
 | -T type       | Set the term (terminal type) option<br> This value overrides the $TERM environment variable                                                                                                                                                                                                                                                |
-| -u <FILENAME> | Read configuration information from the specified configuration file instead of the default _.vimrc_ configuration file<br> If the file argument is **NONE**, Vim reads no configuration files, loads no plug-ins, and runs in compatible mode<br> If the argument is **NORC**, it reads no configuration files, but it does load plug-ins |
+| -u <FILENAME> | Read configuration information from the specified configuration file instead of the default _.vimrc_ configuration file<br> If the file argument is **NONE**, VIM reads no configuration files, loads no plug-ins, and runs in compatible mode<br> If the argument is **NORC**, it reads no configuration files, but it does load plug-ins |
 | -v            | Run in full-screen mode                                                                                                                                                                                                                                                                                                                    |
 | --version     | Print version information                                                                                                                                                                                                                                                                                                                  |
 | -V{n}         | Verbose mode; print messages about what options are being set and what files are being read or written<br> You can set a level of verbosity {n} to increase or decrease the number of messages received<br> The default value is 10 for high verbosity                                                                                     |
 | -W <FILENAME> | Write all typed commands from the current session to the specified scriptfile <FILENAME><br> The file thus created can be used with the -s option                                                                                                                                                                                          |
-| -y            | Modeless vi; run Vim in insert mode only, without a command mode<br> This is the same as invoking Vim as `evim`                                                                                                                                                                                                                            |
-| -Z            | Start Vim in restricted mode<br> Do not allow shell commands or suspension of the editor                                                                                                                                                                                                                                                   |
+| -y            | Modeless vi; run VIM in insert mode only, without a command mode<br> This is the same as invoking VIM as `evim`                                                                                                                                                                                                                            |
+| -Z            | Start VIM in restricted mode<br> Do not allow shell commands or suspension of the editor                                                                                                                                                                                                                                                   |
 
 ## -[ Abbreviations ]-
 
@@ -286,41 +286,6 @@ ZZ  Save and exit
 &   Repeat the last substitution
 ```
 
-### /- Single Movements -\
-
-```
-h     Left
-j     Down
-k     Up
-l     Right
-
-0     Begining of the line
-^     Move to the first nonblank character of the line
-$     End of the line
-{n}|  Move to the character {n} on the current line
-```
-
-### /- Block Movements -\
-
-```
-w   Forward one word(Special characters count one word)
-W   Forward one word(Withespace separated)
-b   Backward one word(Special characters count one word)
-B   Backward one word(Withespace separated)
-e   Forward to the end of the word(Special characters count one word)
-E   Forward to the end of the word(Withespace separated)
-
-(   Move to the begining of current sentence
-)   Move to the begining of the next sentence
-{   Move to the begining of current paragraph
-}   Move to the begining of the next paragraph
-[[   Move to the begining of current section
-]]   Move to the begining of the next section
-
-G     End of the file
-{n}G  Go to line {n}
-```
-
 ### /- Simple Edit -\
 
 ```
@@ -378,20 +343,88 @@ g~~        Swap uppercase/lowercase for the whole line
 
 ```
 
+### /- Single Movements -\
+
+```
+h     Left
+j     Down
+k     Up
+l     Right
+
+0     Begining of the line
+^     Move to the first nonblank character of the line
+$     End of the line
+{n}|  Move to the character {n} on the current line
+```
+
+### /- Buffer Movements -\
+
+```
+gg    Move to the first line of the buffer
+G     Move to the last line of the buffer
+
+{n}G  Goto line {n}
+:{n}  Goto line {n}
+```
+
+### /- Block Movements -\
+
+```
+w     Forward one word(Special characters count one word)
+W     Forward one word(Withespace separated)
+b     Backward one word(Special characters count one word)
+B     Backward one word(Withespace separated)
+e     Forward to the end of the word(Special characters count one word)
+E     Forward to the end of the word(Withespace separated)
+ge    Last character of previous word(Special characters count one word)
+gE    Last character of previous word(Withespace separated)
+
+(     Move to the begining of current sentence
+)     Move to the begining of the next sentence
+{     Move to the begining of current paragraph
+}     Move to the begining of the next paragraph
+[[    Move to the begining of current section
+]]    Move to the begining of the next section
+```
+
 ### /- Line Movements -\
 
 ```
+0             Move to the start of the line
+$             Move to the end of the line
+
+^             Move to the first nonblank character of the current line
+g_            Move to the last nonblank character of the current line
+
 [ENTER]       Move to the first character of the next line
 +             Move to the first character of the next line
 -             Move to the first character of the previous line
-^             Move to the first nonblank character of the current line
+
 {n}|          Move to the {n} character of the current line
+
+```
+
+### /- Screen line Movements -\
+
+What we call _screen line_ is the line **displayed** on the screen
+
+```
+g0            Move to the start of the screen line
+g$            Move to the end of the screen line
+
+g^            Move to the first nonblank character of the screen line
+gm            Move to the middle of the screen line
+
 
 ```
 
 ### /- Screen Movements -\
 
 ```
+H             Move to the top line of the screen
+M             Move to the middle line of the screen
+L             Move to the last line of the screen
+
 [CTRL]+F      Scroll one screen forward
 [CTRL]+B      Scroll one screen backward
 [CTRL]+D      Scroll half screen forward(Down)
@@ -401,10 +434,13 @@ g~~        Swap uppercase/lowercase for the whole line
 
 z [ENTER]     Move the current line on the top of the screen
 z.            Move the current line on the center of the screen
+zz            Move the current line on the center of the screen
 z-            Move the current line on the bottom of the screen
 {n}z [ENTER]  Move the line {n} on top of the screen
 {n}z.         Move the line {n} on the center of the screen
 {n}z-         Move the line {n} on the bottom of the screen
+
+[CTRL]+L      Redraw the screen
 ```
 
 ### /- Search Movements -\
@@ -412,11 +448,23 @@ z-            Move the current line on the bottom of the screen
 #### Text Search Movements
 
 ```
-/{pt}       Search pattern {pt} forward
-?{pt}       Search pattern {pt} backward
+/{pt}         Search pattern {pt} forward
+/{pt}/+{n}    Goto line {n} after the pattern {pt}
+/{pt}/-{n}    Goto line {n} before the pattern {pt}
 
-n           Repeat the search in forward direction
-N           Repeat the search in backward direction
+?{pt}         Search pattern {pt} backward
+?{pt}?+{n}    Goto line {n} after the pattern {pt}
+?{pt}?-{n}    Goto line {n} before the pattern {pt}
+
+n             Repeat the search in forward direction
+N             Repeat the search in backward direction
+
+*             Search forward for the word under the cursor(Match only exact word)
+g*            Search forward for the word under the cursor
+#             Search backward for the word under the cursor(Match only exact word)
+g#            Search backward for the word under the cursor
+
+%             Find match of current parenthesis, brace or bracket
 ```
 
 #### Line Search Movements
