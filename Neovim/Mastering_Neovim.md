@@ -111,7 +111,7 @@ For more information about command line arguments check `:help cli-arguments`
 | --version     | Print version information                                                                                                                                                                                                                                                                                                                  |
 | -V{n}         | Verbose mode; print messages about what options are being set and what files are being read or written<br> You can set a level of verbosity {n} to increase or decrease the number of messages received<br> The default value is 10 for high verbosity                                                                                     |
 | -W <FILENAME> | Write all typed commands from the current session to the specified scriptfile <FILENAME><br> The file thus created can be used with the -s option                                                                                                                                                                                          |
-| -y            | Modeless vi; run VIM in insert mode only, without a command mode<br> This is the same as invoking VIM as `evim`                                                                                                                                                                                                                            |
+| -y            | Modeless vi; run VIM in insert mode only, without a NORMAL MODE<br> This is the same as invoking VIM as `evim`                                                                                                                                                                                                                             |
 | -Z            | Start VIM in restricted mode<br> Do not allow shell commands or suspension of the editor                                                                                                                                                                                                                                                   |
 
 ## -[ General Form of VI commands ]-
@@ -295,7 +295,7 @@ i               Ignore case
 &               Use previous regular expression modifier, you have to use ':&&' before to save old modifier
 ```
 
-## -[ COMMAND MODE ]-
+## -[ NORMAL MODE ]-
 
 ```
 :   EX MODE
@@ -558,7 +558,7 @@ Use the shell command `$ od -c` to get all special key code from the system
 :{n},{n}w >> <FILENAME>   Save the current range to the end of <FILENAME> (APPEND)
 :w! <FILENAME>            Save current buffer in an existing file
 :w %.new                  Save current buffer on a file with the name of current buffer(%) + '.new'
-:x                        Save current buffer and exit (LIKE 'ZZ' in COMMAND MODE)
+:x                        Save current buffer and exit (LIKE 'ZZ' in NORMAL MODE)
 
 :read <FILENAME>          Append current buffer with the content of <FILENAME>
 :r <FILENAME>             Append current buffer with the content of <FILENAME>
@@ -627,8 +627,7 @@ Use the shell command `$ od -c` to get all special key code from the system
 :!pwd                      Get the current directory
 :read !date                Append the result of 'date' command on the buffer
 
-
-// COMMAND MODE
+// NORMAL MODE
 !{to} {sc}                 Pass the text object {to} to the shell command {sc}
 !{to}!                     Repeat last shell command on text object {to}
 
@@ -842,7 +841,7 @@ ESC                     Exit INSERT MODE
 
 **$VIMRUNTIME**=`/usr/share/nvim/runtime`
 
-## -[ COMMAND MODE ]-
+## -[ NORMAL MODE ]-
 
 ```
 %             Move the cursor to the other bracket(Useful to find where you forgot a '}')
@@ -894,7 +893,7 @@ VIM provide `:mkview` to save fold configuration and `:loadview` to load previou
 
 For more information about **Fold** check `:help fold.txt`
 
-#### COMMAND MODE
+#### NORMAL MODE
 
 All fold command begin by **z**
 
@@ -1119,7 +1118,7 @@ vim --server 192.168.0.101:6666 --remote-send <COMMAND>       Send <COMMAND> to 
 | MYVIMRC  | Overrides Vim’s search for initialization files. If MYVIMRC has a value when starting, Vim assumes the value is the name of an initialization file and, if the file exists, takes initial settings from it. No other file is consulted. |
 | SHELL    | Define the shell or external command interpreter vim had to use                                                                                                                                                                         |
 
-## -[ COMMAND MODE ]-
+## -[ NORMAL MODE ]-
 
 ```
 [CTRL]+]                    Goto mark under the cursor
@@ -1240,7 +1239,7 @@ a<    | i<    Add the content of the < block on the selection
 
 For more information check `:help windows.txt`
 
-### /- COMMAND MODE -\
+### /- NORMAL MODE -\
 
 All windows command are prefixed with **[CTRL]+W**
 
@@ -1341,7 +1340,7 @@ All windows command are prefixed with **[CTRL]+W**
 #### Commands
 
 ```
-:wincmd {ch}                          Send window command({ch}), exactly the same behaviour as [CTRL]+W in COMMAND MODE (ex: ':wincmd s' to split)
+:wincmd {ch}                          Send window command({ch}), exactly the same behaviour as [CTRL]+W in NORMAL MODE (ex: ':wincmd s' to split)
 
 :{n}split [++opt] [+cmd] <FILENAME>   General split command format
 :split                                Split current window in 2, Horizontal split
@@ -1367,7 +1366,7 @@ All windows command are prefixed with **[CTRL]+W**
 
 ## -[ Tabs ]-
 
-### /- COMMAND MODE -\
+### /- NORMAL MODE -\
 
 ```
 [CTRL]+<pagedown>                     Goto the next tab
@@ -1411,11 +1410,29 @@ For more information check all these help topics:
 
 # VIM Tools
 
+## -[ Terminal ]-
+
+For more information about this new feature of _Neovim_ check `:help terminal_emulator.txt`
+
+Don't forget **[CTRL]+\ [CTRL]+N** to return to NORMAL MODE(In default configuration you can not use <esc>)  
+And **[CTRL]+\ [CTRL]+O** to return to NORMAL MODE for only one command
+
+```
+:terminal               Open the terminal emulator in the current window (Interactive)
+:terminal {sc}          Open the terminal emulator in the current window and run the shell command {sc} (Non-interactive)
+
+:split term://{sc}      Open the terminal emulator in an horizontal split window and run the shell command {sc} (Non-interactive)
+:vsplit term://{sc}     Open the terminal emulator in a vertical split window and run the shell command {sc} (Non-interactive)
+
+:split +terminal        Open the terminal emulator in an horizontal split window (Interactive)
+:tabnew +terminal       Open the terminal emulator in a new tab
+```
+
 ## -[ Spellchecking ]-
 
 For more information check `:help spell` or `:help spell.txt`
 
-### /- COMMAND MODE -\
+### /- NORMAL MODE -\
 
 By default spellchecking is not active on VIM, **you must must activate it on demand**
 
@@ -1589,7 +1606,7 @@ You can also use **session** for specific environment backup.
 
 ## -[ Tips ]-
 
-### /- COMMAND MODE -\
+### /- NORMAL MODE -\
 
 ```
 q:                              Open window command history
@@ -1617,10 +1634,10 @@ set -o vi                       Enable VI editing mode for the shell(Append to y
 shopt -s lithist                Enable multiline history for Bash
 ```
 
-#### Shell VI COMMAND MODE
+#### Shell VI NORMAL MODE
 
 ```
-[ESC]                           Go on COMMAND MODE but for the shell this time
+[ESC]                           Go on NORMAL MODE but for the shell this time
 v                               Edit the command line with VIM(Default system $EDITOR)
 
 :cq                             To quit VIM without execute the command line
