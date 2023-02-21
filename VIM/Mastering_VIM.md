@@ -8,7 +8,7 @@
 
 ---
 
-## -[ [Links] ]-
+## -[ Links ]-
 
 - [VIM FAQ](https://vimhelp.org/vim_faq.txt.html)
 - [VIM TIPS WIKI](https://vim.fandom.com/wiki/Vim_Tips_Wiki)
@@ -1687,4 +1687,4 @@ Check [Top 10 Vim Plugins for Writers](https://tomfern.com/posts/vim-for-writers
 | [**vim-textobj-quote**](https://github.com/reedes/vim-textobj-quote)       | Smartly creates quotes                                                                                                 |
 | [**ALE**](https://github.com/dense-analysis/ale)                           | Supports a bunch of style checkers like [proselint](http://proselint.com) and [LanguageTool](https://languagetool.org) |
 
-[Top of the page](#links)
+[Top of the page](#--links--)
