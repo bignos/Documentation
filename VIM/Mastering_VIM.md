@@ -84,6 +84,7 @@ For more information about command line arguments check `:help cli-arguments`
 - **{n}** Number
 - **{ch}** A character
 - **{CH}** An uppercase character
+- **{sk}** Special key (Like <BS>, <Return>, ..)
 - **{to}** Text Object
 - **{rg}** Register
 - **{nrg}** Named Register
@@ -163,16 +164,18 @@ m{ch}       Mark the current position with {ch}
 '{ch}       Goto the first character of the line marked by {ch}
 ''          Goto the first character of the line marked by the previous mark or context
 
-\`{ch}       Goto the position of the mark {ch}
-\`\`          Goto the position of the previous mark or context
+`{ch}       Goto the position of the mark {ch}
+``          Goto the position of the previous mark or context
 
-\`[          Goto the begining of the previous text operation
-\`]          Goto the end of the previous text operation
+`[          Goto the begining of the previous text operation
+`]          Goto the end of the previous text operation
 
 ']          Goto the line of the previous text operation
 
-\`.          Goto the last change in the buffer
+`.          Goto the last change in the buffer
+'.          Goto the last line changed in the buffer
 
+:marks      List active marks
 ```
 
 ## -[ Regular expression metacharacters ]-
@@ -298,11 +301,15 @@ ZZ  Save and exit
 &   Repeat the last substitution
 ```
 
-### /- Simple Edit -\
+### /- Edit commands -\
+
+For more information check `:help change.txt`
 
 ```
 i          Insert (under the cursor)
+gi         Insert at the last editing position
 I          Insert at the begining of the line
+gI         Insert at the begining of the line of the last editing position
 a          Append (after the cursor)
 A          Append at the end of the line
 
@@ -315,7 +322,7 @@ c{to}      Change the text object(Start at the cursor position)
 cc         Change all the current line
 C          Change from the cursor to the end of the current line
 
-r          Replace one character
+r {ch}     Replace the character under the cursor by {ch}
 R          Enter replace mode (replace until ESC)
 
 s          Replace one character and enter insert mode (Alias for 'c ')
@@ -324,20 +331,14 @@ S          Delete the entire line and enter insert mode (Alias for 'cc')
 d{to}      Delete the text object(Start at the cursor position)
 dd         Delete the current line
 D          Delete characters from the cursor to the end of the line (Alias for 'd$')
+d^         Delete characters from the cursor to the begining of the line
+d/{pt}     Delete characters forward until match pattern {pt} is found(not inclusive)
+dn         Delete characters forward until the next match pattern is found(not inclusive)
+dL         Delete characters to the last line on the screen
+dG         Delete characters from the cursor to the end of the buffer
 
 x          Delete character under the cursor
 X          Delete character before the cursor
-
-{rg}p      Put the text from the register after the cursor(It's a PASTE)
-p          Put the text fromt the register "0 after the cursor
-
-{rg}P      Put the text from the register before the cursor(It's a PASTE)
-P          Put the text from the register "0 before the cursor
-
-{rg}y{to}  Yank(Copy) the text object to the register
-y{to}      Yank(Copy) the text object to the register "0
-yy         Yank(Copy) the current line(Alias for 'y$')
-Y          Yank(Copy) the current line(Alias for 'y$')
 
 .          Repeat the last command
 
@@ -348,11 +349,31 @@ U          Undo all edit on the current line
 xp         Swap 2 characters
 ~          Swap uppercase/lowercase
 g~~        Swap uppercase/lowercase for the whole line
+g~w        Switch the case a word
+guw        Change word to lowercase
+gUw        Change word to uppercase
 
 >>         Indent line on right side
 <<         Indent line on left side
 4>>        Indent right the 4 lines under the cursor
 
+[CTRL]+A   Increment the number under the cursor
+[CTRL]+X   Decrement the number under the cursor
+```
+
+### /- Copying commands -\
+
+```
+{rg}p      Put the text from the register after the cursor(It's a PASTE)
+p          Put the text fromt the register "0 after the cursor
+
+{rg}P      Put the text from the register before the cursor(It's a PASTE)
+P          Put the text from the register "0 before the cursor
+
+{rg}y{to}  Yank(Copy) the text object to the register
+y{to}      Yank(Copy) the text object to the register "0
+yy         Yank(Copy) the current line(Alias for 'y$')
+Y          Yank(Copy) the current line(Alias for 'y$')
 ```
 
 ### /- Single Movements -\
@@ -518,13 +539,18 @@ Use the shell command `$ od -c` to get all special key code from the system
 ```
 :e <FILENAME>             Open/Edit a file
 :e!                       Reload Current file
-:q                        Exit VIM
+:e +<FILENAME>            Begin editing at the end of the file
+:e +{n} <FILENAME>        Begin editing at line {n}
+:q                        Close the current buffer, if it's the only buffer exit VIM
+:qa                       Close all buffer and exit
 :q!                       Force exit without saving
 :w                        Save current buffer
+:wa                       Save all buffers
 :w <FILENAME>             Save current buffer in a new file
 :{n},{n}w <FILENAME>      Save the current range in a new file
 :{n},{n}w >> <FILENAME>   Save the current range to the end of <FILENAME> (APPEND)
 :w! <FILENAME>            Save current buffer in an existing file
+:w %.new                  Save current buffer on a file with the name of current buffer(%) + '.new'
 :x                        Save current buffer and exit (LIKE 'ZZ' in COMMAND MODE)
 
 :read <FILENAME>          Append current buffer with the content of <FILENAME>
@@ -588,15 +614,16 @@ Use the shell command `$ od -c` to get all special key code from the system
 
 ```
 // EX MODE
-:!command                  General form to send 'command' to the system and display the result
+:!{sc}                     General form to send shell command {sc} to the system and display the result
+:{ra}!                     Send the content of the range {ra} to the shell command {sc}(like |)
 
 :!pwd                      Get the current directory
 :read !date                Append the result of 'date' command on the buffer
 
 
 // COMMAND MODE
-!{to}                      Pass the text object {to} to a command
-!{to}!                     Repeat last command on text object {to}
+!{to} {sc}                 Pass the text object {to} to the shell command {sc}
+!{to}!                     Repeat last shell command on text object {to}
 
 !!awk '<AWK_SCRIPT>'<cr>   Give the current line as argument to system command 'awk' with '!!'
 ```
@@ -744,13 +771,64 @@ q               Stop macro recording
 
 ## -[ INSERT MODE ]-
 
+For more information about special keys for INSERT MODE, check `:help ins-special-keys`
+
 ```
-ESC        Exit INSERT MODE
+ESC                     Exit INSERT MODE
+[CTRL]+C                Exit INSERT MODE
 
-[CTRL]+T   Increment indentation level for the whole line
-[CTRL]+D   Decrement indentation level for the whole line
+[CTRL]+O                Execute one command, return to INSERT MODE
+```
 
-[CTRL]+U   Erase all characters on the line before the cursor
+### /- Insert / Delete -\
+
+```
+[CTRL]+H                Delete the character before the cursor(<BS>)
+[CTRL]+J                Begin a new line(<Enter>)
+[CTRL]+I                Insert a <Tab>
+
+[CTRL]+K {ch} {ch}      Insert non-ASCII character, for more information check ':help digraph'
+[CTRL]+V {sk}           Insert the litteral for the special key {sk}
+[CTRL]+Q {sk}           Insert the litteral for the special key {sk}
+
+[CTRL]+A                Insert previously inserted text
+
+[CTRL]+T                Increment indentation level for the whole line
+[CTRL]+D                Decrement indentation level for the whole line
+
+[CTRL]+U                Delete all characters on the line before the cursor
+
+[CTRL]+W                Delete the word before the cursor
+
+[CTRL]+N                Find next keyword(completion)
+[CTRL]+P                Find previous keyword(completion)
+[CTRL]+X                Completion mode, check ':help i_CTRL-X' for more information
+
+[CTRL]+R {rg}           Insert the content of the register {rg}
+[CTRL]+R [CTRL]+R {rg}  Insert the content of the register {rg} literally(Without special character interpollation)
+[CTRL]+R [CTRL]+O {rg}  Insert the content of the register {rg} literally but without indentation
+[CTRL]+R [CTRL]+P {rg}  Insert the content of the register {rg} literally but with auto-indentation
+
+[CTRL]+E                Insert the character of the line below the cursor
+[CTRL]+Y                Insert the character of the line above the cursor
+```
+
+### /- Motions -\
+
+```
+[CTRL]+G <up>           Goto to the begining of the line up
+[CTRL]+G <down>         Goto to the begining of the line down
+
+[CTRL]+<left>           Goto one word back
+[SHIFT]+<left>          Goto one word back
+[CTRL]+<right>          Goto one word front
+[SHIFT]+<right>         Goto one word front
+
+[CTRL]+<home>           Goto the begining of the buffer
+[CTRL]+<end>            Goto the end of the buffer
+
+[SHIFT]+<up>            Goto one screen up
+[SHIFT]+<down>          Goto one screen down
 ```
 
 # VIM FOR DEVELOPMENT
@@ -874,27 +952,27 @@ For more information check `:help ins-completion`
 #### INSERT MODE
 
 ```
-[CTRL]+n                Next completion
-[CTRL]+p                Previous completion
+[CTRL]+N                Next completion
+[CTRL]+P                Previous completion
 
-All specifics completion commands start with [CTRL]+x
+All specifics completion commands start with [CTRL]+X
 
-[CTRL]+x [CTRL]+l       Line
-[CTRL]+x [CTRL]+f       Filename
-[CTRL]+x [CTRL]+i       Included files
-[CTRL]+x [CTRL]+d       Definition
+[CTRL]+X [CTRL]+L       Line
+[CTRL]+X [CTRL]+F       Filename
+[CTRL]+X [CTRL]+I       Included files
+[CTRL]+X [CTRL]+D       Definition
 
-[CTRL]+x [CTRL]+n       Current file forwards
-[CTRL]+x [CTRL]+p       Current file backwards
-[CTRL]+x [CTRL]+k       Dictionary
-[CTRL]+x [CTRL]+t       Thesaurus
-[CTRL]+x [CTRL]+]       Tag
-[CTRL]+x [CTRL]+v       VIM commands
-[CTRL]+x [CTRL]+u       User defined
-[CTRL]+x [CTRL]+o       Omni
-[CTRL]+x [CTRL]+s       Spelling suggestions
+[CTRL]+X [CTRL]+N       Current file forwards
+[CTRL]+X [CTRL]+P       Current file backwards
+[CTRL]+X [CTRL]+K       Dictionary
+[CTRL]+X [CTRL]+T       Thesaurus
+[CTRL]+X [CTRL]+]       Tag
+[CTRL]+X [CTRL]+V       VIM commands
+[CTRL]+X [CTRL]+U       User defined
+[CTRL]+X [CTRL]+O       Omni
+[CTRL]+X [CTRL]+S       Spelling suggestions
 
-[CTRL]+x [CTRL]+z       Stop completion
+[CTRL]+X [CTRL]+Z       Stop completion
 ```
 
 ### /- Syntax Highlighting -\
@@ -1265,6 +1343,7 @@ All windows command are prefixed with **[CTRL]+W**
 :{n}split                             Split current window in 2 with {n} lines, Horizontal split
 :{n}vsplit                            Split current window in 2 with {n} columns, Vertical split
 :new                                  Create a new window and split horizontally
+:new <FILENAME>                       Create a new window and load <FILENAME>
 :vnew                                 Create a new window and split vertically
 :sview                                Split current window in 2 but the new window is in read-only mode(view)
 :sfind <FILENAME>                     Split horizontally only if the <FILENAME> exist
@@ -1378,14 +1457,14 @@ vim -b <FILENAME>
 
 AKA **Digraph**
 
-Check the disgraph table with: `:help digraph-table`
+Check the digraph table with: `:help digraph-table`
 
-Digraph is used on _INSERT MODE_ with **[CTRL]+k** and a combination of one character and one Metacharacter
+Digraph is used on _INSERT MODE_ with **[CTRL]+K** and a combination of one character and one Metacharacter
 
 **Example:**
 
-You want to write 'É', you have to use `[CTRL]+k E,`
-You want to write 'π', you have to use `[CTRL]+k p*`
+You want to write 'É', you have to use `[CTRL]+K E,`
+You want to write 'π', you have to use `[CTRL]+K p*`
 
 ### -[ Digraph metacharacters ]-
 
@@ -1510,6 +1589,14 @@ You can also use **session** for specific environment backup.
 q:                              Open window command history
 q/                              Open window forward search history
 q?                              Open window backward search history
+
+g                               Start many multiple character commands in VIM(Check ':help g')
+
+K                               Open the man page with the word under the cursor
+
+[CTRL]+O                        Return to the previous jump
+[CTRL]+T                        Return to the previous location in the tag stack
+[CTRL]+]                        Goto the tag under the cursor
 ```
 
 ### /- Shell -\
