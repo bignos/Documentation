@@ -3,7 +3,7 @@
 </h1>
 
 <p align="center">
-![Neovim logo](https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Neovim-mark-flat.svg/489px-Neovim-mark-flat.svg.png "Neovim logo")
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Neovim-mark-flat.svg/489px-Neovim-mark-flat.svg.png" alt="Neovim logo" title="Neovim logo">
 </p>
 
 ---
