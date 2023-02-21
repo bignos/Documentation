@@ -3,7 +3,7 @@
 </h1>
 
 <p align="center">
-![Neovim Logo](https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Neovim-mark-flat.svg/489px-Neovim-mark-flat.svg.png?20150131093814)
+![Neovim logo](https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Neovim-mark-flat.svg/489px-Neovim-mark-flat.svg.png?20150131093814 "Neovim logo")
 </p>
 
 ---
