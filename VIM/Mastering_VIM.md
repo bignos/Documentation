@@ -1,6 +1,6 @@
-<p align="center">
+<p align="center"><h1>
                                  Mastering VIM
-</p>
+</h1></p>
 
 ---
 
