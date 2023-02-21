@@ -1,4 +1,4 @@
-**<p style="text-align: center;">Mastering VIM</p>**
+<p style="text-align: center;">Mastering VIM</p>
 
 ---
 
