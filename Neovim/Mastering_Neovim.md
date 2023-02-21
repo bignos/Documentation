@@ -1,5 +1,5 @@
 <h1 align="center">
-                                 Mastering VIM
+                                 Mastering Neovim
 </h1>
 
 <p align="center">
@@ -10,6 +10,7 @@
 
 ## -[ Links ]-
 
+- [Neovim](https://neovim.io/)
 - [VIM FAQ](https://vimhelp.org/vim_faq.txt.html)
 - [VIM TIPS WIKI](https://vim.fandom.com/wiki/Vim_Tips_Wiki)
 
@@ -991,7 +992,6 @@ For list and description of all **Highlight groups** check `:help highlight-grou
 #### EX MODE
 
 ```
-:syntax enable          Enable syntax mode
 :syntax on              Enable syntax highlighting
 
 :set syntax={lg}        Set syntax highlighting for a specific language{lg}
@@ -1686,5 +1686,3 @@ Check [Top 10 Vim Plugins for Writers](https://tomfern.com/posts/vim-for-writers
 | [**vim-textobj-sentence**](https://github.com/reedes/vim-textobj-sentence) | Better sentence navigation                                                                                             |
 | [**vim-textobj-quote**](https://github.com/reedes/vim-textobj-quote)       | Smartly creates quotes                                                                                                 |
 | [**ALE**](https://github.com/dense-analysis/ale)                           | Supports a bunch of style checkers like [proselint](http://proselint.com) and [LanguageTool](https://languagetool.org) |
-
-[Top of the page](#--links--)
