@@ -8,7 +8,7 @@
 
 ---
 
-## -[ Links ]-
+## -[ [Links] ]-
 
 - [VIM FAQ](https://vimhelp.org/vim_faq.txt.html)
 - [VIM TIPS WIKI](https://vim.fandom.com/wiki/Vim_Tips_Wiki)
