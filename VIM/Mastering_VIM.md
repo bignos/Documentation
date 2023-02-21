@@ -13,6 +13,34 @@
 - [VIM FAQ](https://vimhelp.org/vim_faq.txt.html)
 - [VIM TIPS WIKI](https://vim.fandom.com/wiki/Vim_Tips_Wiki)
 
+## -[ Abbreviations ]-
+
+- **{n}** Number
+- **{ch}** A character
+- **{CH}** An uppercase character
+- **{sk}** Special key (Like <BS>, <Return>, ..)
+- **{to}** Text Object
+- **{rg}** Register
+- **{nrg}** Named Register
+- **{pt}** Regular expression pattern
+- **{rpt}** Replacement expression pattern
+- **{rm}** Regular expression modifier
+- **{ec}** EX command
+- **{fn}** Function name
+- **{tg}** Tag
+- **{ra}** Range
+- **{pl;}** Path list(with separator ';')
+- **{pl,}** Path list(with separator ',')
+- **{lg}** Language
+- **{li}** Lang ISO CODE (ex: 'en_us')
+- **{cs}** Color scheme
+- **{cl}** Color
+- **{hg}** Highlight group
+- **{hs}** Highlight setting
+- **{sc}** Shell command
+- **{fp}** Files pattern
+- **{wd}** Word
+
 ## -[ COMMAND LINE ]-
 
 ```
@@ -84,34 +112,6 @@ For more information about command line arguments check `:help cli-arguments`
 | -W <FILENAME> | Write all typed commands from the current session to the specified scriptfile <FILENAME><br> The file thus created can be used with the -s option                                                                                                                                                                                          |
 | -y            | Modeless vi; run VIM in insert mode only, without a command mode<br> This is the same as invoking VIM as `evim`                                                                                                                                                                                                                            |
 | -Z            | Start VIM in restricted mode<br> Do not allow shell commands or suspension of the editor                                                                                                                                                                                                                                                   |
-
-## -[ Abbreviations ]-
-
-- **{n}** Number
-- **{ch}** A character
-- **{CH}** An uppercase character
-- **{sk}** Special key (Like <BS>, <Return>, ..)
-- **{to}** Text Object
-- **{rg}** Register
-- **{nrg}** Named Register
-- **{pt}** Regular expression pattern
-- **{rpt}** Replacement expression pattern
-- **{rm}** Regular expression modifier
-- **{ec}** EX command
-- **{fn}** Function name
-- **{tg}** Tag
-- **{ra}** Range
-- **{pl;}** Path list(with separator ';')
-- **{pl,}** Path list(with separator ',')
-- **{lg}** Language
-- **{li}** Lang ISO CODE (ex: 'en_us')
-- **{cs}** Color scheme
-- **{cl}** Color
-- **{hg}** Highlight group
-- **{hs}** Highlight setting
-- **{sc}** Shell command
-- **{fp}** Files pattern
-- **{wd}** Word
 
 ## -[ General Form of VI commands ]-
 
@@ -1686,3 +1686,5 @@ Check [Top 10 Vim Plugins for Writers](https://tomfern.com/posts/vim-for-writers
 | [**vim-textobj-sentence**](https://github.com/reedes/vim-textobj-sentence) | Better sentence navigation                                                                                             |
 | [**vim-textobj-quote**](https://github.com/reedes/vim-textobj-quote)       | Smartly creates quotes                                                                                                 |
 | [**ALE**](https://github.com/dense-analysis/ale)                           | Supports a bunch of style checkers like [proselint](http://proselint.com) and [LanguageTool](https://languagetool.org) |
+
+[Top of the page](#links)
