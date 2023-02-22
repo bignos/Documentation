@@ -1690,7 +1690,7 @@ Use [VIM Awesome](https://vimawesome.com) to found a _plug-in_ according to your
 
 #### Writer plug-ins
 
-Check [Top 10 Vim Plugins for Writers](https://tomfern.com/posts/vim-for-writers) for more informations
+Check [Top 10 Vim Plugins for Writers](https://medium.com/@x.line/best-vim-plugins-for-writers-ranked-ab13d8d72cce) for more informations
 
 | Plug-in                                                                    | Description                                                                                                            |
 | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
