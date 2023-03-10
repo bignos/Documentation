@@ -7,7 +7,7 @@
 </p>
 
 ---
-<!-- vim-markdown-toc GFM -->
+<!-- vim-markdown-toc GitLab -->
 
 * [References](#references)
     * [Links](#links)
@@ -48,7 +48,7 @@
             * [Map](#map)
             * [Macro](#macro)
     * [INSERT MODE](#insert-mode)
-        * [Insert / Delete](#insert--delete)
+        * [Insert / Delete](#insert-delete)
         * [Motions](#motions)
 * [VIM FOR DEVELOPMENT](#vim-for-development)
     * [NORMAL MODE](#normal-mode-1)
