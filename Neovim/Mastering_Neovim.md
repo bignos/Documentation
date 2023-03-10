@@ -14,18 +14,23 @@
 * [References](#references)
     * [Links](#links)
     * [Abbreviations](#abbreviations)
+    * [Grandfather VI](#grandfather-vi)
     * [COMMAND LINE](#command-line)
         * [Options](#options)
+    * [Startup](#startup)
+    * [Environment variables](#environment-variables)
     * [General Form of VI commands](#general-form-of-vi-commands)
-    * [TEXT OBJECT](#text-object)
-    * [REGISTER](#register)
-    * [Marker](#marker)
-    * [Regular expression metacharacters](#regular-expression-metacharacters)
-        * [Regular expression character class](#regular-expression-character-class)
+    * [Text object](#text-object)
+    * [Pattern](#pattern)
         * [Regular expression delimiter](#regular-expression-delimiter)
+        * [Regular expression metacharacters](#regular-expression-metacharacters)
+        * [Regular expression character class](#regular-expression-character-class)
         * [POSIX character classes](#posix-character-classes)
-    * [Regular expression modifier](#regular-expression-modifier)
-* [Usage](#usage)
+        * [Regular expression modifier](#regular-expression-modifier)
+    * [Help](#help)
+        * [Usage](#usage)
+        * [Navigation](#navigation)
+* [Usage](#usage-1)
     * [NORMAL MODE](#normal-mode)
         * [Edit commands](#edit-commands)
         * [Copying commands](#copying-commands)
@@ -45,85 +50,79 @@
         * [Shell command](#shell-command)
     * [FULL EX MODE](#full-ex-mode)
         * [FULL EX MODE Examples](#full-ex-mode-examples)
-        * [Saving Commands](#saving-commands)
-            * [Abbreviation](#abbreviation)
-            * [Map](#map)
-            * [Macro](#macro)
     * [INSERT MODE](#insert-mode)
         * [Insert / Delete](#insert-delete)
         * [Motions](#motions)
+    * [VISUAL MODE](#visual-mode)
+* [Concepts](#concepts)
+    * [Register](#register)
+    * [Marker](#marker)
+    * [Buffers](#buffers)
+        * [Status flags](#status-flags)
+        * [Special buffers](#special-buffers)
+    * [Abbreviation](#abbreviation)
+    * [Map](#map)
+    * [Macro](#macro)
+    * [Windows](#windows)
+        * [NORMAL MODE](#normal-mode-1)
+            * [Opening and closing window](#opening-and-closing-window)
+            * [Moving to other windows](#moving-to-other-windows)
+            * [Moving windows](#moving-windows)
+            * [Window resizing](#window-resizing)
+            * [Windows and Tags](#windows-and-tags)
+        * [EX MODE](#ex-mode-1)
+            * [Settings](#settings)
+            * [Commands](#commands)
+    * [Tabs](#tabs)
+        * [NORMAL MODE](#normal-mode-2)
+        * [EX MODE](#ex-mode-2)
 * [VIM FOR DEVELOPMENT](#vim-for-development)
-    * [NORMAL MODE](#normal-mode-1)
-    * [EX MODE](#ex-mode-1)
+    * [NORMAL MODE](#normal-mode-3)
+    * [EX MODE](#ex-mode-3)
         * [Tags](#tags)
         * [Folding and Outlining](#folding-and-outlining)
-            * [NORMAL MODE](#normal-mode-2)
-            * [EX MODE](#ex-mode-2)
+            * [NORMAL MODE](#normal-mode-4)
+            * [EX MODE](#ex-mode-4)
             * [Options](#options-1)
         * [Auto and smart indenting](#auto-and-smart-indenting)
             * [Options](#options-2)
         * [Word completion](#word-completion)
             * [INSERT MODE](#insert-mode-1)
         * [Syntax Highlighting](#syntax-highlighting)
-            * [EX MODE](#ex-mode-3)
-        * [Compiling](#compiling)
-            * [EX MODE](#ex-mode-4)
-        * [Quickfix list window](#quickfix-list-window)
             * [EX MODE](#ex-mode-5)
-* [VIM SPECIFIC](#vim-specific)
-    * [COMMAND LINE](#command-line-1)
-        * [Specific command line VIM options](#specific-command-line-vim-options)
-            * [Remote configuration example](#remote-configuration-example)
-    * [Environment variables](#environment-variables)
-    * [NORMAL MODE](#normal-mode-3)
-        * [Movements](#movements)
-    * [EX MODE](#ex-mode-6)
-        * [Buffers](#buffers)
-            * [Status flags](#status-flags)
-            * [Special buffers](#special-buffers)
-    * [VISUAL MODE](#visual-mode)
-    * [Multiple Windows](#multiple-windows)
-        * [NORMAL MODE](#normal-mode-4)
-            * [Opening and closing window](#opening-and-closing-window)
-            * [Moving to other windows](#moving-to-other-windows)
-            * [Moving windows](#moving-windows)
-            * [Window resizing](#window-resizing)
-            * [Windows and Tags](#windows-and-tags)
-        * [EX MODE](#ex-mode-7)
-            * [Settings](#settings)
-            * [Commands](#commands)
-    * [Tabs](#tabs)
-        * [NORMAL MODE](#normal-mode-5)
-        * [EX MODE](#ex-mode-8)
+        * [Compiling](#compiling)
+            * [EX MODE](#ex-mode-6)
+        * [Quickfix list window](#quickfix-list-window)
+            * [EX MODE](#ex-mode-7)
 * [VIM Script](#vim-script)
 * [VIM Tools](#vim-tools)
     * [Terminal](#terminal)
     * [Spellchecking](#spellchecking)
-        * [NORMAL MODE](#normal-mode-6)
-        * [EX MODE](#ex-mode-9)
+        * [NORMAL MODE](#normal-mode-5)
+        * [EX MODE](#ex-mode-8)
     * [Binary files](#binary-files)
-        * [Command line](#command-line-2)
-        * [EX MODE](#ex-mode-10)
+        * [Command line](#command-line-1)
+        * [EX MODE](#ex-mode-9)
     * [Non ASCII Characters](#non-ascii-characters)
         * [Digraph metacharacters](#digraph-metacharacters)
     * [Edit files over network](#edit-files-over-network)
-        * [Command line](#command-line-3)
-        * [EX MODE](#ex-mode-11)
+        * [Command line](#command-line-2)
+        * [EX MODE](#ex-mode-10)
     * [Changing directories](#changing-directories)
-        * [EX MODE](#ex-mode-12)
+        * [EX MODE](#ex-mode-11)
     * [Backup](#backup)
-        * [EX MODE](#ex-mode-13)
+        * [EX MODE](#ex-mode-12)
     * [Convert to HTML](#convert-to-html)
-        * [EX MODE](#ex-mode-14)
+        * [EX MODE](#ex-mode-13)
     * [Environment backup](#environment-backup)
-        * [EX MODE](#ex-mode-15)
+        * [EX MODE](#ex-mode-14)
     * [Lines settings](#lines-settings)
-        * [EX MODE](#ex-mode-16)
+        * [EX MODE](#ex-mode-15)
     * [Tips](#tips)
-        * [NORMAL MODE](#normal-mode-7)
+        * [NORMAL MODE](#normal-mode-6)
         * [Shell](#shell)
             * [Shell VI NORMAL MODE](#shell-vi-normal-mode)
-        * [EX MODE](#ex-mode-17)
+        * [EX MODE](#ex-mode-16)
 * [Extend VIM](#extend-vim)
     * [Plug-ins](#plug-ins)
         * [Populars Plug-ins](#populars-plug-ins)
@@ -140,6 +139,8 @@
 - [Neovim](https://neovim.io/)
 - [VIM FAQ](https://vimhelp.org/vim_faq.txt.html)
 - [VIM TIPS WIKI](https://vim.fandom.com/wiki/Vim_Tips_Wiki)
+- [OpenVIM](https://www.openvim.com/)
+- [VIM adventure](https://vim-adventures.com/)
 
 ## Abbreviations
 
@@ -168,6 +169,12 @@
 - **{sc}** Shell command
 - **{fp}** Files pattern
 - **{wd}** Word
+
+## Grandfather VI
+
+To get more information about the difference between VI and VIM check `:help vi-differences`
+
+To get more information about the difference between VIM and Neovim check `:help *vim-differences`
 
 ## COMMAND LINE
 
@@ -246,14 +253,26 @@ For more information about command line arguments check `:help cli-arguments`
 | --headless            | Start without UI                                                                                                    |
 | --listen {addr}       | Start RPC server on pipe or TCP address {addr}                                                                      |
 
+
+## Startup
+
+Check `:help startup` for up to date information about Neovim Startup
+
+## Environment variables
+
+| Variable | Description                                                                                                                                                                                                                             |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| VIMINIT  | VIM execute its content as an EX command(_This is the first configuration entry_)                                                                                                                                                       |
+| EXINIT   | VIM execute its content as an EX command(_This is the second configuration entry, executed only if VIMINIT is empty_)                                                                                                                   |
+| MYVIMRC  | Overrides Vim’s search for initialization files. If MYVIMRC has a value when starting, Vim assumes the value is the name of an initialization file and, if the file exists, takes initial settings from it. No other file is consulted. |
+| SHELL    | Define the shell or external command interpreter vim had to use                                                                                                                                                                         |
+
 ## General Form of VI commands
 
 - (command)(number)(text object)
 - (number)(command)(text object)
 
----
-
-## TEXT OBJECT
+## Text object
 
 For more information about _Text objects_ check `:help text-objects`
 
@@ -285,39 +304,15 @@ T{ch}       After the previous occurrence of character {ch} on the current line
 []			sections backward or to the previous "}" in the first column
 ```
 
-## REGISTER
+## Pattern
 
-```
-"{n}        Numbered register[1-9], the last nine deletions, from most to least recent
-"{ch}       Named register[a-z], use like user clipboard
-"{CH}       Named register, but when you use uppercase character, you append the register(Accumulator)
-```
+### Regular expression delimiter
 
-## Marker
+> Besides the **/** character, you may use any non alphanumeric, non space character as your delimiter.
+>
+> EXCEPT **\\**, **"** or **\|**
 
-**Tips**: To get the char '`' you have to press the key twice
-
-```
-m{ch}       Mark the current position with {ch}
-
-'{ch}       Goto the first character of the line marked by {ch}
-''          Goto the first character of the line marked by the previous mark or context
-
-`{ch}       Goto the position of the mark {ch}
-``          Goto the position of the previous mark or context
-
-`[          Goto the begining of the previous text operation
-`]          Goto the end of the previous text operation
-
-']          Goto the line of the previous text operation
-
-`.          Goto the last change in the buffer
-'.          Goto the last line changed in the buffer
-
-:marks      List active marks
-```
-
-## Regular expression metacharacters
+### Regular expression metacharacters
 
 For more information check `:help regexp`
 
@@ -390,12 +385,6 @@ For more information check `:help regexp`
 | \\X             | Non hexadecimal digit: same as \[^0-9A-Fa-f]                                                              |
 | \\\_x           | Where x is any of the previous characters above: match the same character class but with newline included |
 
-### Regular expression delimiter
-
-> Besides the **/** character, you may use any non alphanumeric, non space character as your delimiter.
->
-> EXCEPT **\\**, **"** or **\|**
-
 ### POSIX character classes
 
 | Class      | Matching characters                                                 |
@@ -413,7 +402,7 @@ For more information check `:help regexp`
 | [:upper:]  | Uppercase characters                                                |
 | [:xdigit:] | Hexadecimal digits                                                  |
 
-## Regular expression modifier
+### Regular expression modifier
 
 ```
 :help s_flags   VIM documentation about all Regular expression modifier
@@ -427,19 +416,40 @@ i               Ignore case
 &               Use previous regular expression modifier, you have to use ':&&' before to save old modifier
 ```
 
+## Help
+
+### Usage
+
+```
+:help             Help introduction to use Neovim
+:help <subject>   Help for the subject in parameter
+:h <subject>      Help for the subject in parameter
+```
+
+### Navigation
+
+```
+[CTRL]+]   Goto mark under the cursor
+[CTRL]+O   Goto previous position
+```
+
 # Usage
 
 ## NORMAL MODE
 
 ```
-:   EX MODE
-gQ  FULL EX MODE
+:          EX MODE
+gQ         FULL EX MODE
 
-i   INSERT MODE
+i          INSERT MODE
 
-ZZ  Save and exit
+v          VISUAL MODE
+V          VISUAL MODE Line
+[CTRL]+v   VISUAL MODE Vertical
 
-&   Repeat the last substitution
+ZZ         Save and exit
+
+&          Repeat the last substitution
 ```
 
 ### Edit commands
@@ -534,11 +544,15 @@ $     End of the line
 ### Buffer Movements
 
 ```
-gg    Move to the first line of the buffer
-G     Move to the last line of the buffer
+gg              Move to the first line of the buffer
+G               Move to the last line of the buffer
+[CTRL]+<end>    Goto the last character of the file
+[CTRL]+<home>   Goto the first character of the file
 
-{n}G  Goto line {n}
-:{n}  Goto line {n}
+{n}G            Goto line {n}
+{n}%            Goto the {n} percentage of the file
+:{n}            Goto line {n}
+:go {n}         Goto the {n} byte in the file
 ```
 
 ### Block Movements
@@ -719,6 +733,10 @@ Use the shell command `$ od -c` to get all special key code from the system
 :g/{pt}/ {ec}             Global search, apply the EX command {ex} on all lines that match the pattern {pt}
 
 :preserve                 Force the system to save the buffer(not the file)
+
+:undo                     Undo the last command
+:redo                     Redo the last command
+:help usr_32.txt          More information about how to navigate changes as a tree
 ```
 
 ### Filename shortcut
@@ -730,25 +748,33 @@ Use the shell command `$ od -c` to get all special key code from the system
 
 ### The :set Command
 
+If you want more information about the `:set` command check `:help options`
+If you want more details about Neovim options check `:help option-list`
+
 ```
-:set option               Set general form to enable an option
-:set nooption             Set general form to disable an option
-:set option!              Set general form to toggle(on/off) an option
-:set option?              Set general form to get the name of the option
+:set option           Set general form to enable an option
+:set nooption         Set general form to disable an option
+:set option!          Set general form to toggle(on/off) an option
+:set option?          Set general form to get the name of the option
 
-:set                      Show all options that you have specifically changed
-:set all                  Show all active options
+:set                  Show all options that you have specifically changed
+:set all              Show all active options
 
-:set number               Display line number
-:set nu                   Display line number
-:set nonu                 Hide line number
-:set nu!                  Toggle display/hide line number
+:set number           Display line number
+:set nu               Display line number
+:set nonu             Hide line number
+:set nu!              Toggle display/hide line number
 
-:set nowrapscan           Stop search at the bottom(/{pt} or n) or at the top(?{pt} or N)
-:set edcompatible         Record last regular expression modifier and use it for the next substitution
+:set nowrapscan       Stop search at the bottom(/{pt} or n) or at the top(?{pt} or N)
+:set edcompatible     Record last regular expression modifier and use it for the next substitution
 
-:set ic                   Enable 'ignore case', search patern must ignore case
-:set noic                 Disable 'ignore case', search patern are case sensitive
+:set ic               Enable 'ignore case', search patern must ignore case
+:set noic             Disable 'ignore case', search patern are case sensitive
+
+:set compatible       Remove all specific VIM feature(VI pure compatibility)
+:set incsearch        Activate incremental search(Move directly on the buffer as you type on the keyboard)
+
+:set undolevels={n}   Define the number of undoable changes you can make in an editing session
 ```
 
 ### Shell command
@@ -850,65 +876,6 @@ Use the shell command `$ od -c` to get all special key code from the system
 :1,10g/^/ 3,4 t $                        Repeat 10 times the copy (t) of lines 3 and 4 at the end of the buffer
 ```
 
-### Saving Commands
-
-#### Abbreviation
-
-> Abbreviations are for **INSERT MODE**
-
-```
-:ab abbreviation string    General form to declare an abbreviation.
-
-:ab mov Master of VIM      Now in Insert mode if you tape 'mov ' VIM change it for 'Master of VIM'
-:unab mov                  Remove the 'mov' abbreviation
-
-:ab 123 One^MTwo^MTree     Use of cariage return(^M) into an abbreviation
-
-:ab                        List all abbreviations
-```
-
-#### Map
-
-> map is for **NORMAL MODE**
-> map! is for **INSERT MODE**
-
-```
-:map x sequence                                  General form to declare a map(shortcut). Define character 'x' as a sequence of editing commands.
-:map #1 sequence                                 General form to declare a map(shortcut). Define [F1] as a sequence of editing commands.
-:unmap x                                         General form to unset the map(shortcut) for 'x'
-
-:map x dwElp                                     Define 'x' to swap 2 words (not perfect example)
-:map x I<Root>^M^I<Node>^[ea</Node>^M</Root>^[   Define 'x' to encapsulate a word with a Root/Node XML structure
-:map x I/* ^[A */^[                              Define 'x' to add '/*' '*/' around a line
-:map x :s;.*;/* & */;^M                          Define 'x' to add '/*' '*/' around a line
-
-:let mapleader="`"                               Define '`' as the leader key
-:map <leader>a :q<cr>                            Define leader + 'a' to execute :q[ENTER] (quit)
-
-:map! x sequence                                 General form to declare a map(shortcut) but for INSERT MODE
-:unmap! x                                        General form to unset the map(shortcut) for INSERT MODE
-:map! + ^[lbi<U>^[ea</U>                         Define '+' to surround a word with <U> </U> on INSERT MODE
-
-:map                                             List all maps for NORMAL MODE
-:map!                                            List all maps for INSERT MODE
-
-:help :map-mode                                  Help about all map mode (map, noremap, map!, unmap)
-```
-
-#### Macro
-
-To use macro you have to use **Named register**.  
-Save the commands sequence on a **Named register**.  
-Call the sequence with **@{nrg}**.  
-You can repeat the last macro with **@@**.
-
-```
-q{nrg}          Start macro recording for named register {nrg}
-q               Stop macro recording
-@{nrg}          Execute macro from named register {nrg}
-
-```
-
 ## INSERT MODE
 
 For more information about special keys for INSERT MODE, check `:help ins-special-keys`
@@ -969,6 +936,344 @@ ESC                     Exit INSERT MODE
 
 [SHIFT]+<up>            Goto one screen up
 [SHIFT]+<down>          Goto one screen down
+```
+
+## VISUAL MODE
+
+**a** for Around  
+**i** for Inner
+
+Movement general form:
+
+> `{n} a|i {to}` Add {n} {to} around or inner
+
+```
+{n}aw | {n}aW   Add {n} word on the selection
+{n}iw | {n}iW   Add {n} inner word on the selection(White space count as a word)
+as    | is      Add a sentence(a) or an inner(i) sentence on the selection
+ap    | ip      Add a paragraph or an inner paragraph on the selection
+
+a'    | i'    Add the content of the ' block on the selection
+a"    | i"    Add the content of the " block on the selection
+a`    | i`    Add the content of the ` block on the selection
+a{    | i{    Add the content of the { block on the selection
+a[    | i[    Add the content of the [ block on the selection
+a(    | i(    Add the content of the ( block on the selection
+a<    | i<    Add the content of the < block on the selection
+```
+
+# Concepts
+
+## Register
+
+```
+"{n}        Numbered register[1-9], the last nine deletions, from most to least recent
+"{ch}       Named register[a-z], use like user clipboard
+"{CH}       Named register, but when you use uppercase character, you append the register(Accumulator)
+```
+
+## Marker
+
+**Tips**: To get the char '`' you have to press the key twice
+
+```
+m{ch}       Mark the current position with {ch}
+
+'{ch}       Goto the first character of the line marked by {ch}
+''          Goto the first character of the line marked by the previous mark or context
+
+`{ch}       Goto the position of the mark {ch}
+``          Goto the position of the previous mark or context
+
+`[          Goto the begining of the previous text operation
+`]          Goto the end of the previous text operation
+
+']          Goto the line of the previous text operation
+
+`.          Goto the last change in the buffer
+'.          Goto the last line changed in the buffer
+
+:marks      List active marks
+```
+
+## Buffers
+
+```
+:ls                   List the buffers
+:ls!                  List all buffers of all VIM instance
+:buffers              List the buffers
+:files                List the buffers
+
+:cwindow              Open error window (quickfix)
+:lwindow              Open location window
+
+:windo {ec}           Execute EX command {ec} on all windows
+:bufdo {ec}           Execute EX command {ec} on all buffers
+
+:ball                 Edit all args or buffers
+:sball                Edit all args or buffers and open them in new windows
+:unhide               Edit all loaded buffer
+:sunhide              Edit all loaded buffer and open them in new windows
+
+:badd <FILENAME>      Add file to the buffer list
+:bunload              Unload current buffer
+:bdelete              Unload current buffer and delete from the buffer list
+:buffer {n}           Load buffer {n}
+:sbuffer {n}          Load buffer {n} in a new window
+:bnext                Move to the next buffer
+:bnext {n}            Move to the {n}th next buffer
+:sbnext {n}           Load the {n}th next buffer in a new window
+:bNext                Move to previous buffer
+:bprevious            Move to previous buffer
+:bNext {n}            Move to the {n}th previous buffer
+:sbNext {n}           Load the {n}th previous buffer in a new window
+:blast                Move to the last buffer
+:sblast               Load the last buffer in a new window and split horizontally
+:vertical sblast      Load the last buffer in a new window and split vertically
+:bmod {n}             Move to the {n}th modified buffer
+:sbmod {n}            Load to the {n}th modified buffer in a new window
+
+:stag {tg}            Load the file that containt the tag{tg} definition in a new window
+```
+
+### Status flags
+
+| Code   | Description                                                                                                                                                                                                                                                                                        |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| u      | Unlisted buffer. This buffer is not listed unless you use the ! modifier. To see an example of an unlisted buffer, type :help. Vim splits the current window to include a new window in which the built-in help appears. The plain :ls command will not show the help buffer, but :ls! includes it |
+| % or # | % is the buffer for the current window. # is the buffer to which you would switch with the :edit # command. These are mutually exclusive                                                                                                                                                           |
+| a or h | a indicates an active buffer. That means the buffer is loaded and visible. h indicates a hidden buffer. The hidden buffer exists but is not visible in any window. These are mutually exclusive                                                                                                    |
+| - or = | - indicates a buffer has the modifiable option turned off. The file is read-only. = is a read-only buffer that cannot be made modifiable (for instance, because you don’t have filesystem privileges to write to the file). These are mutually exclusive                                           |
+| + or x | + indicates a modified buffer. x is a buffer with read errors. These are mutually exclusive                                                                                                                                                                                                        |
+
+### Special buffers
+
+If you want more information check `:help special-buffers`
+
+- _directory_: List directory content (read-only buffer), when you type [ENTER], the file under the cursor is loaded
+- _help_: Show help buffer (read-only buffer)
+- _QuickFix_: Contains the list of errors created by your commands(View with `:cwindow` and for location `:lwindow`)
+- _scratch_: These buffers contain text for general purposes
+
+
+## Abbreviation
+
+> Abbreviations are for **INSERT MODE**
+
+```
+:ab abbreviation string    General form to declare an abbreviation.
+
+:ab mov Master of VIM      Now in Insert mode if you tape 'mov ' VIM change it for 'Master of VIM'
+:unab mov                  Remove the 'mov' abbreviation
+
+:ab 123 One^MTwo^MTree     Use of cariage return(^M) into an abbreviation
+
+:ab                        List all abbreviations
+```
+
+## Map
+
+> map is for **NORMAL MODE**
+> map! is for **INSERT MODE**
+
+```
+:map x sequence                                  General form to declare a map(shortcut). Define character 'x' as a sequence of editing commands.
+:map #1 sequence                                 General form to declare a map(shortcut). Define [F1] as a sequence of editing commands.
+:unmap x                                         General form to unset the map(shortcut) for 'x'
+
+:map x dwElp                                     Define 'x' to swap 2 words (not perfect example)
+:map x I<Root>^M^I<Node>^[ea</Node>^M</Root>^[   Define 'x' to encapsulate a word with a Root/Node XML structure
+:map x I/* ^[A */^[                              Define 'x' to add '/*' '*/' around a line
+:map x :s;.*;/* & */;^M                          Define 'x' to add '/*' '*/' around a line
+
+:let mapleader="`"                               Define '`' as the leader key
+:map <leader>a :q<cr>                            Define leader + 'a' to execute :q[ENTER] (quit)
+
+:map! x sequence                                 General form to declare a map(shortcut) but for INSERT MODE
+:unmap! x                                        General form to unset the map(shortcut) for INSERT MODE
+:map! + ^[lbi<U>^[ea</U>                         Define '+' to surround a word with <U> </U> on INSERT MODE
+
+:map                                             List all maps for NORMAL MODE
+:map!                                            List all maps for INSERT MODE
+
+:help :map-mode                                  Help about all map mode (map, noremap, map!, unmap)
+```
+
+## Macro
+
+To use macro you have to use **Named register**.  
+Save the commands sequence on a **Named register**.  
+Call the sequence with **@{nrg}**.  
+You can repeat the last macro with **@@**.
+
+```
+q{nrg}          Start macro recording for named register {nrg}
+q               Stop macro recording
+@{nrg}          Execute macro from named register {nrg}
+
+```
+
+## Windows
+
+For more information check `:help windows.txt`
+
+### NORMAL MODE
+
+All windows command are prefixed with **[CTRL]+W**
+
+#### Opening and closing window
+
+```
+[CTRL]+W s                Split current window in 2, Horizontal split
+[CTRL]+W v                Split current window in 2, Vertical split
+[CTRL]+W n                Create a new window and split horizontally
+
+[CTRL]+W ^                Split current window in 2 and edit the alternate file, Horizontal split
+
+[CTRL]+W q                Quit the current window
+[CTRL]+W c                Close the current window
+[CTRL]+W o                Close all window except the current one
+```
+
+#### Moving to other windows
+
+```
+[CTRL]+W j                Move to the next bottom window
+[CTRL]+W <down>           Move to the next bottom window
+
+[CTRL]+W k                Move to the next top window
+[CTRL]+W <up>             Move to the next top window
+
+[CTRL]+W h                Move to the next left window
+[CTRL]+W <left>           Move to the next left window
+
+[CTRL]+W l                Move to the next right window
+[CTRL]+W <right>          Move to the next right window
+
+[CTRL]+W w                Move to the next window (cycle)
+[CTRL]+W p                Move to the last accessed window
+
+[CTRL]+W t                Move to the top left window
+[CTRL]+W b                Move to the bottom right window
+
+```
+
+#### Moving windows
+
+```
+[CTRL]+W r                Rotate windows downwards/rightwards
+[CTRL]+W R                Rotate windows upwards/leftwards
+
+[CTRL]+W x                Exchange current window with the next one
+
+[CTRL]+W K            	  Move the current window to be at the very top
+[CTRL]+W J	              Move the current window to be at the very bottom
+[CTRL]+W H	              Move the current window to be at the far left
+[CTRL]+W L	              Move the current window to be at the far right
+[CTRL]+W T	              Move the current window to a new tab page.
+```
+
+#### Window resizing
+
+```
+[CTRL]+W =	              Make all windows (almost) equally high and wide
+[CTRL]+W _	              Set current window height to N (default: highest possible).
+[CTRL]+W |	              Set current window width to N (default: widest possible).
+[CTRL]+W -	              Decrease current window height by N (default 1)
+[CTRL]+W +	              Increase current window height by N (default 1)
+[CTRL]+W <	              Decrease current window width by N (default 1)
+[CTRL]+W >	              Increase current window width by N (default 1)
+
+{n}z[ENTER]               Set current window height to {n} lines
+```
+
+#### Windows and Tags
+
+```
+[CTRL]+W ]                Open a new window with the file that define the tag under the cursor (perform a ':tag')
+[CTRL]+W g ]              Open a new window with the list of the corresponding tag under the cursor(perform a ':tselect')
+[CTRL]+W g [CTRL]+]       Open a new window with the list of the corresponding tag under the cursor(perform a ':tjump')
+
+[CTRL]+W f                Open(if exist) the filename under the cursor in a new window(like 'gf')
+[CTRL]+W F                Open(if exist) the filename under the cursor and go to the line number (ex: '/a/b/myfile:82') in a new window(like 'gF')
+
+[CTRL]+W gf               Open(if exist) the filename under the cursor in a new tab(like 'gf')
+[CTRL]+W gF               Open(if exist) the filename under the cursor and go to the line number (ex: '/a/b/myfile:82') in a new tab(like 'gF')
+
+[CTRL]+W gt               Goto next tab
+[CTRL]+W gT               Goto previous tab
+```
+
+### EX MODE
+
+#### Settings
+
+```
+:set winheight={n}      Minimal number of line for the current window
+:set winwidth={n}       Minimal number of columns for the current window
+:set winminheight={n}   Minimal number of line for all windows
+:set winminwidth={n}    Minimal number of columns for all windows
+```
+
+#### Commands
+
+```
+:wincmd {ch}                          Send window command({ch}), exactly the same behaviour as [CTRL]+W in NORMAL MODE (ex: ':wincmd s' to split)
+
+:{n}split [++opt] [+cmd] <FILENAME>   General split command format
+:split                                Split current window in 2, Horizontal split
+:vsplit                               Split current window in 2, Vertical split
+:{n}split                             Split current window in 2 with {n} lines, Horizontal split
+:{n}vsplit                            Split current window in 2 with {n} columns, Vertical split
+:new                                  Create a new window and split horizontally
+:new <FILENAME>                       Create a new window and load <FILENAME>
+:vnew                                 Create a new window and split vertically
+:sview                                Split current window in 2 but the new window is in read-only mode(view)
+:sfind <FILENAME>                     Split horizontally only if the <FILENAME> exist
+
+:close                                Close the current window
+:hide                                 Hide the current window
+:only                                 Close all window except the current one
+
+:resize                               Set current window height to highest possible
+:resize -{n}                          Decrease current window height by {n} lines
+:resize +{n}                          Increase current window height by {n} lines
+:resize {n}                           Set current window height to {n} lines
+:vertical resize {n}                  Set current window width to {n} columns
+```
+
+## Tabs
+
+### NORMAL MODE
+
+```
+[CTRL]+<pagedown>   Goto the next tab
+gt                  Goto the next tab
+[CTRL]+<pageup>     Goto the previous tab
+gT                  Goto the previous tab
+
+[CTRL]+<tab>        Goto the last accessed tab
+g<tab>              Goto the last accessed tab
+```
+
+### EX MODE
+
+```
+:tabnew               Open a new tab
+:tabnew <FILENAME>    Open the file <FILENAME> in a new tab
+:tabedit <FILENAME>   Open the file <FILENAME> in a new tab
+
+:tabclose             Close the current tab
+
+:tabonly              Close all tabs except the current
+
+:tabnext              Goto the next tab
+:tabprevious          Goto the previous tab
+:tabNext              Goto the previous tab
+:tabfirst             Goto the first tab
+:tablast              Goto the last tab
+
+:tabs                 List all the tabs
 ```
 
 # VIM FOR DEVELOPMENT
@@ -1159,377 +1464,6 @@ For list and description of all **Highlight groups** check `:help highlight-grou
 :cprevious              Goto previous quickfix occurence(default error)
 
 :vimgrep {pt} {fp}      Search pattern {pt} for all files in {fp}(VIM grep alternative). Results goes on quickfix
-```
-
-# VIM SPECIFIC
-
-In this section you will get all specific **VIM** features over **VI**  
-`help vi_diff`
-
-**Popular VIM features:**
-
-- Initialization
-- Infinite undo
-- GUI
-- Multiple windows
-- Programmer assistance
-- Keyword completion
-- Syntax extensions
-- Scripting and plug-ins
-- Postprocessing
-- Arbitrary length lines and binary data
-- Session context
-- Transitions
-- Transparent editing
-- Meta-information
-- The black hole register
-
-**VIM Tutorial:**
-
-- [OpenVIM](https://www.openvim.com/)
-- [VIM adventure](https://vim-adventures.com/)
-
-**VIM Startup**
-
-- Check `:help startup` for up to date information about VIM Startup
-
-## COMMAND LINE
-
-```
-gvim <FILENAME>                             Open GUI version of VIM
-vim -g <FILENAME>                           Open GUI version of VIM
-
-evim <FILENAME>                             Open easy VIM(a more beginner friendly version of VIM)
-vim -y <FILENAME>                           Open easy VIM(a more beginner friendly version of VIM)
-
-vimtutor                                    A VIM tutorial
-
-vim -o <FILENAME1>..<FILENAMEn>             Open all files in separate windows
-vim -p <FILENAME1>..<FILENAMEn>             Open all files in separate tabs
-```
-
-### Specific command line VIM options
-
-| Option       | Description                                                                                             |
-| ------------ | ------------------------------------------------------------------------------------------------------- |
-| -b           | Edit file in binary mode                                                                                |
-| -c _command_ | Execute _command_ as an EX command                                                                      |
-| -C           | Run VIM in compatible VI mode                                                                           |
-| -d           | Start VIM in DIFF mode                                                                                  |
-| -E           | Start VIM in improved EX mode                                                                           |
-| -F or -A     | Start VIM in Farsi or Arabic modes                                                                      |
-| -g           | Start VIM in GUI mode                                                                                   |
-| -M           | Turn off the write option (Read Only mode)                                                              |
-| -o[{n}]      | Open all files in separate windows. The optionally integer {n} is used to specify the number of windows |
-| -O[{n}]      | Like `-o` but with _vertical split_                                                                     |
-| -y           | Start VIM in EASY mode                                                                                  |
-| -Z           | Start VIM in restricted mode                                                                            |
-
-#### Remote configuration example
-
-**Server VIM instance**
-
-To get more information: `:help client-server`
-
-```
-vim --listen 192.168.0.101:6666                               Run a server instance of vim on host 192.168.0.101 port 6666
-```
-
-**Remote client**
-
-```
-vim --server 192.168.0.101:6666 --remote <FILENAME>           Connect to the VIM instance 192.168.0.101:6666 and open the file <FILENAME> on the remote host
-
-vim --server 192.168.0.101:6666 --remote-send <COMMAND>       Send <COMMAND> to the VIM instance 192.168.0.101:6666
-```
-
-## Environment variables
-
-| Variable | Description                                                                                                                                                                                                                             |
-| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| VIMINIT  | VIM execute its content as an EX command(_This is the first configuration entry_)                                                                                                                                                       |
-| EXINIT   | VIM execute its content as an EX command(_This is the second configuration entry, executed only if VIMINIT is empty_)                                                                                                                   |
-| MYVIMRC  | Overrides Vim’s search for initialization files. If MYVIMRC has a value when starting, Vim assumes the value is the name of an initialization file and, if the file exists, takes initial settings from it. No other file is consulted. |
-| SHELL    | Define the shell or external command interpreter vim had to use                                                                                                                                                                         |
-
-## NORMAL MODE
-
-```
-[CTRL]+]                    Goto mark under the cursor
-[CTRL]+O                    Goto previous position
-
-v                           VISUAL MODE
-```
-
-### Movements
-
-```
-[CTRL]+<end>                Goto the last character of the file
-[CTRL]+<home>               Goto the first character of the file
-
-{n}%                        Goto the {n} percentage of the file
-:go {n}                     Goto the {n} byte in the file
-```
-
-## EX MODE
-
-```
-:set compatible       Remove all specific VIM feature(VI pure compatibility)
-:set incsearch        Activate incremental search(Move directly on the buffer as you type on the keyboard)
-
-:set undolevels={n}   Define the number of undoable changes you can make in an editing session
-
-:help                 Help introduction to use VIM
-:help <subject>       Help for the subject in parameter
-:h <subject>          Help for the subject in parameter
-
-:undo                 Undo the last command
-:redo                 Redo the last command
-:help usr_32.txt      More information about how to navigate changes as a tree
-```
-
-### Buffers
-
-```
-:ls                   List the buffers
-:ls!                  List all buffers of all VIM instance
-:buffers              List the buffers
-:files                List the buffers
-
-:cwindow              Open error window (quickfix)
-:lwindow              Open location window
-
-:windo {ec}           Execute EX command {ec} on all windows
-:bufdo {ec}           Execute EX command {ec} on all buffers
-
-:ball                 Edit all args or buffers
-:sball                Edit all args or buffers and open them in new windows
-:unhide               Edit all loaded buffer
-:sunhide              Edit all loaded buffer and open them in new windows
-
-:badd <FILENAME>      Add file to the buffer list
-:bunload              Unload current buffer
-:bdelete              Unload current buffer and delete from the buffer list
-:buffer {n}           Load buffer {n}
-:sbuffer {n}          Load buffer {n} in a new window
-:bnext                Move to the next buffer
-:bnext {n}            Move to the {n}th next buffer
-:sbnext {n}           Load the {n}th next buffer in a new window
-:bNext                Move to previous buffer
-:bprevious            Move to previous buffer
-:bNext {n}            Move to the {n}th previous buffer
-:sbNext {n}           Load the {n}th previous buffer in a new window
-:blast                Move to the last buffer
-:sblast               Load the last buffer in a new window and split horizontally
-:vertical sblast      Load the last buffer in a new window and split vertically
-:bmod {n}             Move to the {n}th modified buffer
-:sbmod {n}            Load to the {n}th modified buffer in a new window
-
-:stag {tg}            Load the file that containt the tag{tg} definition in a new window
-```
-
-#### Status flags
-
-| Code   | Description                                                                                                                                                                                                                                                                                        |
-| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| u      | Unlisted buffer. This buffer is not listed unless you use the ! modifier. To see an example of an unlisted buffer, type :help. Vim splits the current window to include a new window in which the built-in help appears. The plain :ls command will not show the help buffer, but :ls! includes it |
-| % or # | % is the buffer for the current window. # is the buffer to which you would switch with the :edit # command. These are mutually exclusive                                                                                                                                                           |
-| a or h | a indicates an active buffer. That means the buffer is loaded and visible. h indicates a hidden buffer. The hidden buffer exists but is not visible in any window. These are mutually exclusive                                                                                                    |
-| - or = | - indicates a buffer has the modifiable option turned off. The file is read-only. = is a read-only buffer that cannot be made modifiable (for instance, because you don’t have filesystem privileges to write to the file). These are mutually exclusive                                           |
-| + or x | + indicates a modified buffer. x is a buffer with read errors. These are mutually exclusive                                                                                                                                                                                                        |
-
-#### Special buffers
-
-- _directory_: List directory content (read-only buffer), when you type [ENTER], the file under the cursor is loaded
-- _help_: Show help buffer (read-only buffer)
-- _QuickFix_: Contains the list of errors created by your commands(View with `:cwindow` and for location `:lwindow`)
-- _scratch_: These buffers contain text for general purposes
-
-## VISUAL MODE
-
-**a** for Around  
-**i** for Inner
-
-Movement general form:
-
-> `{n} a|i {to}` Add {n} {to} around or inner
-
-```
-{n}aw | {n}aW   Add {n} word on the selection
-{n}iw | {n}iW   Add {n} inner word on the selection(White space count as a word)
-as    | is      Add a sentence(a) or an inner(i) sentence on the selection
-ap    | ip      Add a paragraph or an inner paragraph on the selection
-
-a'    | i'    Add the content of the ' block on the selection
-a"    | i"    Add the content of the " block on the selection
-a`    | i`    Add the content of the ` block on the selection
-a{    | i{    Add the content of the { block on the selection
-a[    | i[    Add the content of the [ block on the selection
-a(    | i(    Add the content of the ( block on the selection
-a<    | i<    Add the content of the < block on the selection
-```
-
-## Multiple Windows
-
-For more information check `:help windows.txt`
-
-### NORMAL MODE
-
-All windows command are prefixed with **[CTRL]+W**
-
-#### Opening and closing window
-
-```
-[CTRL]+W s                Split current window in 2, Horizontal split
-[CTRL]+W v                Split current window in 2, Vertical split
-[CTRL]+W n                Create a new window and split horizontally
-
-[CTRL]+W ^                Split current window in 2 and edit the alternate file, Horizontal split
-
-[CTRL]+W q                Quit the current window
-[CTRL]+W c                Close the current window
-[CTRL]+W o                Close all window except the current one
-```
-
-#### Moving to other windows
-
-```
-[CTRL]+W j                Move to the next bottom window
-[CTRL]+W <down>           Move to the next bottom window
-
-[CTRL]+W k                Move to the next top window
-[CTRL]+W <up>             Move to the next top window
-
-[CTRL]+W h                Move to the next left window
-[CTRL]+W <left>           Move to the next left window
-
-[CTRL]+W l                Move to the next right window
-[CTRL]+W <right>          Move to the next right window
-
-[CTRL]+W w                Move to the next window (cycle)
-[CTRL]+W p                Move to the last accessed window
-
-[CTRL]+W t                Move to the top left window
-[CTRL]+W b                Move to the bottom right window
-
-```
-
-#### Moving windows
-
-```
-[CTRL]+W r                Rotate windows downwards/rightwards
-[CTRL]+W R                Rotate windows upwards/leftwards
-
-[CTRL]+W x                Exchange current window with the next one
-
-[CTRL]+W K            	  Move the current window to be at the very top
-[CTRL]+W J	              Move the current window to be at the very bottom
-[CTRL]+W H	              Move the current window to be at the far left
-[CTRL]+W L	              Move the current window to be at the far right
-[CTRL]+W T	              Move the current window to a new tab page.
-```
-
-#### Window resizing
-
-```
-[CTRL]+W =	              Make all windows (almost) equally high and wide
-[CTRL]+W _	              Set current window height to N (default: highest possible).
-[CTRL]+W |	              Set current window width to N (default: widest possible).
-[CTRL]+W -	              Decrease current window height by N (default 1)
-[CTRL]+W +	              Increase current window height by N (default 1)
-[CTRL]+W <	              Decrease current window width by N (default 1)
-[CTRL]+W >	              Increase current window width by N (default 1)
-
-{n}z[ENTER]               Set current window height to {n} lines
-```
-
-#### Windows and Tags
-
-```
-[CTRL]+W ]                Open a new window with the file that define the tag under the cursor (perform a ':tag')
-[CTRL]+W g ]              Open a new window with the list of the corresponding tag under the cursor(perform a ':tselect')
-[CTRL]+W g [CTRL]+]       Open a new window with the list of the corresponding tag under the cursor(perform a ':tjump')
-
-[CTRL]+W f                Open(if exist) the filename under the cursor in a new window(like 'gf')
-[CTRL]+W F                Open(if exist) the filename under the cursor and go to the line number (ex: '/a/b/myfile:82') in a new window(like 'gF')
-
-[CTRL]+W gf               Open(if exist) the filename under the cursor in a new tab(like 'gf')
-[CTRL]+W gF               Open(if exist) the filename under the cursor and go to the line number (ex: '/a/b/myfile:82') in a new tab(like 'gF')
-
-[CTRL]+W gt               Goto next tab
-[CTRL]+W gT               Goto previous tab
-```
-
-### EX MODE
-
-#### Settings
-
-```
-:set winheight={n}      Minimal number of line for the current window
-:set winwidth={n}       Minimal number of columns for the current window
-:set winminheight={n}   Minimal number of line for all windows
-:set winminwidth={n}    Minimal number of columns for all windows
-```
-
-#### Commands
-
-```
-:wincmd {ch}                          Send window command({ch}), exactly the same behaviour as [CTRL]+W in NORMAL MODE (ex: ':wincmd s' to split)
-
-:{n}split [++opt] [+cmd] <FILENAME>   General split command format
-:split                                Split current window in 2, Horizontal split
-:vsplit                               Split current window in 2, Vertical split
-:{n}split                             Split current window in 2 with {n} lines, Horizontal split
-:{n}vsplit                            Split current window in 2 with {n} columns, Vertical split
-:new                                  Create a new window and split horizontally
-:new <FILENAME>                       Create a new window and load <FILENAME>
-:vnew                                 Create a new window and split vertically
-:sview                                Split current window in 2 but the new window is in read-only mode(view)
-:sfind <FILENAME>                     Split horizontally only if the <FILENAME> exist
-
-:close                                Close the current window
-:hide                                 Hide the current window
-:only                                 Close all window except the current one
-
-:resize                               Set current window height to highest possible
-:resize -{n}                          Decrease current window height by {n} lines
-:resize +{n}                          Increase current window height by {n} lines
-:resize {n}                           Set current window height to {n} lines
-:vertical resize {n}                  Set current window width to {n} columns
-```
-
-## Tabs
-
-### NORMAL MODE
-
-```
-[CTRL]+<pagedown>                     Goto the next tab
-gt                                    Goto the next tab
-[CTRL]+<pageup>                       Goto the previous tab
-gT                                    Goto the previous tab
-
-[CTRL]+<tab>                          Goto the last accessed tab
-g<tab>                                Goto the last accessed tab
-```
-
-### EX MODE
-
-```
-:tabnew                               Open a new tab
-:tabnew <FILENAME>                    Open the file <FILENAME> in a new tab
-:tabedit <FILENAME>                   Open the file <FILENAME> in a new tab
-
-:tabclose                             Close the current tab
-
-:tabonly                              Close all tabs except the current
-
-:tabnext                              Goto the next tab
-:tabprevious                          Goto the previous tab
-:tabNext                              Goto the previous tab
-:tabfirst                             Goto the first tab
-:tablast                              Goto the last tab
-
-:tabs                                 List all the tabs
 ```
 
 # VIM Script
