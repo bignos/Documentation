@@ -125,8 +125,8 @@
 * [Extend VIM](#extend-vim)
     * [Plug-ins](#plug-ins)
         * [Populars Plug-ins](#populars-plug-ins)
-            * [All-in-One IDE configurations](#all-in-one-ide-configurations)
-            * [Writer plug-ins](#writer-plug-ins)
+        * [All-in-One IDE configurations](#all-in-one-ide-configurations)
+        * [Writer plug-ins](#writer-plug-ins)
         * [Links](#links-1)
 
 <!-- vim-markdown-toc -->
@@ -1814,7 +1814,7 @@ Or If you prefer a list go to [**Awesome Neovim**](https://github.com/rockerBOO/
 | [**mini.nvim**](https://github.com/echasnovski/mini.nvim)                 | Library of 20+ independent Lua modules improving overall Neovim                   |
 | [**dashboard-nvim**](https://github.com/glepnir/dashboard-nvim)           | Dashboard                                                                         |
 
-#### All-in-One IDE configurations
+### All-in-One IDE configurations
 
 | Link                                                              | Description                                                                                                |
 | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
@@ -1829,7 +1829,7 @@ Or If you prefer a list go to [**Awesome Neovim**](https://github.com/rockerBOO/
 | [**Nyoom.nvim**](https://github.com/nyoom-engineering/nyoom.nvim) | Used as a framework config for users to extend and add upon, leading to a more unique editing experience   |
 | [**NVIM-IDE**](https://github.com/ldelossa/nvim-ide)              | nvim-ide is a complete IDE layer for Neovim, heavily inspired by vscode                                    |
 
-#### Writer plug-ins
+### Writer plug-ins
 
 Check [Vim/Neovim Plugins for Writing](https://alpha2phi.medium.com/vim-neovim-plugins-for-writing-d18414c7b21d) for more informations
 
