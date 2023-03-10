@@ -11,137 +11,137 @@
 <!-- vim-markdown-toc GitLab -->
 
 * [References](#references)
-    * [-[ Links ]-](#-links-)
-    * [-[ Abbreviations ]-](#-abbreviations-)
-    * [-[ COMMAND LINE ]-](#-command-line-)
-        * [-| Options |-](#-options-)
-    * [-[ General Form of VI commands ]-](#-general-form-of-vi-commands-)
-    * [-[ TEXT OBJECT ]-](#-text-object-)
-    * [-[ REGISTER ]-](#-register-)
-    * [-[ Marker ]-](#-marker-)
-    * [-[ Regular expression metacharacters ]-](#-regular-expression-metacharacters-)
-        * [-| Regular expression character class |-](#-regular-expression-character-class-)
-        * [-| Regular expression delimiter |-](#-regular-expression-delimiter-)
-        * [-| POSIX character classes |-](#-posix-character-classes-)
-    * [-[ Regular expression modifier ]-](#-regular-expression-modifier-)
+    * [Links](#links)
+    * [Abbreviations](#abbreviations)
+    * [COMMAND LINE](#command-line)
+        * [Options](#options)
+    * [General Form of VI commands](#general-form-of-vi-commands)
+    * [TEXT OBJECT](#text-object)
+    * [REGISTER](#register)
+    * [Marker](#marker)
+    * [Regular expression metacharacters](#regular-expression-metacharacters)
+        * [Regular expression character class](#regular-expression-character-class)
+        * [Regular expression delimiter](#regular-expression-delimiter)
+        * [POSIX character classes](#posix-character-classes)
+    * [Regular expression modifier](#regular-expression-modifier)
 * [Usage](#usage)
-    * [-[ NORMAL MODE ]-](#-normal-mode-)
-        * [-| Edit commands |-](#-edit-commands-)
-        * [-| Copying commands |-](#-copying-commands-)
-        * [-| Single Movements |-](#-single-movements-)
-        * [-| Buffer Movements |-](#-buffer-movements-)
-        * [-| Block Movements |-](#-block-movements-)
-        * [-| Line Movements |-](#-line-movements-)
-        * [-| Screen line Movements |-](#-screen-line-movements-)
-        * [-| Screen Movements |-](#-screen-movements-)
-        * [-| Search Movements |-](#-search-movements-)
+    * [NORMAL MODE](#normal-mode)
+        * [Edit commands](#edit-commands)
+        * [Copying commands](#copying-commands)
+        * [Single Movements](#single-movements)
+        * [Buffer Movements](#buffer-movements)
+        * [Block Movements](#block-movements)
+        * [Line Movements](#line-movements)
+        * [Screen line Movements](#screen-line-movements)
+        * [Screen Movements](#screen-movements)
+        * [Search Movements](#search-movements)
             * [Text Search Movements](#text-search-movements)
             * [Line Search Movements](#line-search-movements)
-        * [-| Line number Movements |-](#-line-number-movements-)
-    * [-[ EX MODE ]-](#-ex-mode-)
-        * [-| Filename shortcut |-](#-filename-shortcut-)
-        * [-| The :set Command |-](#-the-set-command-)
-        * [-| Shell command |-](#-shell-command-)
-    * [-[ FULL EX MODE ]-](#-full-ex-mode-)
-        * [-| FULL EX MODE Examples |-](#-full-ex-mode-examples-)
-        * [-| Saving Commands |-](#-saving-commands-)
+        * [Line number Movements](#line-number-movements)
+    * [EX MODE](#ex-mode)
+        * [Filename shortcut](#filename-shortcut)
+        * [The :set Command](#the-set-command)
+        * [Shell command](#shell-command)
+    * [FULL EX MODE](#full-ex-mode)
+        * [FULL EX MODE Examples](#full-ex-mode-examples)
+        * [Saving Commands](#saving-commands)
             * [Abbreviation](#abbreviation)
             * [Map](#map)
             * [Macro](#macro)
-    * [-[ INSERT MODE ]-](#-insert-mode-)
-        * [-| Insert / Delete |-](#-insert-delete-)
-        * [-| Motions |-](#-motions-)
+    * [INSERT MODE](#insert-mode)
+        * [Insert / Delete](#insert-delete)
+        * [Motions](#motions)
 * [VIM FOR DEVELOPMENT](#vim-for-development)
-    * [-[ NORMAL MODE ]-](#-normal-mode--1)
-    * [-[ EX MODE ]-](#-ex-mode--1)
-        * [-| Tags |-](#-tags-)
-        * [-| Folding and Outlining |-](#-folding-and-outlining-)
-            * [NORMAL MODE](#normal-mode)
-            * [EX MODE](#ex-mode)
-            * [Options](#options)
-        * [-| Auto and smart indenting |-](#-auto-and-smart-indenting-)
-            * [Options](#options-1)
-        * [-| Word completion |-](#-word-completion-)
-            * [INSERT MODE](#insert-mode)
-        * [-| Syntax Highlighting |-](#-syntax-highlighting-)
-            * [EX MODE](#ex-mode-1)
-        * [-| Compiling |-](#-compiling-)
+    * [NORMAL MODE](#normal-mode-1)
+    * [EX MODE](#ex-mode-1)
+        * [Tags](#tags)
+        * [Folding and Outlining](#folding-and-outlining)
+            * [NORMAL MODE](#normal-mode-2)
             * [EX MODE](#ex-mode-2)
-        * [-| Quickfix list window |-](#-quickfix-list-window-)
+            * [Options](#options-1)
+        * [Auto and smart indenting](#auto-and-smart-indenting)
+            * [Options](#options-2)
+        * [Word completion](#word-completion)
+            * [INSERT MODE](#insert-mode-1)
+        * [Syntax Highlighting](#syntax-highlighting)
             * [EX MODE](#ex-mode-3)
+        * [Compiling](#compiling)
+            * [EX MODE](#ex-mode-4)
+        * [Quickfix list window](#quickfix-list-window)
+            * [EX MODE](#ex-mode-5)
 * [VIM SPECIFIC](#vim-specific)
-    * [-[ COMMAND LINE ]-](#-command-line--1)
-        * [-| Specific command line VIM options |-](#-specific-command-line-vim-options-)
+    * [COMMAND LINE](#command-line-1)
+        * [Specific command line VIM options](#specific-command-line-vim-options)
             * [Remote configuration example](#remote-configuration-example)
-    * [-[ Environment variables ]-](#-environment-variables-)
-    * [-[ NORMAL MODE ]-](#-normal-mode--2)
-        * [-| Movements |-](#-movements-)
-    * [-[ EX MODE ]-](#-ex-mode--2)
-        * [-| Buffers |-](#-buffers-)
+    * [Environment variables](#environment-variables)
+    * [NORMAL MODE](#normal-mode-3)
+        * [Movements](#movements)
+    * [EX MODE](#ex-mode-6)
+        * [Buffers](#buffers)
             * [Status flags](#status-flags)
             * [Special buffers](#special-buffers)
-    * [-[ VISUAL MODE ]-](#-visual-mode-)
-    * [-[ Multiple Windows ]-](#-multiple-windows-)
-        * [-| NORMAL MODE |-](#-normal-mode--3)
+    * [VISUAL MODE](#visual-mode)
+    * [Multiple Windows](#multiple-windows)
+        * [NORMAL MODE](#normal-mode-4)
             * [Opening and closing window](#opening-and-closing-window)
             * [Moving to other windows](#moving-to-other-windows)
             * [Moving windows](#moving-windows)
             * [Window resizing](#window-resizing)
             * [Windows and Tags](#windows-and-tags)
-        * [-| EX MODE |-](#-ex-mode--3)
+        * [EX MODE](#ex-mode-7)
             * [Settings](#settings)
             * [Commands](#commands)
-    * [-[ Tabs ]-](#-tabs-)
-        * [-| NORMAL MODE |-](#-normal-mode--4)
-        * [-| EX MODE |-](#-ex-mode--4)
+    * [Tabs](#tabs)
+        * [NORMAL MODE](#normal-mode-5)
+        * [EX MODE](#ex-mode-8)
 * [VIM Script](#vim-script)
 * [VIM Tools](#vim-tools)
-    * [-[ Terminal ]-](#-terminal-)
-    * [-[ Spellchecking ]-](#-spellchecking-)
-        * [-| NORMAL MODE |-](#-normal-mode--5)
-        * [-| EX MODE |-](#-ex-mode--5)
-    * [-[ Binary files ]-](#-binary-files-)
-        * [-| Command line |-](#-command-line--2)
-        * [-| EX MODE |-](#-ex-mode--6)
-    * [-[ Non ASCII Characters ]-](#-non-ascii-characters-)
-        * [-[ Digraph metacharacters ]-](#-digraph-metacharacters-)
-    * [-[ Edit files over network ]-](#-edit-files-over-network-)
-        * [-| Command line |-](#-command-line--3)
-        * [-| EX MODE |-](#-ex-mode--7)
-    * [-[ Changing directories ]-](#-changing-directories-)
-        * [-| EX MODE |-](#-ex-mode--8)
-    * [-[ Backup ]-](#-backup-)
-        * [-| EX MODE |-](#-ex-mode--9)
-    * [-[ Convert to HTML ]-](#-convert-to-html-)
-        * [-| EX MODE |-](#-ex-mode--10)
-    * [-[ Environment backup ]-](#-environment-backup-)
-        * [-| EX MODE |-](#-ex-mode--11)
-    * [-[ Lines settings ]-](#-lines-settings-)
-        * [-| EX MODE |-](#-ex-mode--12)
-    * [-[ Tips ]-](#-tips-)
-        * [-| NORMAL MODE |-](#-normal-mode--6)
-        * [-| Shell |-](#-shell-)
+    * [Terminal](#terminal)
+    * [Spellchecking](#spellchecking)
+        * [NORMAL MODE](#normal-mode-6)
+        * [EX MODE](#ex-mode-9)
+    * [Binary files](#binary-files)
+        * [Command line](#command-line-2)
+        * [EX MODE](#ex-mode-10)
+    * [Non ASCII Characters](#non-ascii-characters)
+        * [Digraph metacharacters](#digraph-metacharacters)
+    * [Edit files over network](#edit-files-over-network)
+        * [Command line](#command-line-3)
+        * [EX MODE](#ex-mode-11)
+    * [Changing directories](#changing-directories)
+        * [EX MODE](#ex-mode-12)
+    * [Backup](#backup)
+        * [EX MODE](#ex-mode-13)
+    * [Convert to HTML](#convert-to-html)
+        * [EX MODE](#ex-mode-14)
+    * [Environment backup](#environment-backup)
+        * [EX MODE](#ex-mode-15)
+    * [Lines settings](#lines-settings)
+        * [EX MODE](#ex-mode-16)
+    * [Tips](#tips)
+        * [NORMAL MODE](#normal-mode-7)
+        * [Shell](#shell)
             * [Shell VI NORMAL MODE](#shell-vi-normal-mode)
-        * [-| EX MODE |-](#-ex-mode--13)
+        * [EX MODE](#ex-mode-17)
 * [Extend VIM](#extend-vim)
-    * [-[ Plug-ins ]-](#-plug-ins-)
-        * [-| Populars Plug-ins |-](#-populars-plug-ins-)
+    * [Plug-ins](#plug-ins)
+        * [Populars Plug-ins](#populars-plug-ins)
             * [All-in-One IDE configurations](#all-in-one-ide-configurations)
             * [Writer plug-ins](#writer-plug-ins)
-        * [-| Links |-](#-links--1)
+        * [Links](#links-1)
 
 <!-- vim-markdown-toc -->
 ---
 
 # References
 
-## -[ Links ]-
+## Links
 
 - [Neovim](https://neovim.io/)
 - [VIM FAQ](https://vimhelp.org/vim_faq.txt.html)
 - [VIM TIPS WIKI](https://vim.fandom.com/wiki/Vim_Tips_Wiki)
 
-## -[ Abbreviations ]-
+## Abbreviations
 
 - **{n}** Number
 - **{ch}** A character
@@ -169,7 +169,7 @@
 - **{fp}** Files pattern
 - **{wd}** Word
 
-## -[ COMMAND LINE ]-
+## COMMAND LINE
 
 ```
 vim [options] <FILENAME>                     General form of VIM command line
@@ -201,7 +201,7 @@ vim -r <BUFFER>                              Recover the edited <BUFFER>
 ex -s <FILENAME> < <SCRIPT_FILENAME>         Execute the vim script <SCRIPT_FILENAME> on the file <FILENAME>
 ```
 
-### -| Options |-
+### Options
 
 For more information about command line arguments check `:help cli-arguments`
 
@@ -241,14 +241,14 @@ For more information about command line arguments check `:help cli-arguments`
 | -y            | Modeless vi; run VIM in insert mode only, without a NORMAL MODE<br> This is the same as invoking VIM as `evim`                                                                                                                                                                                                                             |
 | -Z            | Start VIM in restricted mode<br> Do not allow shell commands or suspension of the editor                                                                                                                                                                                                                                                   |
 
-## -[ General Form of VI commands ]-
+## General Form of VI commands
 
 - (command)(number)(text object)
 - (number)(command)(text object)
 
 ---
 
-## -[ TEXT OBJECT ]-
+## TEXT OBJECT
 
 For more information about _Text objects_ check `:help text-objects`
 
@@ -280,7 +280,7 @@ T{ch}       After the previous occurrence of character {ch} on the current line
 []			sections backward or to the previous "}" in the first column
 ```
 
-## -[ REGISTER ]-
+## REGISTER
 
 ```
 "{n}        Numbered register[1-9], the last nine deletions, from most to least recent
@@ -288,7 +288,7 @@ T{ch}       After the previous occurrence of character {ch} on the current line
 "{CH}       Named register, but when you use uppercase character, you append the register(Accumulator)
 ```
 
-## -[ Marker ]-
+## Marker
 
 **Tips**: To get the char '`' you have to press the key twice
 
@@ -312,7 +312,7 @@ m{ch}       Mark the current position with {ch}
 :marks      List active marks
 ```
 
-## -[ Regular expression metacharacters ]-
+## Regular expression metacharacters
 
 For more information check `:help regexp`
 
@@ -348,7 +348,7 @@ For more information check `:help regexp`
 | \\(...\\)     | Grouping                                                                                                                     |
 | \\{n}         | Call group {n} capture                                                                                                       |
 
-### -| Regular expression character class |-
+### Regular expression character class
 
 | Character class | Description                                                                                               |
 | --------------- | --------------------------------------------------------------------------------------------------------- |
@@ -385,13 +385,13 @@ For more information check `:help regexp`
 | \\X             | Non hexadecimal digit: same as \[^0-9A-Fa-f]                                                              |
 | \\\_x           | Where x is any of the previous characters above: match the same character class but with newline included |
 
-### -| Regular expression delimiter |-
+### Regular expression delimiter
 
 > Besides the **/** character, you may use any non alphanumeric, non space character as your delimiter.
 >
 > EXCEPT **\\**, **"** or **\|**
 
-### -| POSIX character classes |-
+### POSIX character classes
 
 | Class      | Matching characters                                                 |
 | ---------- | ------------------------------------------------------------------- |
@@ -408,7 +408,7 @@ For more information check `:help regexp`
 | [:upper:]  | Uppercase characters                                                |
 | [:xdigit:] | Hexadecimal digits                                                  |
 
-## -[ Regular expression modifier ]-
+## Regular expression modifier
 
 ```
 :help s_flags   VIM documentation about all Regular expression modifier
@@ -423,7 +423,7 @@ i               Ignore case
 ```
 # Usage 
 
-## -[ NORMAL MODE ]-
+## NORMAL MODE
 
 ```
 :   EX MODE
@@ -436,7 +436,7 @@ ZZ  Save and exit
 &   Repeat the last substitution
 ```
 
-### -| Edit commands |-
+### Edit commands
 
 For more information check `:help change.txt`
 
@@ -496,7 +496,7 @@ gUw        Change word to uppercase
 [CTRL]+X   Decrement the number under the cursor
 ```
 
-### -| Copying commands |-
+### Copying commands
 
 ```
 {rg}p      Put the text from the register after the cursor(It's a PASTE)
@@ -511,7 +511,7 @@ yy         Yank(Copy) the current line(Alias for 'y$')
 Y          Yank(Copy) the current line(Alias for 'y$')
 ```
 
-### -| Single Movements |-
+### Single Movements
 
 ```
 h     Left
@@ -525,7 +525,7 @@ $     End of the line
 {n}|  Move to the character {n} on the current line
 ```
 
-### -| Buffer Movements |-
+### Buffer Movements
 
 ```
 gg    Move to the first line of the buffer
@@ -535,7 +535,7 @@ G     Move to the last line of the buffer
 :{n}  Goto line {n}
 ```
 
-### -| Block Movements |-
+### Block Movements
 
 ```
 w     Forward one word(Special characters count one word)
@@ -555,7 +555,7 @@ gE    Last character of previous word(Withespace separated)
 ]]    Move to the begining of the next section
 ```
 
-### -| Line Movements |-
+### Line Movements
 
 ```
 0             Move to the start of the line
@@ -572,7 +572,7 @@ g_            Move to the last nonblank character of the current line
 
 ```
 
-### -| Screen line Movements |-
+### Screen line Movements
 
 What we call _screen line_ is the line **displayed** on the screen
 
@@ -586,7 +586,7 @@ gm            Move to the middle of the screen line
 
 ```
 
-### -| Screen Movements |-
+### Screen Movements
 
 ```
 H             Move to the top line of the screen
@@ -611,7 +611,7 @@ z-            Move the current line on the bottom of the screen
 [CTRL]+L      Redraw the screen
 ```
 
-### -| Search Movements |-
+### Search Movements
 
 #### Text Search Movements
 
@@ -647,7 +647,7 @@ T{ch}       Find the character after the previous occurrence character {ch} in t
 ,           Repeat the previous find command in the opposite direction
 ```
 
-### -| Line number Movements |-
+### Line number Movements
 
 ```
 {n}G      Goto the line {n}
@@ -657,7 +657,7 @@ G         Goto the last line of the file
 ''        Goto the start of the line before you use the last 'G' command(Return at the start)
 ```
 
-## -[ EX MODE ]-
+## EX MODE
 
 Use **[CTRL]+V** to get special key:
 
@@ -715,14 +715,14 @@ Use the shell command `$ od -c` to get all special key code from the system
 :preserve                 Force the system to save the buffer(not the file)
 ```
 
-### -| Filename shortcut |-
+### Filename shortcut
 
 ```
 %         Current filename
 #         Alternate filename (Previous file)
 ```
 
-### -| The :set Command |-
+### The :set Command
 
 ```
 :set option               Set general form to enable an option
@@ -745,7 +745,7 @@ Use the shell command `$ od -c` to get all special key code from the system
 :set noic                 Disable 'ignore case', search patern are case sensitive
 ```
 
-### -| Shell command |-
+### Shell command
 
 ```
 // EX MODE
@@ -762,7 +762,7 @@ Use the shell command `$ od -c` to get all special key code from the system
 !!awk '<AWK_SCRIPT>'<cr>   Give the current line as argument to system command 'awk' with '!!'
 ```
 
-## -[ FULL EX MODE ]-
+## FULL EX MODE
 
 ```
 :p                  Print current line
@@ -805,7 +805,7 @@ Use the shell command `$ od -c` to get all special key code from the system
 :vi                 Exit Full EX MODE (Return to visual editor[vi])
 ```
 
-### -| FULL EX MODE Examples |-
+### FULL EX MODE Examples
 
 ```
 :4,15d                                   Delete lines 4 to 15(inclusive)
@@ -844,7 +844,7 @@ Use the shell command `$ od -c` to get all special key code from the system
 :1,10g/^/ 3,4 t $                        Repeat 10 times the copy (t) of lines 3 and 4 at the end of the buffer
 ```
 
-### -| Saving Commands |-
+### Saving Commands
 
 #### Abbreviation
 
@@ -903,7 +903,7 @@ q               Stop macro recording
 
 ```
 
-## -[ INSERT MODE ]-
+## INSERT MODE
 
 For more information about special keys for INSERT MODE, check `:help ins-special-keys`
 
@@ -914,7 +914,7 @@ ESC                     Exit INSERT MODE
 [CTRL]+O                Execute one command, return to INSERT MODE
 ```
 
-### -| Insert / Delete |-
+### Insert / Delete
 
 ```
 [CTRL]+H                Delete the character before the cursor(<BS>)
@@ -947,7 +947,7 @@ ESC                     Exit INSERT MODE
 [CTRL]+Y                Insert the character of the line above the cursor
 ```
 
-### -| Motions |-
+### Motions
 
 ```
 [CTRL]+G <up>           Goto to the begining of the line up
@@ -969,13 +969,13 @@ ESC                     Exit INSERT MODE
 
 **$VIMRUNTIME**=`/usr/share/nvim/runtime`
 
-## -[ NORMAL MODE ]-
+## NORMAL MODE
 
 ```
 %             Move the cursor to the other bracket(Useful to find where you forgot a '}')
 ```
 
-## -[ EX MODE ]-
+## EX MODE
 
 ```
 :set autoindent           Automatic indentation control
@@ -993,7 +993,7 @@ ESC                     Exit INSERT MODE
 :set tagrelative          If using a tags file in another directory, file names in that tags file are relative to the directory where the tags file is
 ```
 
-### -| Tags |-
+### Tags
 
 To use _tags_ you have to install **ctags** `sudo apt install exuberant-ctags`
 
@@ -1015,7 +1015,7 @@ To use _tags_ you have to install **ctags** `sudo apt install exuberant-ctags`
 :tlast                    Goto the last matching tag
 ```
 
-### -| Folding and Outlining |-
+### Folding and Outlining
 
 VIM provide `:mkview` to save fold configuration and `:loadview` to load previous configuration
 
@@ -1063,7 +1063,7 @@ zN                  Set the foldenable option
 :set foldlevel={n}      Define the fold level to open, displays only lines whose fold levels are less than or egal to {n}
 ```
 
-### -| Auto and smart indenting |-
+### Auto and smart indenting
 
 For more information about **indenting** check ':help indent.txt'
 
@@ -1079,7 +1079,7 @@ For more information about **indenting** check ':help indent.txt'
 :set nopaste
 ```
 
-### -| Word completion |-
+### Word completion
 
 For more information check `:help ins-completion`
 
@@ -1109,7 +1109,7 @@ All specifics completion commands start with [CTRL]+X
 [CTRL]+X [CTRL]+Z       Stop completion
 ```
 
-### -| Syntax Highlighting |-
+### Syntax Highlighting
 
 All syntax files are on **$VIMRUNTIME** + `/syntax`  
 All color scheme files are on **$VIMRUNTIME** + `/colors`
@@ -1134,7 +1134,7 @@ For list and description of all **Highlight groups** check `:help highlight-grou
 :help highlight         Get help about highlight for more information about all settings possibilities
 ```
 
-### -| Compiling |-
+### Compiling
 
 #### EX MODE
 
@@ -1143,7 +1143,7 @@ For list and description of all **Highlight groups** check `:help highlight-grou
 :set makeprg={sc}       Set the shell command used by make
 ```
 
-### -| Quickfix list window |-
+### Quickfix list window
 
 #### EX MODE
 
@@ -1187,7 +1187,7 @@ In this section you will get all specific **VIM** features over **VI**
 
 - Check `:help startup` for up to date information about VIM Startup
 
-## -[ COMMAND LINE ]-
+## COMMAND LINE
 
 ```
 gvim <FILENAME>                             Open GUI version of VIM
@@ -1202,7 +1202,7 @@ vim -o <FILENAME1>..<FILENAMEn>             Open all files in separate windows
 vim -p <FILENAME1>..<FILENAMEn>             Open all files in separate tabs
 ```
 
-### -| Specific command line VIM options |-
+### Specific command line VIM options
 
 | Option       | Description                                                                                             |
 | ------------ | ------------------------------------------------------------------------------------------------------- |
@@ -1237,7 +1237,7 @@ vim --server 192.168.0.101:6666 --remote <FILENAME>           Connect to the VIM
 vim --server 192.168.0.101:6666 --remote-send <COMMAND>       Send <COMMAND> to the VIM instance 192.168.0.101:6666
 ```
 
-## -[ Environment variables ]-
+## Environment variables
 
 | Variable | Description                                                                                                                                                                                                                             |
 | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1246,7 +1246,7 @@ vim --server 192.168.0.101:6666 --remote-send <COMMAND>       Send <COMMAND> to 
 | MYVIMRC  | Overrides Vim’s search for initialization files. If MYVIMRC has a value when starting, Vim assumes the value is the name of an initialization file and, if the file exists, takes initial settings from it. No other file is consulted. |
 | SHELL    | Define the shell or external command interpreter vim had to use                                                                                                                                                                         |
 
-## -[ NORMAL MODE ]-
+## NORMAL MODE
 
 ```
 [CTRL]+]                    Goto mark under the cursor
@@ -1255,7 +1255,7 @@ vim --server 192.168.0.101:6666 --remote-send <COMMAND>       Send <COMMAND> to 
 v                           VISUAL MODE
 ```
 
-### -| Movements |-
+### Movements
 
 ```
 [CTRL]+<end>                Goto the last character of the file
@@ -1265,7 +1265,7 @@ v                           VISUAL MODE
 :go {n}                     Goto the {n} byte in the file
 ```
 
-## -[ EX MODE ]-
+## EX MODE
 
 ```
 :set compatible       Remove all specific VIM feature(VI pure compatibility)
@@ -1282,7 +1282,7 @@ v                           VISUAL MODE
 :help usr_32.txt      More information about how to navigate changes as a tree
 ```
 
-### -| Buffers |-
+### Buffers
 
 ```
 :ls                   List the buffers
@@ -1339,7 +1339,7 @@ v                           VISUAL MODE
 - _QuickFix_: Contains the list of errors created by your commands(View with `:cwindow` and for location `:lwindow`)
 - _scratch_: These buffers contain text for general purposes
 
-## -[ VISUAL MODE ]-
+## VISUAL MODE
 
 **a** for Around  
 **i** for Inner
@@ -1363,11 +1363,11 @@ a(    | i(    Add the content of the ( block on the selection
 a<    | i<    Add the content of the < block on the selection
 ```
 
-## -[ Multiple Windows ]-
+## Multiple Windows
 
 For more information check `:help windows.txt`
 
-### -| NORMAL MODE |-
+### NORMAL MODE
 
 All windows command are prefixed with **[CTRL]+W**
 
@@ -1454,7 +1454,7 @@ All windows command are prefixed with **[CTRL]+W**
 [CTRL]+W gT               Goto previous tab
 ```
 
-### -| EX MODE |-
+### EX MODE
 
 #### Settings
 
@@ -1492,9 +1492,9 @@ All windows command are prefixed with **[CTRL]+W**
 :vertical resize {n}                  Set current window width to {n} columns
 ```
 
-## -[ Tabs ]-
+## Tabs
 
-### -| NORMAL MODE |-
+### NORMAL MODE
 
 ```
 [CTRL]+<pagedown>                     Goto the next tab
@@ -1506,7 +1506,7 @@ gT                                    Goto the previous tab
 g<tab>                                Goto the last accessed tab
 ```
 
-### -| EX MODE |-
+### EX MODE
 
 ```
 :tabnew                               Open a new tab
@@ -1538,7 +1538,7 @@ For more information check all these help topics:
 
 # VIM Tools
 
-## -[ Terminal ]-
+## Terminal
 
 For more information about this new feature of _Neovim_ check `:help terminal_emulator.txt`
 
@@ -1556,11 +1556,11 @@ And **[CTRL]+\ [CTRL]+O** to return to NORMAL MODE for only one command
 :tabnew +terminal       Open the terminal emulator in a new tab
 ```
 
-## -[ Spellchecking ]-
+## Spellchecking
 
 For more information check `:help spell` or `:help spell.txt`
 
-### -| NORMAL MODE |-
+### NORMAL MODE
 
 By default spellchecking is not active on VIM, **you must must activate it on demand**
 
@@ -1574,7 +1574,7 @@ zW  Add the word under the cursor to the list of bad words in the internal-wordl
 z=  Display the list of suggestions for replacement of a bad word
 ```
 
-### -| EX MODE |-
+### EX MODE
 
 ```
 :setlocal spell spelllang={li}   Turn on spellchecking and set the spellchecking region with the language ISO CODE {li}
@@ -1586,15 +1586,15 @@ z=  Display the list of suggestions for replacement of a bad word
 :spellwrong! {wd}                Add word {wd} to the bad word list in internal-list
 ```
 
-## -[ Binary files ]-
+## Binary files
 
-### -| Command line |-
+### Command line
 
 ```
 vim -b <FILENAME>
 ```
 
-### -| EX MODE |-
+### EX MODE
 
 ```
 :set binary                     Enable Binary mode
@@ -1604,7 +1604,7 @@ vim -b <FILENAME>
 :set filetype=xxd               Syntax highlighting for hexadecimal representation
 ```
 
-## -[ Non ASCII Characters ]-
+## Non ASCII Characters
 
 AKA **Digraph**
 
@@ -1617,7 +1617,7 @@ Digraph is used on _INSERT MODE_ with **[CTRL]+K** and a combination of one char
 You want to write 'É', you have to use `[CTRL]+K E,`
 You want to write 'π', you have to use `[CTRL]+K p*`
 
-### -[ Digraph metacharacters ]-
+### Digraph metacharacters
 
 | char name         | char | meaning                           |
 | ----------------- | ---- | --------------------------------- |
@@ -1647,11 +1647,11 @@ You want to write 'π', you have to use `[CTRL]+K p*`
 | Five              | 5    | Hiragana                          |
 | Six               | 6    | Katakana                          |
 
-## -[ Edit files over network ]-
+## Edit files over network
 
 You can do this only if **netrw** ist _enabled_(On default VIM version it's the case)
 
-### -| Command line |-
+### Command line
 
 ```
 vim <PROTOCOL>://<USER>@<HOST>:<PORT>//<PATH>                   General form of netrw remote file accessing
@@ -1660,18 +1660,18 @@ vim scp://bignose@192.168.1.101/test.txt                        Open a distant f
 vim scp://bignose@192.168.1.101/                                Open a distant directory
 ```
 
-### -| EX MODE |-
+### EX MODE
 
 ```
 :Nread <PROTOCOL>://<USER>@<HOST>:<PORT>//<PATH>                General form of netrw remote file accessing for reading
 :Nwrite <PROTOCOL>://<USER>@<HOST>:<PORT>//<PATH>               General form of netrw remote file writing
 ```
 
-## -[ Changing directories ]-
+## Changing directories
 
 You can do this only if **netrw** ist _enabled_(On default VIM version it's the case)
 
-### -| EX MODE |-
+### EX MODE
 
 ```
 :Explore                        Open explorer(netrw)
@@ -1680,12 +1680,12 @@ You can do this only if **netrw** ist _enabled_(On default VIM version it's the 
 :Sexplore!                      Open explorer to current directory in an horizontal window
 ```
 
-## -[ Backup ]-
+## Backup
 
 VIM backup files for recovery crash.  
 The user can change some settings
 
-### -| EX MODE |-
+### EX MODE
 
 ```
 :set backup                     Enable backup (Keep alternate backup during the session)
@@ -1696,32 +1696,32 @@ The user can change some settings
 :set backupdir={pl,}            Define directories {pl,} where backup can be found and save
 ```
 
-## -[ Convert to HTML ]-
+## Convert to HTML
 
-### -| EX MODE |-
+### EX MODE
 
 ```
 :runtime!syntax/2html.vim       Tranform the current buffer to HTML for visualization
 :TOhtml                         Tranform the current buffer to HTML for visualization
 ```
 
-## -[ Environment backup ]-
+## Environment backup
 
 You can change general environment backup with the `viminfo` _option_.  
 Check `:help 'viminfo'` for more information about the expected format.
 
 You can also use **session** for specific environment backup.
 
-### -| EX MODE |-
+### EX MODE
 
 ```
 :mksession <FILENAME>           Save actual VIM session on the file <FILENAME>
 :source <FILENAME>              Load the VIM session from the file <FILENAME>
 ```
 
-## -[ Lines settings ]-
+## Lines settings
 
-### -| EX MODE |-
+### EX MODE
 
 ```
 :set wrap                       Enable line wraping if the line is larger than the screen
@@ -1732,9 +1732,9 @@ You can also use **session** for specific environment backup.
 :help 'listchars'               More information about non visible characters and how to represent on screen
 ```
 
-## -[ Tips ]-
+## Tips
 
-### -| NORMAL MODE |-
+### NORMAL MODE
 
 ```
 q:                              Open window command history
@@ -1750,7 +1750,7 @@ K                               Open the man page with the word under the cursor
 [CTRL]+]                        Goto the tag under the cursor
 ```
 
-### -| Shell |-
+### Shell
 
 Check `man 3 readline` to know how to edit **readline** configuration with **.inputrc** in your home directory  
 With this you can use all commands that use **readline** with VI keystroke
@@ -1771,7 +1771,7 @@ v                               Edit the command line with VIM(Default system $E
 :cq                             To quit VIM without execute the command line
 ```
 
-### -| EX MODE |-
+### EX MODE
 
 ```
 [CTRL]+F                        Open window command/search history
@@ -1781,14 +1781,14 @@ v                               Edit the command line with VIM(Default system $E
 
 # Extend VIM
 
-## -[ Plug-ins ]-
+## Plug-ins
 
 You can check the populars Neovim plug-in manager: [**Lazy.vim**](https://github.com/folke/lazy.nvim)
 
 Use [Neovim Craft](https://neovimcraft.com) to found a _plug-in_ according to your needs  
 Or If you prefer a list go to [**Awesome Neovim**](https://github.com/rockerBOO/awesome-neovim)
 
-### -| Populars Plug-ins |-
+### Populars Plug-ins
 
 | Plug-in                                                                   | Description                                                                       |
 | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
@@ -1851,7 +1851,7 @@ Check [Vim/Neovim Plugins for Writing](https://alpha2phi.medium.com/vim-neovim-p
 | [**vim-pencil**](https://github.com/preservim/vim-pencil)                    | Make Vim as powerful a tool for writers                                                        |
 | [**HighStr.nvim**](https://github.com/Pocco81/high-str.nvim)                 | Free highlighter                                                                               |
 
-### -| Links |-
+### Links
 
 | Link                                                                                  | Description                                                                         |
 | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
