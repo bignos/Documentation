@@ -8,7 +8,7 @@
 
 ---
 
-<h1>Table Of Content</h1>
+<h1>Table Of Contents:</h1>
 <!-- vim-markdown-toc GitLab -->
 
 * [References](#references)
