@@ -124,7 +124,7 @@
         * [Shell](#shell)
             * [Shell VI NORMAL MODE](#shell-vi-normal-mode)
         * [EX MODE](#ex-mode-16)
-* [Extend VIM](#extend-vim)
+* [Extend Neovim](#extend-neovim)
     * [Plug-ins](#plug-ins)
         * [Populars Plug-ins](#populars-plug-ins)
         * [All-in-One IDE configurations](#all-in-one-ide-configurations)
@@ -1739,7 +1739,7 @@ v                               Edit the command line with VIM(Default system $E
 :set cmdwinheight={n}           Define the height of the command history window
 ```
 
-# Extend VIM
+# Extend Neovim
 
 ## Plug-ins
 
