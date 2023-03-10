@@ -60,9 +60,6 @@
     * [Buffers](#buffers)
         * [Status flags](#status-flags)
         * [Special buffers](#special-buffers)
-    * [Abbreviation](#abbreviation)
-    * [Map](#map)
-    * [Macro](#macro)
     * [Windows](#windows)
         * [NORMAL MODE](#normal-mode-1)
             * [Opening and closing window](#opening-and-closing-window)
@@ -76,6 +73,9 @@
     * [Tabs](#tabs)
         * [NORMAL MODE](#normal-mode-2)
         * [EX MODE](#ex-mode-2)
+    * [Abbreviation](#abbreviation)
+    * [Map](#map)
+    * [Macro](#macro)
 * [VIM FOR DEVELOPMENT](#vim-for-development)
     * [NORMAL MODE](#normal-mode-3)
     * [EX MODE](#ex-mode-3)
@@ -1055,64 +1055,6 @@ If you want more information check `:help special-buffers`
 - _QuickFix_: Contains the list of errors created by your commands(View with `:cwindow` and for location `:lwindow`)
 - _scratch_: These buffers contain text for general purposes
 
-
-## Abbreviation
-
-> Abbreviations are for **INSERT MODE**
-
-```
-:ab abbreviation string    General form to declare an abbreviation.
-
-:ab mov Master of VIM      Now in Insert mode if you tape 'mov ' VIM change it for 'Master of VIM'
-:unab mov                  Remove the 'mov' abbreviation
-
-:ab 123 One^MTwo^MTree     Use of cariage return(^M) into an abbreviation
-
-:ab                        List all abbreviations
-```
-
-## Map
-
-> map is for **NORMAL MODE**
-> map! is for **INSERT MODE**
-
-```
-:map x sequence                                  General form to declare a map(shortcut). Define character 'x' as a sequence of editing commands.
-:map #1 sequence                                 General form to declare a map(shortcut). Define [F1] as a sequence of editing commands.
-:unmap x                                         General form to unset the map(shortcut) for 'x'
-
-:map x dwElp                                     Define 'x' to swap 2 words (not perfect example)
-:map x I<Root>^M^I<Node>^[ea</Node>^M</Root>^[   Define 'x' to encapsulate a word with a Root/Node XML structure
-:map x I/* ^[A */^[                              Define 'x' to add '/*' '*/' around a line
-:map x :s;.*;/* & */;^M                          Define 'x' to add '/*' '*/' around a line
-
-:let mapleader="`"                               Define '`' as the leader key
-:map <leader>a :q<cr>                            Define leader + 'a' to execute :q[ENTER] (quit)
-
-:map! x sequence                                 General form to declare a map(shortcut) but for INSERT MODE
-:unmap! x                                        General form to unset the map(shortcut) for INSERT MODE
-:map! + ^[lbi<U>^[ea</U>                         Define '+' to surround a word with <U> </U> on INSERT MODE
-
-:map                                             List all maps for NORMAL MODE
-:map!                                            List all maps for INSERT MODE
-
-:help :map-mode                                  Help about all map mode (map, noremap, map!, unmap)
-```
-
-## Macro
-
-To use macro you have to use **Named register**.  
-Save the commands sequence on a **Named register**.  
-Call the sequence with **@{nrg}**.  
-You can repeat the last macro with **@@**.
-
-```
-q{nrg}          Start macro recording for named register {nrg}
-q               Stop macro recording
-@{nrg}          Execute macro from named register {nrg}
-
-```
-
 ## Windows
 
 For more information check `:help windows.txt`
@@ -1274,6 +1216,63 @@ g<tab>              Goto the last accessed tab
 :tablast              Goto the last tab
 
 :tabs                 List all the tabs
+```
+
+## Abbreviation
+
+> Abbreviations are for **INSERT MODE**
+
+```
+:ab abbreviation string    General form to declare an abbreviation.
+
+:ab mov Master of VIM      Now in Insert mode if you tape 'mov ' VIM change it for 'Master of VIM'
+:unab mov                  Remove the 'mov' abbreviation
+
+:ab 123 One^MTwo^MTree     Use of cariage return(^M) into an abbreviation
+
+:ab                        List all abbreviations
+```
+
+## Map
+
+> map is for **NORMAL MODE**
+> map! is for **INSERT MODE**
+
+```
+:map x sequence                                  General form to declare a map(shortcut). Define character 'x' as a sequence of editing commands.
+:map #1 sequence                                 General form to declare a map(shortcut). Define [F1] as a sequence of editing commands.
+:unmap x                                         General form to unset the map(shortcut) for 'x'
+
+:map x dwElp                                     Define 'x' to swap 2 words (not perfect example)
+:map x I<Root>^M^I<Node>^[ea</Node>^M</Root>^[   Define 'x' to encapsulate a word with a Root/Node XML structure
+:map x I/* ^[A */^[                              Define 'x' to add '/*' '*/' around a line
+:map x :s;.*;/* & */;^M                          Define 'x' to add '/*' '*/' around a line
+
+:let mapleader="`"                               Define '`' as the leader key
+:map <leader>a :q<cr>                            Define leader + 'a' to execute :q[ENTER] (quit)
+
+:map! x sequence                                 General form to declare a map(shortcut) but for INSERT MODE
+:unmap! x                                        General form to unset the map(shortcut) for INSERT MODE
+:map! + ^[lbi<U>^[ea</U>                         Define '+' to surround a word with <U> </U> on INSERT MODE
+
+:map                                             List all maps for NORMAL MODE
+:map!                                            List all maps for INSERT MODE
+
+:help :map-mode                                  Help about all map mode (map, noremap, map!, unmap)
+```
+
+## Macro
+
+To use macro you have to use **Named register**.  
+Save the commands sequence on a **Named register**.  
+Call the sequence with **@{nrg}**.  
+You can repeat the last macro with **@@**.
+
+```
+q{nrg}          Start macro recording for named register {nrg}
+q               Stop macro recording
+@{nrg}          Execute macro from named register {nrg}
+
 ```
 
 # VIM FOR DEVELOPMENT
