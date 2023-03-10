@@ -132,7 +132,6 @@
         * [Links](#links-1)
 
 <!-- vim-markdown-toc -->
----
 
 # References
 
@@ -173,74 +172,79 @@
 ## COMMAND LINE
 
 ```
-vim [options] <FILENAME>                     General form of VIM command line
-vim <FILENAME>                               Open the file <FILENAME> with VIM
-vim <FILENAME1> <FILENAME2> .. <FILENAMEn>   Open multiple files with VIM
-ex <FILENAME>                                Open the file <FILENAME> with VIM in Ex mode
+nvim [options] <FILENAME>                     General form of VIM command line
+nvim <FILENAME>                               Open the file <FILENAME> with Neovim
+nvim <FILENAME1> <FILENAME2> .. <FILENAMEn>   Open multiple files with Neovim
+nvim -e <FILENAME>                            Open the file <FILENAME> with Neovim in Ex mode
 
-vim -c {n} <FILENAME>                        Open <FILENAME> at the line {n}
-vim -c /{pt} <FILENAME>                      Open <FILENAME> at the first occurence of pattern {pt}
-vim + <FILENAME>                             Open <FILENAME> at the last line
-vim +{n} <FILENAME>                          Open <FILENAME> at the line {n}
+nvim -c {n} <FILENAME>                        Open <FILENAME> at the line {n}
+nvim -c /{pt} <FILENAME>                      Open <FILENAME> at the first occurence of pattern {pt}
+nvim + <FILENAME>                             Open <FILENAME> at the last line
+nvim +{n} <FILENAME>                          Open <FILENAME> at the line {n}
 
-vim -R <FILENAME>                            Open <FILENAME> in read only mode
-view <FILENAME>                              Open <FILENAME> in read only mode
+nvim -R <FILENAME>                            Open <FILENAME> in read only mode
 
-rvim <FILENAME>                              Open <FILENAME> in restrictive mode(no shell command allowed)
-rview <FILENAME>                             Open <FILENAME> in restrictive mode(no shell command allowed) and read only mode
+nvim -d <FILENAME1> <FILENAME2>               Open VIM on DIFF mode to compare <FILENAME1> and <FILENAME2>
 
-evim <FILENAME>                              Open <FILENAME> with easy mode(VIM for beginner)
-eview <FILENAME>                             Open <FILENAME> with easy mode(VIM for beginner) and read only mode
+nvim -r                                       List all saved buffer by VI(Used for recovery)
+nvim -r <BUFFER>                              Recover the edited <BUFFER>
 
-vimdiff <FILENAME1> <FILENAME2>              Open VIM on DIFF mode to compare <FILENAME1> and <FILENAME2>
-vim -d <FILENAME1> <FILENAME2>               Open VIM on DIFF mode to compare <FILENAME1> and <FILENAME2>
-
-vim -r                                       List all saved buffer by VI(Used for recovery)
-ex -r                                        List all saved buffer by VI(Used for recovery)
-vim -r <BUFFER>                              Recover the edited <BUFFER>
-
-ex -s <FILENAME> < <SCRIPT_FILENAME>         Execute the vim script <SCRIPT_FILENAME> on the file <FILENAME>
+nvim -e -s <FILENAME> < <SCRIPT_FILENAME>         Execute the vim script <SCRIPT_FILENAME> on the file <FILENAME>
 ```
 
 ### Options
 
 For more information about command line arguments check `:help cli-arguments`
 
-| Option        | Description                                                                                                                                                                                                                                                                                                                                |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| +[num]        | Start editing at line number num, or at the last line of the file if num is omitted                                                                                                                                                                                                                                                        |
-| +/{pt}        | Start editing at the first line matching pattern {pt}                                                                                                                                                                                                                                                                                      |
-| +?{pt}        | Start editing at the last line matching pattern {pt}                                                                                                                                                                                                                                                                                       |
-| -b            | Edit the file in binary mode                                                                                                                                                                                                                                                                                                               |
-| -c {ec}       | Run the given EX command {ec} upon startup                                                                                                                                                                                                                                                                                                 |
-| --cmd {ec}    | Like -c, but execute the command before any configuration files are read                                                                                                                                                                                                                                                                   |
-| -C            | Start the editor in vi-compatible mode                                                                                                                                                                                                                                                                                                     |
-| -d            | Run in diff mode<br> Works like vimdiff                                                                                                                                                                                                                                                                                                    |
-| -D            | Debugging mode for use with scripts                                                                                                                                                                                                                                                                                                        |
-| -e            | Run as EX (line-editing rather than full-screen mode)                                                                                                                                                                                                                                                                                      |
-| -h            | Print help message                                                                                                                                                                                                                                                                                                                         |
-| -l            | Enter Lisp mode for running Lisp programs                                                                                                                                                                                                                                                                                                  |
-| -L            | List files that were saved due to an aborted editor session or system crash this option is the same as -r                                                                                                                                                                                                                                  |
-| -m            | Start the editor with the write option turned off                                                                                                                                                                                                                                                                                          |
-| -M            | Do not allow text in files to be modified<br> This is similar to -m but additionally blocks any changes to the buffer                                                                                                                                                                                                                      |
-| -n            | Do not use a swap file(record changes in memory only)                                                                                                                                                                                                                                                                                      |
-| --noplugin    | Do not load any plug-ins                                                                                                                                                                                                                                                                                                                   |
-| -N            | Run VIM in a non-vi-compatible mode                                                                                                                                                                                                                                                                                                        |
-| -o{n}         | Start VIM with {n} open windows                                                                                                                                                                                                                                                                                                            |
-| -O{n}         | Start VIM with {n} open windows(split vertically)                                                                                                                                                                                                                                                                                          |
-| -r <FILENAME> | Recovery mode; recover and resume editing on file after an aborted editor session or system crash<br> Without file, list files available for recovery                                                                                                                                                                                      |
-| -R            | Edit files in read-only mode                                                                                                                                                                                                                                                                                                               |
-| -s <FILENAME> | Read and execute commands given in the specified scriptfile <FILENAME>                                                                                                                                                                                                                                                                     |
-| -S <FILENAME> | Read and execute commands given in commandfile <FILENAME><br> Shorthand for `vim -c 'source <FILENAME>'`                                                                                                                                                                                                                                   |
-| -t {tg}       | Edit the file containing tag {tg}, and position the cursor at its definition                                                                                                                                                                                                                                                               |
-| -T type       | Set the term (terminal type) option<br> This value overrides the $TERM environment variable                                                                                                                                                                                                                                                |
-| -u <FILENAME> | Read configuration information from the specified configuration file instead of the default _.vimrc_ configuration file<br> If the file argument is **NONE**, VIM reads no configuration files, loads no plug-ins, and runs in compatible mode<br> If the argument is **NORC**, it reads no configuration files, but it does load plug-ins |
-| -v            | Run in full-screen mode                                                                                                                                                                                                                                                                                                                    |
-| --version     | Print version information                                                                                                                                                                                                                                                                                                                  |
-| -V{n}         | Verbose mode; print messages about what options are being set and what files are being read or written<br> You can set a level of verbosity {n} to increase or decrease the number of messages received<br> The default value is 10 for high verbosity                                                                                     |
-| -W <FILENAME> | Write all typed commands from the current session to the specified scriptfile <FILENAME><br> The file thus created can be used with the -s option                                                                                                                                                                                          |
-| -y            | Modeless vi; run VIM in insert mode only, without a NORMAL MODE<br> This is the same as invoking VIM as `evim`                                                                                                                                                                                                                             |
-| -Z            | Start VIM in restricted mode<br> Do not allow shell commands or suspension of the editor                                                                                                                                                                                                                                                   |
+| Option                | Description                                                                                                         |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| --help                | Give usage (help) message and exit                                                                                  |
+| -?                    | Give usage (help) message and exit                                                                                  |
+| -h                    | Give usage (help) message and exit                                                                                  |
+| --version             | Print version information and exit                                                                                  |
+| -v                    | Print version information and exit                                                                                  |
+| --clean               | Mimics a fresh install of Nvim                                                                                      |
+| --noplugin            | Skip loading plugins                                                                                                |
+| --startuptime {fname} | During startup write timing messages to the file {fname}                                                            |
+| +{n}                  | The cursor will be positioned on line {n}                                                                           |
+| +/{pt}                | The cursor will be positioned on the first line that validates the pattern {pt}                                     |
+| +{ec}                 | The EX command {ec} will be executed after the first file has been read                                             |
+| -c {ec}               | The EX command {ec} will be executed after the first file has been read                                             |
+| --cmd {ec}            | The EX command {ec} will be executed before processing any vimrc file                                               |
+| -S <FILENAME>         | Executes Vimscript or Lua (".lua") <FILENAME> after the first file has been read                                    |
+| -L                    | Recovery mode                                                                                                       |
+| -r                    | Recovery mode                                                                                                       |
+| -R                    | Readonly mode                                                                                                       |
+| -m                    | Modifications not allowed to be written                                                                             |
+| -M                    | Modifications not allowed                                                                                           |
+| -e                    | Start Neovim in Ex mode                                                                                             |
+| -E                    | Start Neovim in Ex mode                                                                                             |
+| -es                   | Script mode                                                                                                         |
+| -Es                   | Script mode                                                                                                         |
+| -l {script} [args]    | Executes Lua {script} non-interactively (no UI) with optional [args] after processing any preceding Neovim argument |
+| -ll {script} [args]   | Execute a lua script, similarly to -l, but the editor is not initialized                                            |
+| -b                    | Binary mode                                                                                                         |
+| -A                    | Arabic mode                                                                                                         |
+| -H                    | Hebrew mode                                                                                                         |
+| -V{n}                 | Sets the 'verbose' option to {n}                                                                                    |
+| -V{n}<FILENAME>       | Sets the 'verbose' option to {n} and write all message to <FILENAME>                                                |
+| -D                    | Debugging mode                                                                                                      |
+| -n                    | No swap-file will be used                                                                                           |
+| -o{n}                 | Open {n} windows, split horizontally                                                                                |
+| -O{n}                 | Open {n} windows, split vertically                                                                                  |
+| -p{n}                 | Open {n} tab pages                                                                                                  |
+| -d                    | Diff-mode                                                                                                           |
+| -u {vimrc}            | The file {vimrc} is read for initializations                                                                        |
+| -i {shada}            | The file {shada} is used instead of the default ShaDa file                                                          |
+| -s {scriptin}         | Read script file {scriptin}, interpreting characters as Normal-mode input                                           |
+| -w {n}                | Set the 'window' option to {n}                                                                                      |
+| -w{n}                 | Set the 'window' option to {n}                                                                                      |
+| -w {scriptout}        | All keys that you type are recorded in the file "scriptout", until you exit Neovim                                  |
+| -W {scriptout}        | Like -w, but do not append, overwrite an existing file                                                              |
+| --api-info            | Print msgpack-encoded api-metadata and exit                                                                         |
+| --embed               | Use stdin/stdout as a msgpack-RPC channel                                                                           |
+| --headless            | Start without UI                                                                                                    |
+| --listen {addr}       | Start RPC server on pipe or TCP address {addr}                                                                      |
 
 ## General Form of VI commands
 
@@ -422,7 +426,8 @@ i               Ignore case
 
 &               Use previous regular expression modifier, you have to use ':&&' before to save old modifier
 ```
-# Usage 
+
+# Usage
 
 ## NORMAL MODE
 
