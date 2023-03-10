@@ -9,6 +9,7 @@
 ---
 <!-- vim-markdown-toc GFM -->
 
+* [References](#references)
     * [-[ Links ]-](#--links--)
     * [-[ Abbreviations ]-](#--abbreviations--)
     * [-[ COMMAND LINE ]-](#--command-line--)
@@ -22,6 +23,7 @@
         * [/- Regular expression delimiter -\](#--regular-expression-delimiter--)
         * [/- POSIX character classes -\](#--posix-character-classes--)
     * [-[ Regular expression modifier ]-](#--regular-expression-modifier--)
+* [Usage](#usage)
     * [-[ NORMAL MODE ]-](#--normal-mode--)
         * [/- Edit commands -\](#--edit-commands--)
         * [/- Copying commands -\](#--copying-commands--)
@@ -129,6 +131,8 @@
 
 <!-- vim-markdown-toc -->
 ---
+
+# References
 
 ## -[ Links ]-
 
@@ -416,6 +420,7 @@ i               Ignore case
 
 &               Use previous regular expression modifier, you have to use ':&&' before to save old modifier
 ```
+# Usage 
 
 ## -[ NORMAL MODE ]-
 
