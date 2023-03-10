@@ -1655,51 +1655,80 @@ v                               Edit the command line with VIM(Default system $E
 
 ## -[ Plug-ins ]-
 
-You can check the populare VIM plug-in manager: [**Vundle**](https://github.com/VundleVim/Vundle.vim)
+You can check the populars Neovim plug-in manager: [**Lazy.vim**](https://github.com/folke/lazy.nvim)
 
-Use [VIM Awesome](https://vimawesome.com) to found a _plug-in_ according to your needs
+Use [Neovim Craft](https://neovimcraft.com) to found a _plug-in_ according to your needs  
+Or If you prefer a list go to [**Awesome Neovim**](https://github.com/rockerBOO/awesome-neovim)
 
 ### /- Populars Plug-ins -\
 
-| Plug-in                                                                    | Description                                                                                                             |
-| -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| [**EditorConfig**](https://github.com/editorconfig/editorconfig-vim)       | Allow VIM to use [_EditorConfig_](https://editorconfig.org) files                                                       |
-| [**NERDTree**](https://github.com/preservim/nerdtree)                      | File explorer                                                                                                           |
-| [**nerdtree-git-plug-in**](https://github.com/Xuyuanp/nerdtree-git-plugin) | Git plug-in for _NERDTree_                                                                                              |
-| [**Fugitive**](https://github.com/tpope/vim-fugitive)                      | Git on VIM                                                                                                              |
-| [**YouCompleteMe**](https://github.com/ycm-core/YouCompleteMe)             | Completion                                                                                                              |
-| [**The Asynchronous Lint Engine**](https://github.com/dense-analysis/ale)  | Completion                                                                                                              |
-| [**Syntastic**](https://github.com/vim-syntastic/syntastic)                | Completion                                                                                                              |
-| [**Conquer of Completion**](https://github.com/neoclide/coc.nvim)          | Completion                                                                                                              |
-| [**Jedi-vim**](https://github.com/davidhalter/jedi-vim)                    | Python autocompletion                                                                                                   |
-| [**Kite**](https://www.kite.com)                                           | AI-based autocompletion **COMERCIAL SOFTWARE**                                                                          |
-| **Termdebug**                                                              | GDB for VIM. This plug-in is included with VIM, to install you have to use `:packadd termdebug` and `:Termdebug` to run |
+| Plug-in                                                                   | Description                                                                       |
+| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| [**Telescope**](https://github.com/nvim-telescope/telescope.nvim)         | The fuzzy finder                                                                  |
+| [**Nvim-treesitter**](https://github.com/nvim-treesitter/nvim-treesitter) | Syntax tree for a better syntax coloring                                          |
+| [**nvim-cmp**](https://github.com/hrsh7th/nvim-cmp)                       | Completion                                                                        |
+| [**coq.nvim**](https://github.com/ms-jpq/coq_nvim)                        | Completion                                                                        |
+| [**LSPSaga**](https://github.com/glepnir/lspsaga.nvim)                    | Lightweight LSP plugin based on Neovim's built-in LSP with a highly performant UI |
+| [**null-ls.nvim**](https://github.com/jose-elias-alvarez/null-ls.nvim)    | Use Neovim as a language server to inject LSP                                     |
+| [**mason.nvim**](https://github.com/williamboman/mason.nvim)              | Easily install and manage LSP servers, DAP servers, linters, and formatters       |
+| [**LuaSnip**](https://github.com/L3MON4D3/LuaSnip)                        | Snippet Engine for Neovim                                                         |
+| [**Trouble**](https://github.com/folke/trouble.nvim)                      | Help show diagnostics                                                             |
+| [**gitsigns.nvim**](https://github.com/lewis6991/gitsigns.nvim)           | Git decoration                                                                    |
+| [**Neogit**](https://github.com/TimUntersberger/neogit)                   | Git TUI(Text User Interface)                                                      |
+| [**nvim-autopairs**](https://github.com/windwp/nvim-autopairs)            | Autopair                                                                          |
+| [**lazy.nvim**](https://github.com/folke/lazy.nvim)                       | Modern plugin manager                                                             |
+| [**lualine.nvim**](https://github.com/nvim-lualine/lualine.nvim)          | Status line                                                                       |
+| [**Tokyo Night**](https://github.com/folke/tokyonight.nvim)               | Theme                                                                             |
+| [**leap.nvim**](https://github.com/ggandor/leap.nvim)                     | Go anywhere on the screen with a maximum of 3 keystrokes                          |
+| [**Which Key**](https://github.com/folke/which-key.nvim)                  | Displays a popup with possible key bindings of the command you started typing     |
+| [**nvim-tree**](https://github.com/nvim-tree/nvim-tree.lua)               | File explorer                                                                     |
+| [**Harpoon**](https://github.com/ThePrimeagen/harpoon)                    | File switcher, Faster navigation                                                  |
+| [**Diffview.nvim**](https://github.com/sindrets/diffview.nvim)            | Git Merge tool and files history                                                  |
+| [**mini.nvim**](https://github.com/echasnovski/mini.nvim)                 | Library of 20+ independent Lua modules improving overall Neovim                   |
+| [**dashboard-nvim**](https://github.com/glepnir/dashboard-nvim)           | Dashboard                                                                         |
 
 #### All-in-One IDE configurations
 
-| Link                                                                                                      | Description                                    |
-| --------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| [**VIM as an IDE**](https://github.com/jez/vim-as-an-ide)                                                 | How to transform VIM as an IDE(_Old tutorial_) |
-| [**VIMspector**](https://github.com/puremourning/vimspector)                                              | Multi language graphical debugger for VIM      |
-| [**VIMCPP**](https://github.com/kingofctrl/vim.cpp)                                                       | C/C++ IDE                                      |
-| [**Python-mode**](https://github.com/python-mode/python-mode)                                             | Python IDE                                     |
-| [**Vim and Python—A Match Made in Heaven**](https://realpython.com/vim-and-python-a-match-made-in-heaven) | Python IDE                                     |
-| [**Vim Upgrade 2017**](https://haridas.in/vim-upgrade-2017.html)                                          | Python IDE                                     |
-| [**Vim as a Python IDE**](https://rapphil.github.io/vim-python-ide)                                       | Python IDE                                     |
-| [**chenfjm’s VimPlugins**](https://github.com/chenfjm/VimPlugins)                                         | IDE Neovim configuration                       |
+| Link                                                              | Description                                                                                                |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| [**NvChad**](https://github.com/NvChad/NvChad)                    | An attempt to make neovim cli functional like an IDE while being very beautiful, blazing fast startuptime  |
+| [**LunarVim**](https://github.com/LunarVim/LunarVim)              | An IDE layer for Neovim with sane defaults                                                                 |
+| [**AstroNvim**](https://github.com/AstroNvim/AstroNvim)           | An aesthetic and feature-rich neovim config that is extensible and easy to use with a great set of plugins |
+| [**LazyVim**](https://github.com/LazyVim/LazyVim)                 | The flexibility to tweak your config as needed, along with the convenience of a pre-configured setup       |
+| [**kickstart.nvim**](https://github.com/nvim-lua/kickstart.nvim)  | A launch point for your personal Neovim configuration                                                      |
+| [**CosmicNvim**](https://github.com/CosmicNvim/CosmicNvim)        | Lightweight and opinionated Neovim config for web development                                              |
+| [**Doom Nvim**](https://github.com/doom-neovim/doom-nvim)         | Configuration for the advanced martian hacker                                                              |
+| [**CodeArtart**](https://github.com/artart222/CodeArt)            | Use NeoVim as general purpose IDE                                                                          |
+| [**Nyoom.nvim**](https://github.com/nyoom-engineering/nyoom.nvim) | Used as a framework config for users to extend and add upon, leading to a more unique editing experience   |
+| [**NVIM-IDE**](https://github.com/ldelossa/nvim-ide)              | nvim-ide is a complete IDE layer for Neovim, heavily inspired by vscode                                    |
 
 #### Writer plug-ins
 
-Check [Top 10 Vim Plugins for Writers](https://medium.com/@x.line/best-vim-plugins-for-writers-ranked-ab13d8d72cce) for more informations
+Check [Vim/Neovim Plugins for Writing](https://alpha2phi.medium.com/vim-neovim-plugins-for-writing-d18414c7b21d) for more informations
 
-| Plug-in                                                                    | Description                                                                                                            |
-| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| [**vim-pencil**](https://github.com/reedes/vim-pencil)                     | Tools for writer                                                                                                       |
-| [**vim-ditto**](https://github.com/dbmrq/vim-ditto)                        | Highlights repeated words in a paragraph                                                                               |
-| [**vim-goyo**](https://github.com/junegunn/goyo.vim)                       | Zen mode(no distraction)                                                                                               |
-| [**vim-colors-pencil**](https://github.com/reedes/vim-colors-pencil)       | Low contrast colorscheme                                                                                               |
-| [**vim-litecorrect**](https://github.com/reedes/vim-litecorrect)           | Auto-correct common mistakes                                                                                           |
-| [**vim-lexical**](https://github.com/reedes/vim-lexical)                   | Combined spellchecker and thesaurus                                                                                    |
-| [**vim-textobj-sentence**](https://github.com/reedes/vim-textobj-sentence) | Better sentence navigation                                                                                             |
-| [**vim-textobj-quote**](https://github.com/reedes/vim-textobj-quote)       | Smartly creates quotes                                                                                                 |
-| [**ALE**](https://github.com/dense-analysis/ale)                           | Supports a bunch of style checkers like [proselint](http://proselint.com) and [LanguageTool](https://languagetool.org) |
+| Plug-in                                                                      | Description                                                                                    |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| [**Zen Mode**](https://github.com/folke/zen-mode.nvim)                       | Distraction-free                                                                               |
+| [**true-zen.nvim**](https://github.com/Pocco81/true-zen.nvim)                | Clean and elegant distraction-free writing                                                     |
+| [**markdowny.nvim**](https://github.com/antonk52/markdowny.nvim)             | For markdown like keybindings                                                                  |
+| [**vim-markdown-toc**](https://github.com/mzlogin/vim-markdown-toc)          | Generate table of contents for Markdown files                                                  |
+| [**glow.nvim**](https://github.com/ellisonleao/glow.nvim)                    | Preview Markdown code directly in your Neovim terminal                                         |
+| [**markdown-preview.nvim**](https://github.com/iamcco/markdown-preview.nvim) | Preview Markdown on your modern browser with synchronised scrolling and flexible configuration |
+| [**peek.nvim**](https://github.com/toppair/peek.nvim)                        | Preview Markdown                                                                               |
+| [**KNAP**](https://github.com/frabjous/knap)                                 | Preview for Latex and Markdown                                                                 |
+| [**vim-grammarous**](https://github.com/rhysd/vim-grammarous)                | Grammar checker                                                                                |
+| [**vim-LanguageTool**](https://github.com/dpelle/vim-LanguageTool)           | Integrates the LanguageTool grammar checker                                                    |
+| [**VIM Table Mode**](https://github.com/dhruvasagar/vim-table-mode)          | Automatic table creator & formatter                                                            |
+| [**vim-pandoc**](https://github.com/vim-pandoc/vim-pandoc)                   | Provides facilities to integrate Neovim with pandoc                                            |
+| [**vim-pencil**](https://github.com/preservim/vim-pencil)                    | Make Vim as powerful a tool for writers                                                        |
+| [**HighStr.nvim**](https://github.com/Pocco81/high-str.nvim)                 | Free highlighter                                                                               |
+
+### /- Links -\
+
+| Link                                                                                  | Description                                                                         |
+| ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| [**Neovimcraft**](https://neovimcraft.com/)                                           | Plugins search engine specific to Neovim                                            |
+| [**VimAwesome**](https://vimawesome.com/)                                             | The VIM plugins search engine                                                       |
+| [**Awesome Neovim**](https://github.com/rockerBOO/awesome-neovim)                     | List of Neovim plugins by category                                                  |
+| [**Neovim plugins blog**](https://www.barbarianmeetscoding.com/notes/neovim-plugins/) | Tutorial for most populars neovim plugins with a good start for using Lua on Neovim |
+| [**This Week In Neovim**](https://this-week-in-neovim.org/)                           | Weekly news about Neovim                                                            |
