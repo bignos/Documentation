@@ -7,7 +7,7 @@
 </p>
 
 ---
-<!-- vim-markdown-toc Marked -->
+<!-- vim-markdown-toc Redcarpet -->
 
 * [References](#references)
     * [Links](#links)
@@ -39,7 +39,7 @@
         * [Line number Movements](#line-number-movements)
     * [EX MODE](#ex-mode)
         * [Filename shortcut](#filename-shortcut)
-        * [The :set Command](#the-:set-command)
+        * [The :set Command](#the-set-command)
         * [Shell command](#shell-command)
     * [FULL EX MODE](#full-ex-mode)
         * [FULL EX MODE Examples](#full-ex-mode-examples)
@@ -48,7 +48,7 @@
             * [Map](#map)
             * [Macro](#macro)
     * [INSERT MODE](#insert-mode)
-        * [Insert / Delete](#insert-/-delete)
+        * [Insert / Delete](#insert-delete)
         * [Motions](#motions)
 * [VIM FOR DEVELOPMENT](#vim-for-development)
     * [NORMAL MODE](#normal-mode)
