@@ -29,6 +29,7 @@
         * [Regular expression modifier](#regular-expression-modifier)
     * [Help](#help)
         * [Usage](#usage)
+        * [Context](#context)
         * [Navigation](#navigation)
 * [Usage](#usage-1)
     * [NORMAL MODE](#normal-mode)
@@ -253,7 +254,6 @@ For more information about command line arguments check `:help cli-arguments`
 | --headless            | Start without UI                                                                                                    |
 | --listen {addr}       | Start RPC server on pipe or TCP address {addr}                                                                      |
 
-
 ## Startup
 
 Check `:help startup` for up to date information about Neovim Startup
@@ -420,17 +420,38 @@ i               Ignore case
 
 ### Usage
 
+More information about the help command with `:help helphelp.txt`
+
 ```
 :help             Help introduction to use Neovim
 :help <subject>   Help for the subject in parameter
 :h <subject>      Help for the subject in parameter
+
+:helpgrep {pt}    Search all help text files and make a list of lines in which pattern {pt} matches
 ```
+
+### Context
+
+| Prefix | Example        | Context         |
+| ------ | -------------- | --------------- |
+| :      | :help :r       | EX command      |
+| none   | :help r        | NORMAL MODE     |
+| v\_    | :help v_r      | VISUAL MODE     |
+| i\_    | :help i_CTRL-W | INSERT MODE     |
+| C\_    | :help c_CTRL-R | EX command line |
+| /      | :help /\r      | Search pattern  |
+| '      | :help 'ro'     | Option          |
+| -      | :help -r       | Vim argument    |
 
 ### Navigation
 
 ```
+# NORMAL MODE
 [CTRL]+]   Goto mark under the cursor
 [CTRL]+O   Goto previous position
+
+# EX MODE
+:tag {tg}  Goto the definition of the mark {tg}
 ```
 
 # Usage
