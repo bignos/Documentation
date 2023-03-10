@@ -8,9 +8,7 @@
 
 ---
 
-<h1 align="center">
-                                 Table Of Content
-</h1>
+Table Of Content
 <!-- vim-markdown-toc GitLab -->
 
 * [References](#references)
