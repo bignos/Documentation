@@ -76,61 +76,62 @@
             * [Moving windows](#moving-windows)
             * [Window resizing](#window-resizing)
             * [Windows and Tags](#windows-and-tags)
-        * [EX MODE](#ex-mode-1)
+        * [COMMAND MODE](#command-mode)
             * [Settings](#settings)
             * [Commands](#commands-1)
     * [Tabs](#tabs)
         * [NORMAL MODE](#normal-mode-2)
-        * [EX MODE](#ex-mode-2)
+        * [COMMAND MODE](#command-mode-1)
     * [Abbreviation](#abbreviation)
     * [Map](#map)
     * [Macro](#macro)
 * [Development](#development)
     * [NORMAL MODE](#normal-mode-3)
-    * [EX MODE](#ex-mode-3)
+    * [COMMAND MODE](#command-mode-2)
+        * [Options](#options-2)
         * [Tags](#tags)
         * [Folding and Outlining](#folding-and-outlining)
             * [NORMAL MODE](#normal-mode-4)
-            * [EX MODE](#ex-mode-4)
-            * [Options](#options-2)
-        * [Auto and smart indenting](#auto-and-smart-indenting)
+            * [COMMAND MODE](#command-mode-3)
             * [Options](#options-3)
+        * [Auto and smart indenting](#auto-and-smart-indenting)
+            * [Options](#options-4)
         * [Word completion](#word-completion)
             * [INSERT MODE](#insert-mode-1)
         * [Syntax Highlighting](#syntax-highlighting)
-            * [EX MODE](#ex-mode-5)
+            * [COMMAND MODE](#command-mode-4)
         * [Compiling](#compiling)
-            * [EX MODE](#ex-mode-6)
+            * [COMMAND MODE](#command-mode-5)
         * [Quickfix list window](#quickfix-list-window)
-            * [EX MODE](#ex-mode-7)
+            * [COMMAND MODE](#command-mode-6)
 * [Tools](#tools)
     * [Terminal](#terminal)
     * [Spellchecking](#spellchecking)
         * [NORMAL MODE](#normal-mode-5)
-        * [EX MODE](#ex-mode-8)
+        * [COMMAND MODE](#command-mode-7)
     * [Binary files](#binary-files)
         * [Command line](#command-line-1)
-        * [EX MODE](#ex-mode-9)
+        * [COMMAND MODE](#command-mode-8)
     * [Non ASCII Characters](#non-ascii-characters)
         * [Digraph metacharacters](#digraph-metacharacters)
     * [Edit files over network](#edit-files-over-network)
         * [Command line](#command-line-2)
-        * [EX MODE](#ex-mode-10)
+        * [COMMAND MODE](#command-mode-9)
     * [Changing directories](#changing-directories)
-        * [EX MODE](#ex-mode-11)
+        * [COMMAND MODE](#command-mode-10)
     * [Backup](#backup)
-        * [EX MODE](#ex-mode-12)
+        * [COMMAND MODE](#command-mode-11)
     * [Convert to HTML](#convert-to-html)
-        * [EX MODE](#ex-mode-13)
+        * [COMMAND MODE](#command-mode-12)
     * [Environment backup](#environment-backup)
-        * [EX MODE](#ex-mode-14)
+        * [COMMAND MODE](#command-mode-13)
     * [Lines settings](#lines-settings)
-        * [EX MODE](#ex-mode-15)
+        * [COMMAND MODE](#command-mode-14)
     * [Tips](#tips)
         * [NORMAL MODE](#normal-mode-6)
         * [Shell](#shell)
             * [Shell VI NORMAL MODE](#shell-vi-normal-mode)
-        * [EX MODE](#ex-mode-16)
+        * [COMMAND MODE](#command-mode-15)
 * [Extend Neovim](#extend-neovim)
     * [Script](#script)
     * [Plug-ins](#plug-ins)
@@ -475,7 +476,7 @@ More information about the help command with `:help helphelp.txt`
 
 gO         Table of content
 
-# EX MODE
+# COMMAND MODE
 :tag {tg}  Goto the definition of the mark {tg}
 ```
 
@@ -492,8 +493,8 @@ Check `:help index.txt` for **all commands references**
 For more informations check `:help vim-modes`
 
 ```
-:          EX MODE
-gQ         FULL EX MODE
+:          COMMAND MODE
+gQ         EX MODE
 
 i          INSERT MODE
 
@@ -853,7 +854,7 @@ If you want more details about Neovim options check `:help option-list`
 For more information check `:help :!cmd`
 
 ```
-// EX MODE
+// COMMAND MODE
 :!{sc}                     General form to send shell command {sc} to the system and display the result
 :{ra}!                     Send the content of the range {ra} to the shell command {sc}(like |)
 
@@ -910,8 +911,8 @@ For a **Guide** check [Ex Reference Manual](https://docs-archive.freebsd.org/44d
 :ya {rg}            Yank(Copy) current line to the register {rg}
 :pu {rg}            Put the content of register {rg} after the current line
 
-:visual             Exit Full EX MODE (Return to visual editor[vi])
-:vi                 Exit Full EX MODE (Return to visual editor[vi])
+:visual             Exit EX MODE (Return to visual editor[vi])
+:vi                 Exit EX MODE (Return to visual editor[vi])
 ```
 
 ### Examples
@@ -1297,7 +1298,7 @@ All windows command are prefixed with **[CTRL]+W**
 [CTRL]+W gT               Goto previous tab
 ```
 
-### EX MODE
+### COMMAND MODE
 
 #### Settings
 
@@ -1349,7 +1350,7 @@ gT                  Goto the previous tab
 g<tab>              Goto the last accessed tab
 ```
 
-### EX MODE
+### COMMAND MODE
 
 ```
 :tabnew               Open a new tab
@@ -1436,7 +1437,9 @@ q               Stop macro recording
 %             Move the cursor to the other bracket(Useful to find where you forgot a '}')
 ```
 
-## EX MODE
+## COMMAND MODE
+
+### Options
 
 ```
 :set autoindent           Automatic indentation control
@@ -1511,7 +1514,7 @@ zn                  Unset the foldenable option
 zN                  Set the foldenable option
 ```
 
-#### EX MODE
+#### COMMAND MODE
 
 ```
 :{ra}fold           Create a fold with the lines of the range {ra}
@@ -1577,7 +1580,7 @@ All color scheme files are on **$VIMRUNTIME** + `/colors`
 
 For list and description of all **Highlight groups** check `:help highlight-groups`
 
-#### EX MODE
+#### COMMAND MODE
 
 ```
 :syntax on              Enable syntax highlighting
@@ -1597,7 +1600,7 @@ For list and description of all **Highlight groups** check `:help highlight-grou
 
 ### Compiling
 
-#### EX MODE
+#### COMMAND MODE
 
 ```
 :make <FILENAME>        Compile <FILENAME>
@@ -1606,7 +1609,7 @@ For list and description of all **Highlight groups** check `:help highlight-grou
 
 ### Quickfix list window
 
-#### EX MODE
+#### COMMAND MODE
 
 ```
 :copen                  Open QuickFix list window
@@ -1654,7 +1657,7 @@ zW  Add the word under the cursor to the list of bad words in the internal-wordl
 z=  Display the list of suggestions for replacement of a bad word
 ```
 
-### EX MODE
+### COMMAND MODE
 
 ```
 :setlocal spell spelllang={li}   Turn on spellchecking and set the spellchecking region with the language ISO CODE {li}
@@ -1674,7 +1677,7 @@ z=  Display the list of suggestions for replacement of a bad word
 vim -b <FILENAME>
 ```
 
-### EX MODE
+### COMMAND MODE
 
 ```
 :set binary                     Enable Binary mode
@@ -1740,7 +1743,7 @@ vim scp://bignose@192.168.1.101/test.txt                        Open a distant f
 vim scp://bignose@192.168.1.101/                                Open a distant directory
 ```
 
-### EX MODE
+### COMMAND MODE
 
 ```
 :Nread <PROTOCOL>://<USER>@<HOST>:<PORT>//<PATH>                General form of netrw remote file accessing for reading
@@ -1751,7 +1754,7 @@ vim scp://bignose@192.168.1.101/                                Open a distant d
 
 You can do this only if **netrw** ist _enabled_(On default VIM version it's the case)
 
-### EX MODE
+### COMMAND MODE
 
 ```
 :Explore                        Open explorer(netrw)
@@ -1765,7 +1768,7 @@ You can do this only if **netrw** ist _enabled_(On default VIM version it's the 
 VIM backup files for recovery crash.  
 The user can change some settings
 
-### EX MODE
+### COMMAND MODE
 
 ```
 :set backup                     Enable backup (Keep alternate backup during the session)
@@ -1778,7 +1781,7 @@ The user can change some settings
 
 ## Convert to HTML
 
-### EX MODE
+### COMMAND MODE
 
 ```
 :runtime!syntax/2html.vim       Tranform the current buffer to HTML for visualization
@@ -1792,7 +1795,7 @@ Check `:help 'viminfo'` for more information about the expected format.
 
 You can also use **session** for specific environment backup.
 
-### EX MODE
+### COMMAND MODE
 
 ```
 :mksession <FILENAME>           Save actual VIM session on the file <FILENAME>
@@ -1801,7 +1804,7 @@ You can also use **session** for specific environment backup.
 
 ## Lines settings
 
-### EX MODE
+### COMMAND MODE
 
 ```
 :set wrap                       Enable line wraping if the line is larger than the screen
@@ -1851,7 +1854,7 @@ v                               Edit the command line with VIM(Default system $E
 :cq                             To quit VIM without execute the command line
 ```
 
-### EX MODE
+### COMMAND MODE
 
 ```
 [CTRL]+F                        Open window command/search history
