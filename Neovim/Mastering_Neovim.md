@@ -25,7 +25,7 @@
         * [Regular expression delimiter](#regular-expression-delimiter)
         * [Regular expression metacharacters](#regular-expression-metacharacters)
         * [Regular expression character class](#regular-expression-character-class)
-        * [POSIX character classes](#posix-character-classes)
+            * [POSIX character classes](#posix-character-classes)
         * [Regular expression modifier](#regular-expression-modifier)
     * [Help](#help)
         * [Usage](#usage)
@@ -33,28 +33,36 @@
         * [Navigation](#navigation)
 * [Usage](#usage-1)
     * [NORMAL MODE](#normal-mode)
-        * [Edit commands](#edit-commands)
-        * [Copying commands](#copying-commands)
-        * [Single Movements](#single-movements)
-        * [Buffer Movements](#buffer-movements)
-        * [Block Movements](#block-movements)
-        * [Line Movements](#line-movements)
-        * [Screen line Movements](#screen-line-movements)
-        * [Screen Movements](#screen-movements)
-        * [Search Movements](#search-movements)
-            * [Text Search Movements](#text-search-movements)
-            * [Line Search Movements](#line-search-movements)
-        * [Line number Movements](#line-number-movements)
-    * [EX MODE](#ex-mode)
-        * [Filename shortcut](#filename-shortcut)
-        * [The :set Command](#the-set-command)
+        * [Change](#change)
+        * [Copy](#copy)
+        * [Motion](#motion)
+            * [Single](#single)
+            * [Buffer](#buffer)
+            * [Block](#block)
+            * [Line](#line)
+            * [Screen line](#screen-line)
+            * [Scroll](#scroll)
+            * [Search](#search)
+                * [Text](#text)
+                * [Line](#line-1)
+    * [COMMAND-LINE MODE](#command-line-mode)
+        * [Special key](#special-key)
+        * [File](#file)
+        * [Special character](#special-character)
+        * [Options](#options-1)
         * [Shell command](#shell-command)
-    * [FULL EX MODE](#full-ex-mode)
-        * [FULL EX MODE Examples](#full-ex-mode-examples)
+    * [EX MODE](#ex-mode)
+        * [Examples](#examples)
     * [INSERT MODE](#insert-mode)
         * [Insert / Delete](#insert-delete)
         * [Motions](#motions)
     * [VISUAL MODE](#visual-mode)
+        * [Start / Stop](#start-stop)
+        * [Change selection](#change-selection)
+        * [Operators](#operators)
+            * [Operations](#operations)
+            * [Objects](#objects)
+            * [Commands](#commands)
 * [Concepts](#concepts)
     * [Register](#register)
     * [Marker](#marker)
@@ -70,7 +78,7 @@
             * [Windows and Tags](#windows-and-tags)
         * [EX MODE](#ex-mode-1)
             * [Settings](#settings)
-            * [Commands](#commands)
+            * [Commands](#commands-1)
     * [Tabs](#tabs)
         * [NORMAL MODE](#normal-mode-2)
         * [EX MODE](#ex-mode-2)
@@ -84,9 +92,9 @@
         * [Folding and Outlining](#folding-and-outlining)
             * [NORMAL MODE](#normal-mode-4)
             * [EX MODE](#ex-mode-4)
-            * [Options](#options-1)
-        * [Auto and smart indenting](#auto-and-smart-indenting)
             * [Options](#options-2)
+        * [Auto and smart indenting](#auto-and-smart-indenting)
+            * [Options](#options-3)
         * [Word completion](#word-completion)
             * [INSERT MODE](#insert-mode-1)
         * [Syntax Highlighting](#syntax-highlighting)
@@ -202,7 +210,7 @@ nvim -e -s <FILENAME> < <SCRIPT_FILENAME>         Execute the vim script <SCRIPT
 
 ### Options
 
-For more information about command line arguments check `:help cli-arguments`
+For more information check `:help cli-arguments`
 
 | Option                | Description                                                                                                         |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------- |
@@ -274,6 +282,8 @@ Check `:help startup` for up to date information about Neovim Startup
 
 ## Text object
 
+For a **quick references** check `:help objects`
+
 For more information about _Text objects_ check `:help text-objects`
 
 ```
@@ -305,6 +315,8 @@ T{ch}       After the previous occurrence of character {ch} on the current line
 ```
 
 ## Pattern
+
+For a global **Pattern** description check `:help pattern.txt`
 
 ### Regular expression delimiter
 
@@ -350,6 +362,8 @@ For more information check `:help regexp`
 
 ### Regular expression character class
 
+For more information check `:help /character-classes`
+
 | Character class | Description                                                                                               |
 | --------------- | --------------------------------------------------------------------------------------------------------- |
 | \\a             | Alphabetic character: same as \[A-Za-z]                                                                   |
@@ -385,28 +399,35 @@ For more information check `:help regexp`
 | \\X             | Non hexadecimal digit: same as \[^0-9A-Fa-f]                                                              |
 | \\\_x           | Where x is any of the previous characters above: match the same character class but with newline included |
 
-### POSIX character classes
+#### POSIX character classes
 
-| Class      | Matching characters                                                 |
-| ---------- | ------------------------------------------------------------------- |
-| [:alnum:]  | Alphanumeric characters                                             |
-| [:alpha:]  | Alphabetic characters                                               |
-| [:blank:]  | Space and Tab characters only                                       |
-| [:cntrl:]  | Control characters                                                  |
-| [:digit:]  | Numeric characters                                                  |
-| [:graph:]  | Printable and visible (non space) characters                        |
-| [:lower:]  | Lowercase characters                                                |
-| [:print:]  | Printable characters (includes whitespace)                          |
-| [:punct:]  | Punctuation characters                                              |
-| [:space:]  | All whitespace characters (space, tab, newline, vertical tab, etc.) |
-| [:upper:]  | Uppercase characters                                                |
-| [:xdigit:] | Hexadecimal digits                                                  |
+For more information check `:help [:alnum:]`
+
+| Class         | Matching characters                                                 |
+| ------------- | ------------------------------------------------------------------- |
+| [:alnum:]     | Alphanumeric characters                                             |
+| [:alpha:]     | Alphabetic characters                                               |
+| [:blank:]     | Space and Tab characters only                                       |
+| [:cntrl:]     | Control characters                                                  |
+| [:digit:]     | Numeric characters                                                  |
+| [:graph:]     | Printable and visible (non space) characters                        |
+| [:lower:]     | Lowercase characters                                                |
+| [:print:]     | Printable characters (includes whitespace)                          |
+| [:punct:]     | Punctuation characters                                              |
+| [:space:]     | All whitespace characters (space, tab, newline, vertical tab, etc.) |
+| [:upper:]     | Uppercase characters                                                |
+| [:xdigit:]    | Hexadecimal digits                                                  |
+| [:return:]    | The <CR> character                                                  |
+| [:tab:]       | The <Tab> character                                                 |
+| [:escape:]    | The <Esc> character                                                 |
+| [:backspace:] | The <BS> character                                                  |
+| [:ident:]     | Identifier character (same as "\i")                                 |
+| [:keyword:]   | Keyword character (same as "\k")                                    |
+| [:fname:]     | File name character (same as "\f")                                  |
 
 ### Regular expression modifier
 
-```
-:help s_flags   VIM documentation about all Regular expression modifier
-```
+For more information check `:help s_flags`
 
 ```
 g               Global replacement, replace all occurence that match
@@ -417,6 +438,8 @@ i               Ignore case
 ```
 
 ## Help
+
+For a good **help** _introduction_ check `:help 02.8`
 
 ### Usage
 
@@ -450,13 +473,23 @@ More information about the help command with `:help helphelp.txt`
 [CTRL]+]   Goto mark under the cursor
 [CTRL]+O   Goto previous position
 
+gO         Table of content
+
 # EX MODE
 :tag {tg}  Goto the definition of the mark {tg}
 ```
 
 # Usage
 
+To get an **Introduction** start by reading `:help usr_01.txt`
+
+Check `:help quickref.txt` for **short commands references**
+
+Check `:help index.txt` for **all commands references**
+
 ## NORMAL MODE
+
+For more informations check `:help vim-modes`
 
 ```
 :          EX MODE
@@ -473,7 +506,7 @@ ZZ         Save and exit
 &          Repeat the last substitution
 ```
 
-### Edit commands
+### Change
 
 For more information check `:help change.txt`
 
@@ -533,7 +566,9 @@ gUw        Change word to uppercase
 [CTRL]+X   Decrement the number under the cursor
 ```
 
-### Copying commands
+### Copy
+
+For more information check `:help copy-move`
 
 ```
 {rg}p      Put the text from the register after the cursor(It's a PASTE)
@@ -548,21 +583,24 @@ yy         Yank(Copy) the current line(Alias for 'y$')
 Y          Yank(Copy) the current line(Alias for 'y$')
 ```
 
-### Single Movements
+### Motion
+
+For more general information about **Motions** check `:help motion.txt`
+
+#### Single
+
+For more information check `:help 02.3`
 
 ```
 h     Left
 j     Down
 k     Up
 l     Right
-
-0     Begining of the line
-^     Move to the first nonblank character of the line
-$     End of the line
-{n}|  Move to the character {n} on the current line
 ```
 
-### Buffer Movements
+#### Buffer
+
+For more information check `:help up-down-motions`
 
 ```
 gg              Move to the first line of the buffer
@@ -574,9 +612,15 @@ G               Move to the last line of the buffer
 {n}%            Goto the {n} percentage of the file
 :{n}            Goto line {n}
 :go {n}         Goto the {n} byte in the file
+
+
+``              Goto the line before you use the last 'G' command
+''              Goto the start of the line before you use the last 'G' command
 ```
 
-### Block Movements
+#### Block
+
+For more information check `:help word-motions` and `:help object-motions`
 
 ```
 w     Forward one word(Special characters count one word)
@@ -596,7 +640,7 @@ gE    Last character of previous word(Withespace separated)
 ]]    Move to the begining of the next section
 ```
 
-### Line Movements
+#### Line
 
 ```
 0             Move to the start of the line
@@ -613,7 +657,7 @@ g_            Move to the last nonblank character of the current line
 
 ```
 
-### Screen line Movements
+#### Screen line
 
 What we call _screen line_ is the line **displayed** on the screen
 
@@ -623,11 +667,11 @@ g$            Move to the end of the screen line
 
 g^            Move to the first nonblank character of the screen line
 gm            Move to the middle of the screen line
-
-
 ```
 
-### Screen Movements
+#### Scroll
+
+Fore more information check `:help scroll.txt`
 
 ```
 H             Move to the top line of the screen
@@ -652,9 +696,13 @@ z-            Move the current line on the bottom of the screen
 [CTRL]+L      Redraw the screen
 ```
 
-### Search Movements
+#### Search
 
-#### Text Search Movements
+For more information check `:help pattern.txt`
+
+##### Text
+
+For more information check `:help search-commands`
 
 ```
 /{pt}         Search pattern {pt} forward
@@ -670,13 +718,15 @@ N             Repeat the search in backward direction
 
 *             Search forward for the word under the cursor(Match only exact word)
 g*            Search forward for the word under the cursor
-#             Search backward for the word under the cursor(Match only exact word)
+##             Search backward for the word under the cursor(Match only exact word)
 g#            Search backward for the word under the cursor
 
 %             Find match of current parenthesis, brace or bracket
 ```
 
-#### Line Search Movements
+##### Line
+
+For more information check `:help left-right-motions`
 
 ```
 f{ch}       Find the next occurrence of character {ch} in the current line(Move cursor to)
@@ -688,17 +738,11 @@ T{ch}       Find the character after the previous occurrence character {ch} in t
 ,           Repeat the previous find command in the opposite direction
 ```
 
-### Line number Movements
+## COMMAND-LINE MODE
 
-```
-{n}G      Goto the line {n}
-G         Goto the last line of the file
+For more information check `:help ex-cmd-index`
 
-``        Goto the line before you use the last 'G' command(Return at the start)
-''        Goto the start of the line before you use the last 'G' command(Return at the start)
-```
-
-## EX MODE
+### Special key
 
 Use **[CTRL]+V** to get special key:
 
@@ -711,6 +755,10 @@ Use **[CTRL]+V** to get special key:
 - **[CTRL]+X**
 
 Use the shell command `$ od -c` to get all special key code from the system
+
+### File
+
+For more information check `:help edit-a-file`
 
 ```
 :e <FILENAME>             Open/Edit a file
@@ -760,14 +808,16 @@ Use the shell command `$ od -c` to get all special key code from the system
 :help usr_32.txt          More information about how to navigate changes as a tree
 ```
 
-### Filename shortcut
+### Special character
+
+For more information check `:help cmdline-special`
 
 ```
 %         Current filename
 #         Alternate filename (Previous file)
 ```
 
-### The :set Command
+### Options
 
 If you want more information about the `:set` command check `:help options`
 If you want more details about Neovim options check `:help option-list`
@@ -800,6 +850,8 @@ If you want more details about Neovim options check `:help option-list`
 
 ### Shell command
 
+For more information check `:help :!cmd`
+
 ```
 // EX MODE
 :!{sc}                     General form to send shell command {sc} to the system and display the result
@@ -815,7 +867,11 @@ If you want more details about Neovim options check `:help option-list`
 !!awk '<AWK_SCRIPT>'<cr>   Give the current line as argument to system command 'awk' with '!!'
 ```
 
-## FULL EX MODE
+## EX MODE
+
+For more information check `:help Ex-mode`
+
+For a **Guide** check [Ex Reference Manual](https://docs-archive.freebsd.org/44doc/usd/10.exref/paper.pdf)
 
 ```
 :p                  Print current line
@@ -858,7 +914,7 @@ If you want more details about Neovim options check `:help option-list`
 :vi                 Exit Full EX MODE (Return to visual editor[vi])
 ```
 
-### FULL EX MODE Examples
+### Examples
 
 ```
 :4,15d                                   Delete lines 4 to 15(inclusive)
@@ -961,6 +1017,57 @@ ESC                     Exit INSERT MODE
 
 ## VISUAL MODE
 
+For more information check `:help visual.txt`
+
+### Start / Stop
+
+For more information check `:help visual-start`
+
+_Start from NORMAL MODE_
+
+```
+v          Start visual mode
+V          Start visual mode linewise
+[CTRL]+V   Start visual mode blockwise
+```
+
+_Stop from VISUAL MODE_
+
+```
+<esc>      Stop VISUAL MODE and return to NORMAL MODE
+[CTRL]+C   Stop VISUAL MODE and return to NORMAL MODE
+```
+
+### Change selection
+
+For more information check `:help visual-change`
+
+```
+o   Go to Other end of highlighted text
+O   Go to Other end of highlighted text (Different behavior in blockwise mode)
+```
+
+### Operators
+
+For more information check `:help visual-operators`
+
+#### Operations
+
+```
+~	switch case
+d	delete
+c	change
+y	yank
+>	shift right
+<	shift left
+!	filter through external command
+=	filter through 'equalprg' option command
+gq	format lines to 'textwidth' length
+
+```
+
+#### Objects
+
 **a** for Around  
 **i** for Inner
 
@@ -981,6 +1088,29 @@ a{    | i{    Add the content of the { block on the selection
 a[    | i[    Add the content of the [ block on the selection
 a(    | i(    Add the content of the ( block on the selection
 a<    | i<    Add the content of the < block on the selection
+```
+
+#### Commands
+
+```
+:        Start Ex command for highlighted lines
+r {ch}   Replace all selected characters by {ch}
+s        Delete the highlighted text and start insert
+C        Delete the highlighted lines and start insert
+S        Delete the highlighted lines and start insert
+R        Delete the highlighted lines and start insert
+x        Delete the highlighted text
+D        Delete the highlighted lines
+X        Delete the highlighted lines
+Y        Yank
+p        Put
+P        Put without overwriting registers
+J        Join
+U        Make uppercase
+u        Make lowercase
+^]       Find tag
+I        Block insert
+A        Block append
 ```
 
 # Concepts
