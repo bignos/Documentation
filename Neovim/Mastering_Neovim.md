@@ -85,7 +85,7 @@
     * [Abbreviation](#abbreviation)
     * [Map](#map)
     * [Macro](#macro)
-* [VIM FOR DEVELOPMENT](#vim-for-development)
+* [Development](#development)
     * [NORMAL MODE](#normal-mode-3)
     * [EX MODE](#ex-mode-3)
         * [Tags](#tags)
@@ -103,8 +103,7 @@
             * [EX MODE](#ex-mode-6)
         * [Quickfix list window](#quickfix-list-window)
             * [EX MODE](#ex-mode-7)
-* [VIM Script](#vim-script)
-* [VIM Tools](#vim-tools)
+* [Tools](#tools)
     * [Terminal](#terminal)
     * [Spellchecking](#spellchecking)
         * [NORMAL MODE](#normal-mode-5)
@@ -133,6 +132,7 @@
             * [Shell VI NORMAL MODE](#shell-vi-normal-mode)
         * [EX MODE](#ex-mode-16)
 * [Extend Neovim](#extend-neovim)
+    * [Script](#script)
     * [Plug-ins](#plug-ins)
         * [Populars Plug-ins](#populars-plug-ins)
         * [All-in-One IDE configurations](#all-in-one-ide-configurations)
@@ -1426,7 +1426,7 @@ q               Stop macro recording
 
 ```
 
-# VIM FOR DEVELOPMENT
+# Development
 
 **$VIMRUNTIME**=`/usr/share/nvim/runtime`
 
@@ -1616,17 +1616,7 @@ For list and description of all **Highlight groups** check `:help highlight-grou
 :vimgrep {pt} {fp}      Search pattern {pt} for all files in {fp}(VIM grep alternative). Results goes on quickfix
 ```
 
-# VIM Script
-
-For more information check all these help topics:
-
-- **autocmd**
-- **scripts**
-- **variables**
-- **functions**
-- **usr_41.txt**
-
-# VIM Tools
+# Tools
 
 ## Terminal
 
@@ -1870,6 +1860,16 @@ v                               Edit the command line with VIM(Default system $E
 ```
 
 # Extend Neovim
+
+## Script
+
+For more information check all these help topics:
+
+- **autocmd**
+- **scripts**
+- **variables**
+- **functions**
+- **usr_41.txt**
 
 ## Plug-ins
 
