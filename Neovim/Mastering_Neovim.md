@@ -54,10 +54,10 @@
     * [EX MODE](#ex-mode)
         * [Examples](#examples)
     * [INSERT MODE](#insert-mode)
-        * [Insert / Delete](#insert-delete)
+        * [Insert and Delete](#insert-and-delete)
         * [Motions](#motions)
     * [VISUAL MODE](#visual-mode)
-        * [Start / Stop](#start-stop)
+        * [Start and Stop](#start-and-stop)
         * [Change selection](#change-selection)
         * [Operators](#operators)
             * [Operations](#operations)
@@ -77,7 +77,7 @@
             * [Window resizing](#window-resizing)
             * [Windows and Tags](#windows-and-tags)
         * [COMMAND MODE](#command-mode)
-            * [Settings](#settings)
+            * [Options](#options-2)
             * [Commands](#commands-1)
     * [Tabs](#tabs)
         * [NORMAL MODE](#normal-mode-2)
@@ -88,21 +88,21 @@
 * [Development](#development)
     * [NORMAL MODE](#normal-mode-3)
     * [COMMAND MODE](#command-mode-2)
-        * [Options](#options-2)
+        * [Options](#options-3)
         * [Tags](#tags)
         * [Folding and Outlining](#folding-and-outlining)
             * [NORMAL MODE](#normal-mode-4)
             * [COMMAND MODE](#command-mode-3)
-            * [Options](#options-3)
-        * [Auto and smart indenting](#auto-and-smart-indenting)
             * [Options](#options-4)
+        * [Auto and smart indenting](#auto-and-smart-indenting)
+            * [Options](#options-5)
         * [Word completion](#word-completion)
             * [INSERT MODE](#insert-mode-1)
         * [Syntax Highlighting](#syntax-highlighting)
             * [COMMAND MODE](#command-mode-4)
         * [Compiling](#compiling)
             * [COMMAND MODE](#command-mode-5)
-        * [Quickfix list window](#quickfix-list-window)
+        * [Quickfix](#quickfix)
             * [COMMAND MODE](#command-mode-6)
 * [Tools](#tools)
     * [Terminal](#terminal)
@@ -117,23 +117,25 @@
     * [Edit files over network](#edit-files-over-network)
         * [Command line](#command-line-2)
         * [COMMAND MODE](#command-mode-9)
-    * [Changing directories](#changing-directories)
+    * [Browse files](#browse-files)
         * [COMMAND MODE](#command-mode-10)
     * [Backup](#backup)
-        * [COMMAND MODE](#command-mode-11)
+        * [Options](#options-6)
     * [Convert to HTML](#convert-to-html)
-        * [COMMAND MODE](#command-mode-12)
+        * [COMMAND MODE](#command-mode-11)
     * [Environment backup](#environment-backup)
-        * [COMMAND MODE](#command-mode-13)
+        * [COMMAND MODE](#command-mode-12)
     * [Lines settings](#lines-settings)
-        * [COMMAND MODE](#command-mode-14)
+        * [Options](#options-7)
     * [Tips](#tips)
         * [NORMAL MODE](#normal-mode-6)
         * [Shell](#shell)
             * [Shell VI NORMAL MODE](#shell-vi-normal-mode)
-        * [COMMAND MODE](#command-mode-15)
+        * [COMMAND MODE](#command-mode-13)
 * [Extend Neovim](#extend-neovim)
     * [Script](#script)
+        * [LUA](#lua)
+        * [VIM Script](#vim-script)
     * [Plug-ins](#plug-ins)
         * [Populars Plug-ins](#populars-plug-ins)
         * [All-in-One IDE configurations](#all-in-one-ide-configurations)
@@ -147,6 +149,7 @@
 ## Links
 
 - [Neovim](https://neovim.io/)
+- [Learn Neovim The Practical Way](https://alpha2phi.medium.com/learn-neovim-the-practical-way-8818fcf4830f#545a)
 - [VIM FAQ](https://vimhelp.org/vim_faq.txt.html)
 - [VIM TIPS WIKI](https://vim.fandom.com/wiki/Vim_Tips_Wiki)
 - [OpenVIM](https://www.openvim.com/)
@@ -965,7 +968,7 @@ ESC                     Exit INSERT MODE
 [CTRL]+O                Execute one command, return to INSERT MODE
 ```
 
-### Insert / Delete
+### Insert and Delete
 
 ```
 [CTRL]+H                Delete the character before the cursor(<BS>)
@@ -1020,7 +1023,7 @@ ESC                     Exit INSERT MODE
 
 For more information check `:help visual.txt`
 
-### Start / Stop
+### Start and Stop
 
 For more information check `:help visual-start`
 
@@ -1118,6 +1121,8 @@ A        Block append
 
 ## Register
 
+For more information check `:help registers`
+
 ```
 "{n}        Numbered register[1-9], the last nine deletions, from most to least recent
 "{ch}       Named register[a-z], use like user clipboard
@@ -1125,6 +1130,8 @@ A        Block append
 ```
 
 ## Marker
+
+For more information check `:help mark-motions`
 
 **Tips**: To get the char '`' you have to press the key twice
 
@@ -1149,6 +1156,8 @@ m{ch}       Mark the current position with {ch}
 ```
 
 ## Buffers
+
+For more information check `:help buffer-hidden`
 
 ```
 :ls                   List the buffers
@@ -1300,7 +1309,7 @@ All windows command are prefixed with **[CTRL]+W**
 
 ### COMMAND MODE
 
-#### Settings
+#### Options
 
 ```
 :set winheight={n}      Minimal number of line for the current window
@@ -1338,7 +1347,11 @@ All windows command are prefixed with **[CTRL]+W**
 
 ## Tabs
 
+For more information check `:help tabpage.txt`
+
 ### NORMAL MODE
+
+For more information check `:help tab-page-commands`
 
 ```
 [CTRL]+<pagedown>   Goto the next tab
@@ -1351,6 +1364,8 @@ g<tab>              Goto the last accessed tab
 ```
 
 ### COMMAND MODE
+
+For more information check `:help tab-page-commands`
 
 ```
 :tabnew               Open a new tab
@@ -1372,6 +1387,8 @@ g<tab>              Goto the last accessed tab
 
 ## Abbreviation
 
+For more information check `:help abbreviations`
+
 > Abbreviations are for **INSERT MODE**
 
 ```
@@ -1386,6 +1403,8 @@ g<tab>              Goto the last accessed tab
 ```
 
 ## Map
+
+For more information check `:help map.txt`
 
 > map is for **NORMAL MODE**
 > map! is for **INSERT MODE**
@@ -1415,15 +1434,19 @@ g<tab>              Goto the last accessed tab
 
 ## Macro
 
+For more information check `:help complex-repeat`
+
 To use macro you have to use **Named register**.  
 Save the commands sequence on a **Named register**.  
 Call the sequence with **@{nrg}**.  
 You can repeat the last macro with **@@**.
 
 ```
-q{nrg}          Start macro recording for named register {nrg}
-q               Stop macro recording
-@{nrg}          Execute macro from named register {nrg}
+q{nrg}               Start macro recording for named register {nrg}
+q                    Stop macro recording
+@{nrg}               Execute macro from named register {nrg}
+
+:'<,'>norm! @{nrg}   Execute macro from named register {nrg} on each selected lines
 
 ```
 
@@ -1459,6 +1482,8 @@ q               Stop macro recording
 
 ### Tags
 
+For more information check `:help tagsrch.txt`
+
 To use _tags_ you have to install **ctags** `sudo apt install exuberant-ctags`
 
 ```
@@ -1481,9 +1506,9 @@ To use _tags_ you have to install **ctags** `sudo apt install exuberant-ctags`
 
 ### Folding and Outlining
 
-VIM provide `:mkview` to save fold configuration and `:loadview` to load previous configuration
-
 For more information about **Fold** check `:help fold.txt`
+
+Neovim provide `:mkview` to save fold configuration and `:loadview` to load previous configuration
 
 #### NORMAL MODE
 
@@ -1575,6 +1600,8 @@ All specifics completion commands start with [CTRL]+X
 
 ### Syntax Highlighting
 
+For more information check `:help syntax.txt`
+
 All syntax files are on **$VIMRUNTIME** + `/syntax`  
 All color scheme files are on **$VIMRUNTIME** + `/colors`
 
@@ -1600,6 +1627,8 @@ For list and description of all **Highlight groups** check `:help highlight-grou
 
 ### Compiling
 
+For more information check `:help :make_makeprg`
+
 #### COMMAND MODE
 
 ```
@@ -1607,7 +1636,9 @@ For list and description of all **Highlight groups** check `:help highlight-grou
 :set makeprg={sc}       Set the shell command used by make
 ```
 
-### Quickfix list window
+### Quickfix
+
+For more information check `:help quickfix.txt`
 
 #### COMMAND MODE
 
@@ -1679,6 +1710,8 @@ vim -b <FILENAME>
 
 ### COMMAND MODE
 
+For more information check `:help 'binary'`
+
 ```
 :set binary                     Enable Binary mode
 
@@ -1732,7 +1765,9 @@ You want to write 'π', you have to use `[CTRL]+K p*`
 
 ## Edit files over network
 
-You can do this only if **netrw** ist _enabled_(On default VIM version it's the case)
+For more information check `:help netrw-xfer`
+
+You can do this only if **netrw** is _enabled_
 
 ### Command line
 
@@ -1750,9 +1785,9 @@ vim scp://bignose@192.168.1.101/                                Open a distant d
 :Nwrite <PROTOCOL>://<USER>@<HOST>:<PORT>//<PATH>               General form of netrw remote file writing
 ```
 
-## Changing directories
+## Browse files
 
-You can do this only if **netrw** ist _enabled_(On default VIM version it's the case)
+You can do this only if **netrw** is _enabled_
 
 ### COMMAND MODE
 
@@ -1768,7 +1803,7 @@ You can do this only if **netrw** ist _enabled_(On default VIM version it's the 
 VIM backup files for recovery crash.  
 The user can change some settings
 
-### COMMAND MODE
+### Options
 
 ```
 :set backup                     Enable backup (Keep alternate backup during the session)
@@ -1780,6 +1815,8 @@ The user can change some settings
 ```
 
 ## Convert to HTML
+
+For more information check `:help :TOhtml`
 
 ### COMMAND MODE
 
@@ -1804,7 +1841,7 @@ You can also use **session** for specific environment backup.
 
 ## Lines settings
 
-### COMMAND MODE
+### Options
 
 ```
 :set wrap                       Enable line wraping if the line is larger than the screen
@@ -1866,13 +1903,26 @@ v                               Edit the command line with VIM(Default system $E
 
 ## Script
 
+The preferred scripting language today with **Neovim** is [**LUA**](https://www.lua.org/)
+**Neovim** can obviously use file that are written in **VIM Script**
+
+### LUA
+
+For more information check `:help lua.txt`
+
+For a guide you can check `:help lua-guide.txt`
+
+### VIM Script
+
+Nowadays this type of script is not to be preferred with **Neovim**, but it is useful to understand how the old scripts work
+
 For more information check all these help topics:
 
-- **autocmd**
-- **scripts**
-- **variables**
-- **functions**
-- **usr_41.txt**
+- `:help autocmd`
+- `:help scripts`
+- `:help variables`
+- `:help functions`
+- `:help usr_41.txt`
 
 ## Plug-ins
 
@@ -1880,6 +1930,8 @@ You can check the populars Neovim plug-in manager: [**Lazy.vim**](https://github
 
 Use [Neovim Craft](https://neovimcraft.com) to found a _plug-in_ according to your needs  
 Or If you prefer a list go to [**Awesome Neovim**](https://github.com/rockerBOO/awesome-neovim)
+
+[My Neovim configuration](My_Neovim_Config.md)
 
 ### Populars Plug-ins
 
