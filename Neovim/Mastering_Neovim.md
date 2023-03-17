@@ -31,6 +31,7 @@
         * [Usage](#usage)
         * [Context](#context)
         * [Navigation](#navigation)
+        * [Useful help topics](#useful-help-topics)
 * [Usage](#usage-1)
     * [NORMAL MODE](#normal-mode)
         * [Change](#change)
@@ -45,6 +46,8 @@
             * [Search](#search)
                 * [Text](#text)
                 * [Line](#line-1)
+            * [Jump](#jump)
+                * [Commands](#commands)
     * [COMMAND-LINE MODE](#command-line-mode)
         * [Special key](#special-key)
         * [File](#file)
@@ -62,10 +65,15 @@
         * [Operators](#operators)
             * [Operations](#operations)
             * [Objects](#objects)
-            * [Commands](#commands)
+            * [Commands](#commands-1)
 * [Concepts](#concepts)
     * [Register](#register)
+        * [Type](#type)
+        * [General](#general)
+        * [Read Only](#read-only)
+        * [Specific](#specific)
     * [Marker](#marker)
+        * [Auto generated Marks](#auto-generated-marks)
     * [Buffers](#buffers)
         * [Status flags](#status-flags)
         * [Special buffers](#special-buffers)
@@ -78,36 +86,43 @@
             * [Windows and Tags](#windows-and-tags)
         * [COMMAND MODE](#command-mode)
             * [Options](#options-2)
-            * [Commands](#commands-1)
+            * [Commands](#commands-2)
     * [Tabs](#tabs)
         * [NORMAL MODE](#normal-mode-2)
         * [COMMAND MODE](#command-mode-1)
+    * [View and Session](#view-and-session)
     * [Abbreviation](#abbreviation)
     * [Map](#map)
     * [Macro](#macro)
 * [Development](#development)
-    * [NORMAL MODE](#normal-mode-3)
-    * [COMMAND MODE](#command-mode-2)
-        * [Options](#options-3)
-        * [Tags](#tags)
-        * [Folding and Outlining](#folding-and-outlining)
-            * [NORMAL MODE](#normal-mode-4)
-            * [COMMAND MODE](#command-mode-3)
-            * [Options](#options-4)
-        * [Auto and smart indenting](#auto-and-smart-indenting)
-            * [Options](#options-5)
-        * [Word completion](#word-completion)
-            * [INSERT MODE](#insert-mode-1)
-        * [Syntax Highlighting](#syntax-highlighting)
-            * [COMMAND MODE](#command-mode-4)
-        * [Compiling](#compiling)
-            * [COMMAND MODE](#command-mode-5)
-        * [Quickfix](#quickfix)
-            * [COMMAND MODE](#command-mode-6)
+    * [General](#general-1)
+        * [NORMAL MODE](#normal-mode-3)
+        * [COMMAND MODE](#command-mode-2)
+            * [Options](#options-3)
+    * [Tags](#tags)
+        * [Options](#options-4)
+    * [Folding and Outlining](#folding-and-outlining)
+        * [NORMAL MODE](#normal-mode-4)
+        * [COMMAND MODE](#command-mode-3)
+        * [Options](#options-5)
+    * [Auto and smart indenting](#auto-and-smart-indenting)
+        * [Options](#options-6)
+        * [NORMAL MODE](#normal-mode-5)
+    * [Completion](#completion)
+        * [INSERT MODE](#insert-mode-1)
+    * [Syntax Highlighting](#syntax-highlighting)
+        * [COMMAND MODE](#command-mode-4)
+    * [Compiling](#compiling)
+        * [COMMAND MODE](#command-mode-5)
+    * [Quickfix](#quickfix)
+        * [COMMAND MODE](#command-mode-6)
 * [Tools](#tools)
+    * [Formatting](#formatting)
+    * [Diff](#diff)
+        * [Commands](#commands-3)
     * [Terminal](#terminal)
     * [Spellchecking](#spellchecking)
-        * [NORMAL MODE](#normal-mode-5)
+        * [NORMAL MODE](#normal-mode-6)
         * [COMMAND MODE](#command-mode-7)
     * [Binary files](#binary-files)
         * [Command line](#command-line-1)
@@ -118,17 +133,18 @@
         * [Command line](#command-line-2)
         * [COMMAND MODE](#command-mode-9)
     * [Browse files](#browse-files)
+        * [NORMAL MODE](#normal-mode-7)
         * [COMMAND MODE](#command-mode-10)
     * [Backup](#backup)
-        * [Options](#options-6)
+        * [Options](#options-7)
     * [Convert to HTML](#convert-to-html)
         * [COMMAND MODE](#command-mode-11)
     * [Environment backup](#environment-backup)
         * [COMMAND MODE](#command-mode-12)
     * [Lines settings](#lines-settings)
-        * [Options](#options-7)
+        * [Options](#options-8)
     * [Tips](#tips)
-        * [NORMAL MODE](#normal-mode-6)
+        * [NORMAL MODE](#normal-mode-8)
         * [Shell](#shell)
             * [Shell VI NORMAL MODE](#shell-vi-normal-mode)
         * [COMMAND MODE](#command-mode-13)
@@ -162,15 +178,18 @@
 - **{CH}** An uppercase character
 - **{sk}** Special key (Like <BS>, <Return>, ..)
 - **{to}** Text Object
+- **{mo}** Motion
 - **{rg}** Register
 - **{nrg}** Named Register
 - **{pt}** Regular expression pattern
 - **{rpt}** Replacement expression pattern
 - **{rm}** Regular expression modifier
+- **{exp}** Expression
 - **{ec}** EX command
 - **{fn}** Function name
 - **{tg}** Tag
 - **{ra}** Range
+- **{pa}** Path
 - **{pl;}** Path list(with separator ';')
 - **{pl,}** Path list(with separator ',')
 - **{lg}** Language
@@ -332,37 +351,38 @@ For a global **Pattern** description check `:help pattern.txt`
 
 For more information check `:help regexp`
 
-| Metacharacter | Description                                                                                                                  |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| .             | Match any _single_ character except a new line                                                                               |
-| \*            | Match 0 or more of the single character that immediately precedes it                                                         |
-| ^             | Match only line that begin with pattern after '^'. If '^' is not the beginning of the expression it's just the '^' character |
-| $             | Match only line that end with pattern before '$'. If '$' is not the end of the expression it's just the '$' character        |
-| \             | Used to escape a character like '\.' to match a point and not any _single_ character                                         |
-| \\{n}         | Recall a _subpattern_ , {n} is between 1 to 9                                                                                |
-| [ ]           | Match any _one_ of the characters enclosed between the brackets                                                              |
-| [^ ]          | Match any _one_ of the characters that is **NOT** enclosed between the brackets                                              |
-| [: :]         | Match any character which is part of the character classes                                                                   |
-| [. .]         | Match multicharacter sequence that should be treated as a unit                                                               |
-| [= =]         | Match an equivalence class list a set of characters that should be considered equivalent (ex: 'e' and 'é')                   |
-| \\( \\)       | Save the subpattern enclosed between \( and \) into a special holding space (\1 .. \9)                                       |
-| \\<           | Match only character at the beginning of a word                                                                              |
-| \\>           | Match only character at the end of a word                                                                                    |
-| &             | Replace the '&' with the entire text matched by the search pattern(**ONLY FOR REPLACEMENT PATTERN {rpt}**)                   |
-| ~             | Replace the '~' with the last used replacement pattern(**ONLY FOR REPLACEMENT PATTERN {rpt}**)                               |
-| \\u           | Force the next characters to be on uppercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                        |
-| \\U           | Force all next characters to be on uppercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                        |
-| \\l           | Force the next characters to be on lowercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                        |
-| \\L           | Force all next characters to be on lowercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                        |
-| \\\|          | String choice (ex car\\\| moto)                                                                                              |
-| \\&           | If the pattern before the \\& match the pattern after is evaluated (ex .*Tom\\&.*Jerry)                                      |
-| \\+           | Match 1 or more                                                                                                              |
-| \\=           | Match 0 or 1                                                                                                                 |
-| \\?           | Match 0 or 1                                                                                                                 |
-| \\{...}       | Repeat the match {n} times or {n,m} in acceptable range                                                                      |
-| ~             | Match the last given replacement string                                                                                      |
-| \\(...\\)     | Grouping                                                                                                                     |
-| \\{n}         | Call group {n} capture                                                                                                       |
+| Metacharacter | Description                                                                                                                        |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| .             | Match any _single_ character except a new line                                                                                     |
+| \*            | Match 0 or more of the single character that immediately precedes it                                                               |
+| ^             | Match only line that begin with pattern after '^'. If '^' is not the beginning of the expression it's just the '^' character       |
+| $             | Match only line that end with pattern before '$'. If '$' is not the end of the expression it's just the '$' character              |
+| \             | Used to escape a character like '\.' to match a point and not any _single_ character                                               |
+| \\{n}         | Recall a _subpattern_ , {n} is between 1 to 9                                                                                      |
+| [ ]           | Match any _one_ of the characters enclosed between the brackets                                                                    |
+| [^ ]          | Match any _one_ of the characters that is **NOT** enclosed between the brackets                                                    |
+| [: :]         | Match any character which is part of the character classes                                                                         |
+| [. .]         | Match multicharacter sequence that should be treated as a unit                                                                     |
+| [= =]         | Match an equivalence class list a set of characters that should be considered equivalent (ex: 'e' and 'é')                         |
+| \\( \\)       | Save the subpattern enclosed between \( and \) into a special holding space (\1 .. \9)                                             |
+| \\<           | Match only character at the beginning of a word                                                                                    |
+| \\>           | Match only character at the end of a word                                                                                          |
+| \\\|          | String choice (ex car\\\| moto)                                                                                                    |
+| \\&           | If the pattern before the \\& match the pattern after is evaluated (ex .*Tom\\&.*Jerry)                                            |
+| \\+           | Match 1 or more                                                                                                                    |
+| \\=           | Match 0 or 1                                                                                                                       |
+| \\?           | Match 0 or 1                                                                                                                       |
+| \\{...}       | Repeat the match {n} times or {n,m} in acceptable range                                                                            |
+| ~             | Match the last given replacement string                                                                                            |
+| \\(...\\)     | Grouping                                                                                                                           |
+| \\{n}         | Call group {n} capture(**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                                                     |
+| &             | Replace the '&' with the entire text matched by the search pattern(**ONLY FOR REPLACEMENT PATTERN {rpt}**)                         |
+| ~             | Replace the '~' with the last used replacement pattern(**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                     |
+| \\u           | Force the next characters to be on uppercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                              |
+| \\U           | Force all next characters to be on uppercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                              |
+| \\l           | Force the next characters to be on lowercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                              |
+| \\L           | Force all next characters to be on lowercase (**ONLY FOR REPLACEMENT PATTERN {rpt}**)                                              |
+| \\={exp}      | Evaluate {exp} as an expression(**ONLY FOR REPLACEMENT PATTERN {rpt}**), for more information check `:help sub-replace-expression` |
 
 ### Regular expression character class
 
@@ -450,11 +470,15 @@ For a good **help** _introduction_ check `:help 02.8`
 More information about the help command with `:help helphelp.txt`
 
 ```
-:help             Help introduction to use Neovim
-:help <subject>   Help for the subject in parameter
-:h <subject>      Help for the subject in parameter
+:help                       Help introduction to use Neovim
+:help <subject>             Help for the subject in parameter
+:h <subject>                Help for the subject in parameter
 
-:helpgrep {pt}    Search all help text files and make a list of lines in which pattern {pt} matches
+:helpgrep {pt}              Search all help text files and make a list of lines in which pattern {pt} matches
+
+:helptags {pa}              Generate the help tags file(s) for directory {pa}
+:helptags ALL               Generate the help tags files(s) for all "doc" directories in $VIMRUNTIME
+:helptags $VIMRUNTIME/doc   Rebuild the help tags in the runtime directory
 ```
 
 ### Context
@@ -481,6 +505,40 @@ gO         Table of content
 
 # COMMAND MODE
 :tag {tg}  Goto the definition of the mark {tg}
+```
+
+### Useful help topics
+
+```
+:help autocmd             How to use autocmd
+:help co                  Comment format option
+:help compiler            How you can compile in vim
+:help ex-command-index    All EX command
+:help expression          How to put together a valid Vim expression
+:help feature-list        The complete list of features you can check with has() function
+:help fo-table            How to set format option table
+:help formatoptions       Vim format option
+:help function-list       All builtin function of Vim
+:help functions           All VIM Script functions
+:help help-translated     How to distribute documentation in multiple languages
+:help holy-grail          All vim commands
+:help indent-expression   More about indent expression
+:help indentexpr          Indentexpr documentation
+:help ins-completion      Insert completion help
+:help netrw               Help for native file explorer(NETwork Read Write)
+:help netrw-externapp     Help of tool use by native file explore(NETwork Read Write)
+:help netrw-netrc         How to use configuration file for native file explore(NETwork Read Write)
+:help pattern-atoms       List of all available atoms
+:help quickfix            All about quickfix list
+:help ruby-vim            Ruby-vim documentation
+:help script-local        Help about local script
+:help spell               Help for spell checking
+:help sts                 Soft tab stop(Converted TAB to space)
+:help syn-arguments       Syntax argument documentation
+:help syn-oneline         Help for syntax oneline option
+:help tags                Tags help(command, usage, key bidding)
+:help ts                  Space tab option
+:help vimdiff             How to use vimdiff
 ```
 
 # Usage
@@ -616,10 +674,6 @@ G               Move to the last line of the buffer
 {n}%            Goto the {n} percentage of the file
 :{n}            Goto line {n}
 :go {n}         Goto the {n} byte in the file
-
-
-``              Goto the line before you use the last 'G' command
-''              Goto the start of the line before you use the last 'G' command
 ```
 
 #### Block
@@ -689,13 +743,15 @@ L             Move to the last line of the screen
 [CTRL]+E      Scroll the screen one line down
 [CTRL]+Y      Scroll the screen one line up
 
-z [ENTER]     Move the current line on the top of the screen
-z.            Move the current line on the center of the screen
-zz            Move the current line on the center of the screen
-z-            Move the current line on the bottom of the screen
-{n}z [ENTER]  Move the line {n} on top of the screen
-{n}z.         Move the line {n} on the center of the screen
-{n}z-         Move the line {n} on the bottom of the screen
+z [ENTER]     Scroll the current line on top of the screen and put the cursor at the start of the line
+zt            Scroll the current line on top of the screen without change the cursor position
+z.            Scroll the current line on the center of the screen and put the cursor at the start of the line
+zz            Scroll the current line on the center of the screen without change the cursor position
+z-            Scroll the current line on the bottom of the screen and put the cursor at the start of the line
+zb            Scroll the current line on the bottom of the screen without change the cursor position
+{n}z [ENTER]  Scroll the line {n} on top of the screen
+{n}z.         Scroll the line {n} on the center of the screen
+{n}z-         Scroll the line {n} on the bottom of the screen
 
 [CTRL]+L      Redraw the screen
 ```
@@ -722,7 +778,7 @@ N             Repeat the search in backward direction
 
 *             Search forward for the word under the cursor(Match only exact word)
 g*            Search forward for the word under the cursor
-##             Search backward for the word under the cursor(Match only exact word)
+#             Search backward for the word under the cursor(Match only exact word)
 g#            Search backward for the word under the cursor
 
 %             Find match of current parenthesis, brace or bracket
@@ -740,6 +796,32 @@ T{ch}       Find the character after the previous occurrence character {ch} in t
 
 ;           Repeat the previous find command in the same direction
 ,           Repeat the previous find command in the opposite direction
+```
+
+#### Jump
+
+A **jump** is a command that normally moves the cursor several lines away
+
+For more information check `:help jump-motions`
+
+```
+``         Goto the line before your last jump
+''         Goto the start of the line before your last jump
+
+[CTRL]+O   Goto the previous jump position
+[CTRL]+I   Goto the next jump position
+
+g;         Goto the previous change position
+g,         Goto the next change position
+```
+
+##### Commands
+
+```
+:jumps        Print the jump list
+:clearjumps   Clear the jump list
+
+:changes      Print the change list
 ```
 
 ## COMMAND-LINE MODE
@@ -827,29 +909,54 @@ If you want more information about the `:set` command check `:help options`
 If you want more details about Neovim options check `:help option-list`
 
 ```
-:set option           Set general form to enable an option
-:set nooption         Set general form to disable an option
-:set option!          Set general form to toggle(on/off) an option
-:set option?          Set general form to get the name of the option
+:set option                                Set general form to enable an option
+:set nooption                              Set general form to disable an option
+:set option!                               Set general form to toggle(on/off) an option
+:set option?                               Set general form to get the name of the option
 
-:set                  Show all options that you have specifically changed
-:set all              Show all active options
+:set                                       Show all options that you have specifically changed
+:set all                                   Show all active options
 
-:set number           Display line number
-:set nu               Display line number
-:set nonu             Hide line number
-:set nu!              Toggle display/hide line number
+:set number                                Display line number
+:set nu                                    Display line number
+:set nonu                                  Hide line number
+:set nu!                                   Toggle display/hide line number
 
-:set nowrapscan       Stop search at the bottom(/{pt} or n) or at the top(?{pt} or N)
-:set edcompatible     Record last regular expression modifier and use it for the next substitution
+:set nowrapscan                            Stop search at the bottom(/{pt} or n) or at the top(?{pt} or N)
+:set edcompatible                          Record last regular expression modifier and use it for the next substitution
 
-:set ic               Enable 'ignore case', search patern must ignore case
-:set noic             Disable 'ignore case', search patern are case sensitive
+:set ic                                    Enable 'ignore case', search patern must ignore case
+:set noic                                  Disable 'ignore case', search patern are case sensitive
 
-:set compatible       Remove all specific VIM feature(VI pure compatibility)
-:set incsearch        Activate incremental search(Move directly on the buffer as you type on the keyboard)
+:set compatible                            Remove all specific VIM feature(VI pure compatibility)
+:set incsearch                             Activate incremental search(Move directly on the buffer as you type on the keyboard)
 
-:set undolevels={n}   Define the number of undoable changes you can make in an editing session
+:set undolevels={n}                        Define the number of undoable changes you can make in an editing session
+
+:set cursorline                            Active current line highlight
+:set nocursorline                          Disable current line highlight
+:set cursorcolumn                          Active current line and column highlight
+:set nocursorcolumn                        Disable current line and column highlight
+
+:set spelllang=en,us,fr                    Activate spell language [English, US, French]
+
+:set list                                  Activate view all hidden characters
+:set nolist                                Disable view all hidden characters
+
+:set textwidth={n}                         Activate format of {n} characters by line
+:set formatexpr={lang}#{format_function}   Use {format_function} to format language {lang}
+
+:set autoindent                            Activate automatic indentation
+:set smartindent                           Activate smart indentation(for C style code)
+:set indentexpr={indent_function}          Activate indentation with {indent_function}
+
+:set paste                                 Activate paste mode (for avoid stair effect when paste from external)
+:set nopaste                               Disable paste mode
+
+:set equalprog={command}                   Activate the use of {command} to indent
+:set formatprg={command}                   Use {command} to format
+
+:set nocompatible                          Active no compatible mode to have more vim features
 ```
 
 ### Shell command
@@ -1123,10 +1230,49 @@ A        Block append
 
 For more information check `:help registers`
 
+### Type
+
+| Registers            | Name                    |
+| -------------------- | ----------------------- |
+| ""                   | **Unnamed**             |
+| "0 to "9             | **Numbered**            |
+| "-                   | **Small delete**        |
+| "a to "z or "A to "Z | **Named**               |
+| ":, "., "%           | **Read-only**           |
+| "#                   | **Alternate buffer**    |
+| "=                   | **Expression**          |
+| "\* and "+           | **Selection**           |
+| "\_                  | **Black Hole**          |
+| "/                   | **Last search pattern** |
+
+### General
+
 ```
 "{n}        Numbered register[1-9], the last nine deletions, from most to least recent
 "{ch}       Named register[a-z], use like user clipboard
 "{CH}       Named register, but when you use uppercase character, you append the register(Accumulator)
+```
+
+### Read Only
+
+```
+"%   Name of the file of current active buffer
+"#   Name of the previous name of current active buffer, also called alternate file
+".   Last insered text
+":   Last command exectuted
+```
+
+### Specific
+
+```
+"*   Clipboard of your windowing system
+"+   Selected text clipboard
+"~   Last selection dropped into vim
+
+"-   Black Hole register(AKA /dev/null)
+"/   Search pattern register
+
+"=   Expression register
 ```
 
 ## Marker
@@ -1135,13 +1281,22 @@ For more information check `:help mark-motions`
 
 **Tips**: To get the char '`' you have to press the key twice
 
+| Range   | Name                          | Scope                 |
+| ------- | ----------------------------- | --------------------- |
+| 'a - 'z | lowercase marks               | valid within one file |
+| 'A - 'Z | uppercase marks or file marks | valid between files   |
+| '0 - '9 | numbered marks                | set from .shada file  |
+
 ```
 m{ch}       Mark the current position with {ch}
 
 '{ch}       Goto the first character of the line marked by {ch}
+g'{ch}      Goto the first character of the line marked by {ch} but don't change the jump list
 ''          Goto the first character of the line marked by the previous mark or context
 
+
 `{ch}       Goto the position of the mark {ch}
+g`{ch}      Goto the position of the mark {ch} but don't change the jump list
 ``          Goto the position of the previous mark or context
 
 `[          Goto the begining of the previous text operation
@@ -1153,7 +1308,21 @@ m{ch}       Mark the current position with {ch}
 '.          Goto the last line changed in the buffer
 
 :marks      List active marks
+:delmarks   Clear all lowercase marks
 ```
+
+### Auto generated Marks
+
+| Mark  | Description                                                          |
+| ----- | -------------------------------------------------------------------- |
+| **'** | Mark the line where the cursor jumped from (in current buffer)       |
+| **`** | Mark the position where the cursor jumped from (in current buffer)   |
+| **.** | Mark the position where the last change occurred (in current buffer) |
+| **"** | Mark the position where the user last exited the current buffer      |
+| **[** | Mark the beginning of the previously changed or yanked text          |
+| **]** | Mark the end of the previously changed or yanked text                |
+| **<** | Mark the beginning of the last visual selection                      |
+| **>** | Mark the end of the last visual selection                            |
 
 ## Buffers
 
@@ -1385,6 +1554,17 @@ For more information check `:help tab-page-commands`
 :tabs                 List all the tabs
 ```
 
+## View and Session
+
+For more information check `:help views-sessions`
+
+```
+:mkview [1-9]|<FILENAME>   Write a Vim script that restores the contents of the current window
+:loadview [1-9]            Load a View
+:mksession <FILENAME>      Write a Vim script that restores the current editing session
+:source <FILENAME>         Load a View/Session from file
+```
+
 ## Abbreviation
 
 For more information check `:help abbreviations`
@@ -1454,33 +1634,41 @@ q                    Stop macro recording
 
 **$VIMRUNTIME**=`/usr/share/nvim/runtime`
 
-## NORMAL MODE
+## General
+
+### NORMAL MODE
+
+For more information check `:help various-motions`
 
 ```
-%             Move the cursor to the other bracket(Useful to find where you forgot a '}')
+%    Move the cursor to the other bracket(Useful to find where you forgot a '}')
+
+[(   Goto the previous unmatched '('.
+[{   Goto the previous unmatched '{'.
+])   Goto the next unmatched ')'.
+]}   Goto the next unmatched '}'.
 ```
 
-## COMMAND MODE
+### COMMAND MODE
 
-### Options
+```
+:retab   Convert all <TAB> to <SPACE>
+```
+
+#### Options
 
 ```
 :set autoindent           Automatic indentation control
 :set shiftwidth=4         Indentation width is 4 spaces
 :set tabstop=4            Indentation width of a [TAB]('\t') is 4 spaces
 :set expandtab            Tabs is write with ' ' and not '\t' (Convert TABS to SPACES)
+
 :set list                 Show hidden characters
 
-:10,20 l                  Show hidden characters from line 10 to 20(Useful to verify some lines)
-
 :set showmatch            Show pair of brackets
-
-:set taglength={n}        Controls the number of significant characters in a tag that is to be looked up. The default value of 0 indicates that all characters are significant
-:set tags={pl;}            List of the files{pl;} to look for the tags
-:set tagrelative          If using a tags file in another directory, file names in that tags file are relative to the directory where the tags file is
 ```
 
-### Tags
+## Tags
 
 For more information check `:help tagsrch.txt`
 
@@ -1504,13 +1692,21 @@ To use _tags_ you have to install **ctags** `sudo apt install exuberant-ctags`
 :tlast                    Goto the last matching tag
 ```
 
-### Folding and Outlining
+### Options
+
+```
+:set taglength={n}        Controls the number of significant characters in a tag that is to be looked up. The default value of 0 indicates that all characters are significant
+:set tags={pl;}            List of the files{pl;} to look for the tags
+:set tagrelative          If using a tags file in another directory, file names in that tags file are relative to the directory where the tags file is
+```
+
+## Folding and Outlining
 
 For more information about **Fold** check `:help fold.txt`
 
 Neovim provide `:mkview` to save fold configuration and `:loadview` to load previous configuration
 
-#### NORMAL MODE
+### NORMAL MODE
 
 All fold command begin by **z**
 
@@ -1539,24 +1735,24 @@ zn                  Unset the foldenable option
 zN                  Set the foldenable option
 ```
 
-#### COMMAND MODE
+### COMMAND MODE
 
 ```
 :{ra}fold           Create a fold with the lines of the range {ra}
 ```
 
-#### Options
+### Options
 
 ```
 :set foldcolumn={n}     Define the width of the folder column, to see folder indicator in the margin
 :set foldlevel={n}      Define the fold level to open, displays only lines whose fold levels are less than or egal to {n}
 ```
 
-### Auto and smart indenting
+## Auto and smart indenting
 
-For more information about **indenting** check ':help indent.txt'
+For more information about **indenting** check `:help indent.txt`
 
-#### Options
+### Options
 
 ```
 :set autoindent         Activate auto indentation
@@ -1568,11 +1764,22 @@ For more information about **indenting** check ':help indent.txt'
 :set nopaste
 ```
 
-### Word completion
+### NORMAL MODE
+
+For more information check `:help filter`
+
+```
+gg=G    Indent the buffer
+==      Indent the line under cursor
+={to}   Indent the text object {to}
+={mo}   Indent motion
+```
+
+## Completion
 
 For more information check `:help ins-completion`
 
-#### INSERT MODE
+### INSERT MODE
 
 ```
 [CTRL]+N                Next completion
@@ -1598,7 +1805,7 @@ All specifics completion commands start with [CTRL]+X
 [CTRL]+X [CTRL]+Z       Stop completion
 ```
 
-### Syntax Highlighting
+## Syntax Highlighting
 
 For more information check `:help syntax.txt`
 
@@ -1607,7 +1814,7 @@ All color scheme files are on **$VIMRUNTIME** + `/colors`
 
 For list and description of all **Highlight groups** check `:help highlight-groups`
 
-#### COMMAND MODE
+### COMMAND MODE
 
 ```
 :syntax on              Enable syntax highlighting
@@ -1625,22 +1832,22 @@ For list and description of all **Highlight groups** check `:help highlight-grou
 :help highlight         Get help about highlight for more information about all settings possibilities
 ```
 
-### Compiling
+## Compiling
 
 For more information check `:help :make_makeprg`
 
-#### COMMAND MODE
+### COMMAND MODE
 
 ```
 :make <FILENAME>        Compile <FILENAME>
 :set makeprg={sc}       Set the shell command used by make
 ```
 
-### Quickfix
+## Quickfix
 
 For more information check `:help quickfix.txt`
 
-#### COMMAND MODE
+### COMMAND MODE
 
 ```
 :copen                  Open QuickFix list window
@@ -1651,6 +1858,44 @@ For more information check `:help quickfix.txt`
 ```
 
 # Tools
+
+## Formatting
+
+For more information check `:help formatting`
+
+```
+:center {n}   Center the content of line with width {n}
+:left {n}     Left align the content of the line  with width {n}
+:right {n}    Right align the content of the line with width {n}
+```
+
+## Diff
+
+For more information check `:help diff.txt`
+
+```
+do   Gets change
+dp   Puts change
+
+[c   Goto start of the previous change
+]c   Goto start of the next change
+```
+
+### Commands
+
+```
+:diffthis                        Make the current window part of the diff windows
+:windo diffthis                  Diff all windows
+
+:diffsplit <FILENAME>            Open a new window horizontally on the file {filename} to diff
+:vertical diffsplit <FILENAME>   Open a new window vertically on the file {filename} to diff
+
+:diffoff                         Turn off diff tools
+:diffget                         Gets change
+:diffput                         Puts change
+
+:diffupdate                      Refresh all window viewports and update the diff highlighting
+```
 
 ## Terminal
 
@@ -1788,6 +2033,12 @@ vim scp://bignose@192.168.1.101/                                Open a distant d
 ## Browse files
 
 You can do this only if **netrw** is _enabled_
+
+### NORMAL MODE
+
+```
+gx  Execute application for file name under the cursor
+```
 
 ### COMMAND MODE
 
