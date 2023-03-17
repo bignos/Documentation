@@ -165,7 +165,6 @@
 ## Links
 
 - [Neovim](https://neovim.io/)
-- [Learn Neovim The Practical Way](https://alpha2phi.medium.com/learn-neovim-the-practical-way-8818fcf4830f#545a)
 - [VIM FAQ](https://vimhelp.org/vim_faq.txt.html)
 - [VIM TIPS WIKI](https://vim.fandom.com/wiki/Vim_Tips_Wiki)
 - [OpenVIM](https://www.openvim.com/)
