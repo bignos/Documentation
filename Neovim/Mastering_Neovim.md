@@ -227,7 +227,9 @@ nvim -d <FILENAME1> <FILENAME2>               Open VIM on DIFF mode to compare <
 nvim -r                                       List all saved buffer by VI(Used for recovery)
 nvim -r <BUFFER>                              Recover the edited <BUFFER>
 
-nvim -e -s <FILENAME> < <SCRIPT_FILENAME>         Execute the vim script <SCRIPT_FILENAME> on the file <FILENAME>
+nvim -e -s <FILENAME> < <SCRIPT_FILENAME>     Execute the vim script <SCRIPT_FILENAME> on the file <FILENAME>
+
+ls -l | nvim -                                Pass a command result to Neovim
 ```
 
 ### Options
@@ -509,6 +511,7 @@ gO         Table of content
 ### Useful help topics
 
 ```
+:help!                    Help for Help
 :help autocmd             How to use autocmd
 :help co                  Comment format option
 :help compiler            How you can compile in vim
@@ -524,6 +527,7 @@ gO         Table of content
 :help indent-expression   More about indent expression
 :help indentexpr          Indentexpr documentation
 :help ins-completion      Insert completion help
+:help map-modes           Map mode matrix
 :help netrw               Help for native file explorer(NETwork Read Write)
 :help netrw-externapp     Help of tool use by native file explore(NETwork Read Write)
 :help netrw-netrc         How to use configuration file for native file explore(NETwork Read Write)
@@ -538,6 +542,11 @@ gO         Table of content
 :help tags                Tags help(command, usage, key bidding)
 :help ts                  Space tab option
 :help vimdiff             How to use vimdiff
+
+# Easter egg
+:help 42
+:help UserGettingBored
+:help bar
 ```
 
 # Usage
@@ -2104,6 +2113,8 @@ You can also use **session** for specific environment backup.
 
 ## Tips
 
+More great **Tips** on [Best of Vim Tips](https://www.ele.uri.edu/faculty/vetter/Other-stuff/vi/vimtips.html)
+
 ### NORMAL MODE
 
 ```
@@ -2118,6 +2129,13 @@ K                               Open the man page with the word under the cursor
 [CTRL]+O                        Return to the previous jump
 [CTRL]+T                        Return to the previous location in the tag stack
 [CTRL]+]                        Goto the tag under the cursor
+
+:w !sudo tee %                  Save the file with root privileges
+:w !diff % -                    Show changes before saving
+
+:%!python -m json.tool          JSON pretty print with Python
+
+:/<table>/,/<\/table>/g/^$/d    Delete empty line(^$) between tag <table>
 ```
 
 ### Shell
