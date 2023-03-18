@@ -647,6 +647,9 @@ p          Put the text fromt the register "0 after the cursor
 {rg}P      Put the text from the register before the cursor(It's a PASTE)
 P          Put the text from the register "0 before the cursor
 
+zp         Like p but without trailing spaces when pasting block
+zP         Like P but without trailing spaces when pasting block
+
 {rg}y{to}  Yank(Copy) the text object to the register
 y{to}      Yank(Copy) the text object to the register "0
 yy         Yank(Copy) the current line(Alias for 'y$')
@@ -1086,34 +1089,36 @@ ESC                     Exit INSERT MODE
 ### Insert and Delete
 
 ```
-[CTRL]+H                Delete the character before the cursor(<BS>)
-[CTRL]+J                Begin a new line(<Enter>)
-[CTRL]+I                Insert a <Tab>
+[CTRL]+H                 Delete the character before the cursor(<BS>)
+[CTRL]+J                 Begin a new line(<Enter>)
+[CTRL]+I                 Insert a <Tab>
 
-[CTRL]+K {ch} {ch}      Insert non-ASCII character, for more information check ':help digraph'
-[CTRL]+V {sk}           Insert the litteral for the special key {sk}
-[CTRL]+Q {sk}           Insert the litteral for the special key {sk}
+[CTRL]+K {ch} {ch}       Insert non-ASCII character, for more information check ':help digraph'
+[CTRL]+V {sk}            Insert the litteral for the special key {sk}
+[CTRL]+Q {sk}            Insert the litteral for the special key {sk}
 
-[CTRL]+A                Insert previously inserted text
+[CTRL]+A                 Insert previously inserted text
 
-[CTRL]+T                Increment indentation level for the whole line
-[CTRL]+D                Decrement indentation level for the whole line
+[CTRL]+T                 Increment indentation level for the whole line
+[CTRL]+D                 Decrement indentation level for the whole line
 
-[CTRL]+U                Delete all characters on the line before the cursor
+[CTRL]+U                 Delete all characters on the line before the cursor
 
-[CTRL]+W                Delete the word before the cursor
+[CTRL]+W                 Delete the word before the cursor
 
-[CTRL]+N                Find next keyword(completion)
-[CTRL]+P                Find previous keyword(completion)
-[CTRL]+X                Completion mode, check ':help i_CTRL-X' for more information
+[CTRL]+N                 Find next keyword(completion)
+[CTRL]+P                 Find previous keyword(completion)
+[CTRL]+X                 Completion mode, check ':help i_CTRL-X' for more information
 
-[CTRL]+R {rg}           Insert the content of the register {rg}
-[CTRL]+R [CTRL]+R {rg}  Insert the content of the register {rg} literally(Without special character interpollation)
-[CTRL]+R [CTRL]+O {rg}  Insert the content of the register {rg} literally but without indentation
-[CTRL]+R [CTRL]+P {rg}  Insert the content of the register {rg} literally but with auto-indentation
+[CTRL]+R {rg}            Insert the content of the register {rg}
+[CTRL]+R [CTRL]+R {rg}   Insert the content of the register {rg} literally(Without special character interpollation)
+[CTRL]+R [CTRL]+O {rg}   Insert the content of the register {rg} literally but without indentation
+[CTRL]+R [CTRL]+P {rg}   Insert the content of the register {rg} literally but with auto-indentation
+[CTRL]+R [CTRL]+L        Insert the content of the line under the cursor, useful to eval line as an expression with the expression register("=)
 
-[CTRL]+E                Insert the character of the line below the cursor
-[CTRL]+Y                Insert the character of the line above the cursor
+
+[CTRL]+E                 Insert the character of the line below the cursor
+[CTRL]+Y                 Insert the character of the line above the cursor
 ```
 
 ### Motions
@@ -1280,7 +1285,7 @@ For more information check `:help registers`
 "-   Black Hole register(AKA /dev/null)
 "/   Search pattern register
 
-"=   Expression register
+"=   Expression register, this is not really a register that stores text, but is a way to use an expression in commands which use a register
 ```
 
 ## Marker
@@ -1636,6 +1641,7 @@ q                    Stop macro recording
 
 :'<,'>norm! @{nrg}   Execute macro from named register {nrg} on each selected lines
 
+qaA !!Warn!!+@aq   Recursive macro, useful if you want to apply a macro to all lines
 ```
 
 # Development
