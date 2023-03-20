@@ -145,6 +145,7 @@
         * [Options](#options-8)
     * [Tips](#tips)
         * [NORMAL MODE](#normal-mode-8)
+        * [Complex examples](#complex-examples)
         * [Shell](#shell)
             * [Shell VI NORMAL MODE](#shell-vi-normal-mode)
         * [COMMAND MODE](#command-mode-13)
@@ -320,6 +321,8 @@ For more information about _Text objects_ check `:help text-objects`
 $           To the end of the line
 0           To the begining of the line
 
+{n}|        To the n-th column
+
 /{pt}       To the first word that match pattern {pt} forward
 ?{pt}       To the first word that match pattern {pt} backward
 
@@ -328,14 +331,14 @@ F{ch}       To the previous occurrence of character {ch} on the current line
 t{ch}       Before the next occurrence of character {ch} on the current line
 T{ch}       After the previous occurrence of character {ch} on the current line
 
-(			sentences backward
-)			sentences forward
-{			paragraphs backward
-}			paragraphs forward
-]]			sections forward or to the next "{" in the first column. When used after an operator, then also stops below a "}" in the first column
-][			sections forward or to the next '}' in the first column
-[[			sections backward or to the previous "{" in the first column
-[]			sections backward or to the previous "}" in the first column
+(           Sentences backward
+)           Sentences forward
+{           Paragraphs backward
+}           Paragraphs forward
+]]          Sections forward or to the next "{" in the first column. When used after an operator, then also stops below a "}" in the first column
+][          Sections forward or to the next '}' in the first column
+[[          Sections backward or to the previous "{" in the first column
+[]          Sections backward or to the previous "}" in the first column
 ```
 
 ## Pattern
@@ -839,6 +842,9 @@ g,         Goto the next change position
 
 For more information check `:help ex-cmd-index`
 
+You can use the `|` to execute more than one command  
+Ex: `:%s;-;0;g|%s;$;],;`
+
 ### Special key
 
 Use **[CTRL]+V** to get special key:
@@ -1084,6 +1090,8 @@ ESC                     Exit INSERT MODE
 [CTRL]+C                Exit INSERT MODE
 
 [CTRL]+O                Execute one command, return to INSERT MODE
+
+[CTRL]+@                Insert previously insered text and Exit INSERT MODE
 ```
 
 ### Insert and Delete
@@ -1119,6 +1127,8 @@ ESC                     Exit INSERT MODE
 
 [CTRL]+E                 Insert the character of the line below the cursor
 [CTRL]+Y                 Insert the character of the line above the cursor
+
+<DEL>                    If used on the last character of the line, join the 2 lines
 ```
 
 ### Motions
@@ -1153,6 +1163,8 @@ _Start from NORMAL MODE_
 v          Start visual mode
 V          Start visual mode linewise
 [CTRL]+V   Start visual mode blockwise
+
+gv         Start Visual mode with the same area as the previous area and the same mode
 ```
 
 _Stop from VISUAL MODE_
@@ -2142,6 +2154,19 @@ K                               Open the man page with the word under the cursor
 :%!python -m json.tool          JSON pretty print with Python
 
 :/<table>/,/<\/table>/g/^$/d    Delete empty line(^$) between tag <table>
+
+```
+
+### Complex examples
+
+```
+:%s;\v\d+\.\d+;\=printf('%.05f,',str2float(submatch(0))/100);g  Divide all floating point number in the buffer by 100
+
+cGLetters = {<CR>  <C-R>"<C-U>}<Esc>qa-s""<Esc>PWC<C-R>=<C-R>"<BS>/100<CR>0,<Esc>d15|qx25@aZZ
+    cG                          Change everything in the buffer (Clear all and INSERT MODE)
+    s""<Esc>P                   To surround a character with ""
+    C<C-R>=<C-R>"<BS>/100<CR>   Cut a float and divide by 100 (Great use of Expression register in INSERT MODE)
+    d15|                        Delete all characters from the cursor to column 15 of the current line
 ```
 
 ### Shell
