@@ -22,6 +22,7 @@
     * [General Form of VI commands](#general-form-of-vi-commands)
     * [Text object](#text-object)
     * [Pattern](#pattern)
+        * [Atom](#atom)
         * [Regular expression delimiter](#regular-expression-delimiter)
         * [Regular expression metacharacters](#regular-expression-metacharacters)
         * [Regular expression character class](#regular-expression-character-class)
@@ -344,6 +345,50 @@ T{ch}       After the previous occurrence of character {ch} on the current line
 ## Pattern
 
 For a global **Pattern** description check `:help pattern.txt`
+
+### Atom
+
+For more information about **pattern atom** check `:help pattern-atoms`
+
+| Atom   | Description                                                    |
+| ------ | -------------------------------------------------------------- |
+| ^      | At beginning of pattern                                        |
+| \^     | Matches literal '^'                                            |
+| \_^    | Matches start-of-line                                          |
+| $      | At end of pattern                                              |
+| \$     | Matches literal '$'                                            |
+| \_$    | Matches end-of-line                                            |
+| .      | Matches any single character, but not an end-of-line.          |
+| \_.    | Matches any single character or end-of-line                    |
+| \<     | Matches the beginning of a word                                |
+| \>     | Matches the end of a word                                      |
+| \zs    | Matches at any position, and sets the start of the match there |
+| \ze    | Matches at any position, and sets the end of the match there   |
+| \%^    | Matches start of the file                                      |
+| \%$    | Matches end of the file                                        |
+| \%V    | Match inside the Visual area                                   |
+| \%#    | Matches with the cursor position                               |
+| \%'m   | Matches with the position of mark m                            |
+| \%<'m  | Matches before the position of mark m                          |
+| \%>'m  | Matches after the position of mark m                           |
+| \%23l  | Matches in a specific line                                     |
+| \%<23l | Matches above a specific line (lower line number)              |
+| \%>23l | Matches below a specific line (higher line number)             |
+| \%.l   | Matches at the cursor line                                     |
+| \%<.l  | Matches above the cursor line                                  |
+| \%>.l  | Matches below the cursor line                                  |
+| \%23c  | Matches in a specific column                                   |
+| \%<23c | Matches before a specific column                               |
+| \%>23c | Matches after a specific column                                |
+| \%.c   | Matches at the cursor column                                   |
+| \%<.c  | Matches before the cursor column                               |
+| \%>.c  | Matches after the cursor column                                |
+| \%23v  | Matches in a specific virtual column                           |
+| \%<23v | Matches before a specific virtual column                       |
+| \%>23v | Matches after a specific virtual column                        |
+| \%.v   | Matches at the current virtual column                          |
+| \%<.v  | Matches before the current virtual column                      |
+| \%>.v  | Matches after the current virtual column                       |
 
 ### Regular expression delimiter
 
@@ -2167,6 +2212,16 @@ cGLetters = {<CR>  <C-R>"<C-U>}<Esc>qa-s""<Esc>PWC<C-R>=<C-R>"<BS>/100<CR>0,<Esc
     s""<Esc>P                   To surround a character with ""
     C<C-R>=<C-R>"<BS>/100<CR>   Cut a float and divide by 100 (Great use of Expression register in INSERT MODE)
     d15|                        Delete all characters from the cursor to column 15 of the current line
+
+More shorter version
+Oletters = {<C-End><CR>}<Esc>qa-s "<Left><C-@>p100<C-A>l2XpB<C-X>$xr,qx25@aZZ
+    s "<Left><C-@>   Very clever version to write:'  ""' (3 keys instead of 4)
+    100<C-A>         Add 100 to the first number found on the line
+
+20@='Ywg#PJgnxf D+'<CR>ZZ
+    @=''   Tricky use of the expression register to use like a macro
+    g#     Search backward the word under the cursor
+    gn     
 ```
 
 ### Shell
