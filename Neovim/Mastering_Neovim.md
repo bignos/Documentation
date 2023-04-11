@@ -209,7 +209,7 @@
 
 To get more information about the difference between VI and VIM check `:help vi-differences`
 
-To get more information about the difference between VIM and Neovim check `:help *vim-differences`
+To get more information about the difference between VIM and Neovim check `:help vim-differences`
 
 ## COMMAND LINE
 
