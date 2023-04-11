@@ -24,6 +24,7 @@
     * [Pattern](#pattern)
         * [Atom](#atom)
         * [Regular expression delimiter](#regular-expression-delimiter)
+        * [Magic modifiers](#magic-modifiers)
         * [Regular expression metacharacters](#regular-expression-metacharacters)
         * [Regular expression character class](#regular-expression-character-class)
             * [POSIX character classes](#posix-character-classes)
@@ -168,6 +169,7 @@
 
 - [Neovim](https://neovim.io/)
 - [VIM FAQ](https://vimhelp.org/vim_faq.txt.html)
+- [VIM Reference Guide](https://learnbyexample.github.io/vim_reference/)
 - [VIM TIPS WIKI](https://vim.fandom.com/wiki/Vim_Tips_Wiki)
 - [OpenVIM](https://www.openvim.com/)
 - [VIM adventure](https://vim-adventures.com/)
@@ -346,6 +348,8 @@ T{ch}       After the previous occurrence of character {ch} on the current line
 
 For a global **Pattern** description check `:help pattern.txt`
 
+For a good documentation check [Vim Reference Guide](https://learnbyexample.github.io/vim_reference/Regular-Expressions.html)
+
 ### Atom
 
 For more information about **pattern atom** check `:help pattern-atoms`
@@ -392,9 +396,24 @@ For more information about **pattern atom** check `:help pattern-atoms`
 
 ### Regular expression delimiter
 
+For more information check `:help pattern-delimiter`
+
 > Besides the **/** character, you may use any non alphanumeric, non space character as your delimiter.
 >
 > EXCEPT **\\**, **"** or **\|**
+
+### Magic modifiers
+
+For more information check `:help magic`
+
+| Metacharacter | Description                           |
+| ------------- | ------------------------------------- |
+| \\m           | Magic mode (Default setting)          |
+| \\M           | Non Magic mode                        |
+| \\v           | Very Magic mode (like classic regexp) |
+| \\V           | Very Non Magic mode                   |
+| \\c           | Case insensitive search               |
+| \\C           | Case sensitive search                 |
 
 ### Regular expression metacharacters
 
@@ -2221,7 +2240,7 @@ Oletters = {<C-End><CR>}<Esc>qa-s "<Left><C-@>p100<C-A>l2XpB<C-X>$xr,qx25@aZZ
 20@='Ywg#PJgnxf D+'<CR>ZZ
     @=''   Tricky use of the expression register to use like a macro
     g#     Search backward the word under the cursor
-    gn     
+    gn
 ```
 
 ### Shell
