@@ -179,7 +179,7 @@
 - **{n}** Number
 - **{ch}** A character
 - **{CH}** An uppercase character
-- **{sk}** Special key (Like <BS>, <Return>, ..)
+- **{sk}** Special key (Like \<BS\>, \<Return\>, ..)
 - **{to}** Text Object
 - **{mo}** Motion
 - **{rg}** Register
