@@ -173,6 +173,7 @@
 - [VIM TIPS WIKI](https://vim.fandom.com/wiki/Vim_Tips_Wiki)
 - [OpenVIM](https://www.openvim.com/)
 - [VIM adventure](https://vim-adventures.com/)
+- [Best of Vim Tips](http://www.rayninfo.co.uk/vimtips.html)
 
 ## Abbreviations
 
@@ -551,16 +552,17 @@ More information about the help command with `:help helphelp.txt`
 
 ### Context
 
-| Prefix | Example        | Context         |
-| ------ | -------------- | --------------- |
-| :      | :help :r       | EX command      |
-| none   | :help r        | NORMAL MODE     |
-| v\_    | :help v_r      | VISUAL MODE     |
-| i\_    | :help i_CTRL-W | INSERT MODE     |
-| C\_    | :help c_CTRL-R | EX command line |
-| /      | :help /\r      | Search pattern  |
-| '      | :help 'ro'     | Option          |
-| -      | :help -r       | Vim argument    |
+| Prefix | Example        | Context            |
+| ------ | -------------- | ------------------ |
+| :      | :help :r       | EX command         |
+| none   | :help r        | NORMAL MODE        |
+| v\_    | :help v_r      | VISUAL MODE        |
+| i\_    | :help i_CTRL-W | INSERT MODE        |
+| C\_    | :help c_CTRL-R | EX command line    |
+| /      | :help /\r      | Search pattern     |
+| s/     | :help s/\&     | Substitution flags |
+| '      | :help 'ro'     | Option             |
+| -      | :help -r       | Vim argument       |
 
 ### Navigation
 
@@ -579,6 +581,11 @@ gO         Table of content
 
 ```
 :help!                    Help for Help
+
+:help index               Index of every command in every mode
+:help normal-             Index of every NORMAL MODE command
+:help insert-             Index of every INSERT MODE command
+
 :help autocmd             How to use autocmd
 :help co                  Comment format option
 :help compiler            How you can compile in vim
