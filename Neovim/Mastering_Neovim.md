@@ -2384,4 +2384,4 @@ Check [Vim/Neovim Plugins for Writing](https://alpha2phi.medium.com/vim-neovim-p
 | [**VimAwesome**](https://vimawesome.com/)                                             | The VIM plugins search engine                                                       |
 | [**Awesome Neovim**](https://github.com/rockerBOO/awesome-neovim)                     | List of Neovim plugins by category                                                  |
 | [**Neovim plugins blog**](https://www.barbarianmeetscoding.com/notes/neovim-plugins/) | Tutorial for most populars neovim plugins with a good start for using Lua on Neovim |
-| [**This Week In Neovim**](https://this-week-in-neovim.org/)                           | Weekly news about Neovim                                                            |
+| [**This Week In Neovim**](https://dotfyle.com/this-week-in-neovim)                    | Weekly news about Neovim                                                            |
